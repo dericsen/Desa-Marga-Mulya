@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import { StatView } from "@/components/charts";
+import { Section } from "@/components/site/Section";
 import { BeritaCard, Img, PotensiCard, SectionHeading } from "@/components/site/ui";
 import { VillageMap } from "@/components/site/VillageMap";
 import type { IconName } from "@/lib/categories";
@@ -27,30 +28,28 @@ export default async function BerandaPage() {
     getLokasi(),
   ]);
 
-  const unggulan = potensi.filter((p) => p.unggulan).slice(0, 6);
-  const sorotan = [
-    statistik.find((s) => /mata pencaharian/i.test(s.judul)),
-    statistik.find((s) => /penggunaan lahan/i.test(s.judul)),
-  ].filter((s): s is NonNullable<typeof s> => Boolean(s));
-  const sorotanData = sorotan.length ? sorotan : statistik.slice(0, 2);
+  const unggulan = potensi.filter((p) => p.unggulan).slice(0, 3);
+  const utama = statistik.find((s) => /mata pencaharian/i.test(s.judul)) ?? statistik[0];
+  const pendukung = statistik.filter((s) => s.id !== utama?.id && (s.tipe_grafik === "donut" || s.tipe_grafik === "tabel")).slice(0, 3);
 
   return (
     <>
-      {/* Hero */}
+      {/* ===== Hero ===== */}
       <section className="relative isolate overflow-hidden bg-brand-950">
-        <Img src={site.heroGambar} alt="" className="absolute inset-0 -z-10 h-full w-full opacity-70" />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-950/95 via-brand-900/75 to-brand-900/20" aria-hidden="true" />
-        <div className="container-desa py-20 sm:py-28 lg:py-32">
-          <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-brand-50 ring-1 ring-white/20 backdrop-blur">
+        <Img src={site.heroGambar} alt="" className="absolute inset-0 -z-10 h-full w-full opacity-80" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-tr from-brand-950 via-brand-950/85 to-transparent" aria-hidden="true" />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-stone-50 to-transparent" aria-hidden="true" />
+        <div className="container-desa pt-24 pb-32 sm:pt-28 sm:pb-40 lg:pt-32">
+          <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-brand-50 ring-1 ring-white/20 backdrop-blur">
             <Icon name="pin" className="h-3.5 w-3.5" />
             Kec. {site.kecamatan}, Kab. {site.kabupaten}, {site.provinsi}
           </p>
-          <h1 className="mt-5 max-w-3xl text-4xl leading-tight font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h1 className="mt-6 max-w-3xl text-4xl leading-[1.05] font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
             {site.heroJudul}
           </h1>
-          {site.heroDeskripsi ? <p className="mt-5 max-w-2xl text-lg text-brand-50/90">{site.heroDeskripsi}</p> : null}
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/profil" className="btn bg-sun-400 px-5 py-3 text-stone-900 hover:bg-sun-500">
+          {site.heroDeskripsi ? <p className="mt-6 max-w-xl text-lg leading-relaxed text-brand-50/90">{site.heroDeskripsi}</p> : null}
+          <div className="mt-9 flex flex-wrap gap-3">
+            <Link href="/profil" className="btn bg-sun-400 px-5 py-3 text-stone-900 shadow-lg shadow-sun-500/20 hover:bg-sun-500">
               Kenali Desa Kami <Icon name="arrow" className="h-4 w-4" />
             </Link>
             <Link href="/informasi" className="btn bg-white/10 px-5 py-3 text-white ring-1 ring-white/30 backdrop-blur hover:bg-white/20">
@@ -60,143 +59,180 @@ export default async function BerandaPage() {
         </div>
       </section>
 
-      {/* Angka kunci */}
+      {/* ===== Angka kunci (menimpa hero) ===== */}
       {site.angkaKunci.length ? (
-        <section aria-label="Angka kunci desa" className="container-desa relative z-10 -mt-10">
-          <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <div className="container-desa relative z-10 -mt-24 sm:-mt-28">
+          <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-3xl bg-stone-200/70 shadow-xl shadow-brand-950/10 ring-1 ring-stone-200/70 lg:grid-cols-4">
             {site.angkaKunci.map((a, i) => (
-              <li key={i} className="card p-5">
-                <p className="text-2xl font-extrabold text-brand-800 sm:text-3xl">{a.nilai}</p>
-                <p className="mt-1 text-sm text-stone-600">{a.label}</p>
+              <li key={i} className="bg-white p-6">
+                <p className="text-3xl font-extrabold tracking-tight text-brand-800 sm:text-4xl">{a.nilai}</p>
+                <p className="mt-1.5 text-sm font-medium text-stone-500">{a.label}</p>
               </li>
             ))}
           </ul>
-        </section>
+        </div>
       ) : null}
 
-      {/* Sambutan */}
-      {site.sambutan ? (
-        <section className="container-desa mt-16 grid items-center gap-8 md:grid-cols-[220px_1fr]">
-          <div className="mx-auto w-44 md:w-full">
-            {site.fotoKepalaDesa ? (
-              <img src={site.fotoKepalaDesa} alt={`Foto ${site.namaKepalaDesa}`} className="aspect-square w-full rounded-3xl object-cover shadow-md" />
-            ) : (
-              <div className="grid aspect-square w-full place-items-center rounded-3xl bg-gradient-to-br from-brand-100 to-brand-200 text-brand-700" aria-hidden="true">
-                <Icon name="user" className="h-20 w-20" />
+      {/* ===== Sambutan + akses cepat ===== */}
+      <Section size="band-lg">
+        <div className="grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-start">
+          {site.sambutan ? (
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+              <div className="mx-auto w-36 shrink-0 sm:mx-0">
+                {site.fotoKepalaDesa ? (
+                  <img src={site.fotoKepalaDesa} alt={`Foto ${site.namaKepalaDesa}`} className="aspect-[4/5] w-full rounded-2xl object-cover shadow-md ring-1 ring-stone-200" />
+                ) : (
+                  <div className="grid aspect-[4/5] w-full place-items-center rounded-2xl bg-gradient-to-br from-brand-100 to-brand-200 text-brand-600 ring-1 ring-brand-200" aria-hidden="true">
+                    <Icon name="user" className="h-16 w-16" />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div>
-            <p className="eyebrow">Sambutan Kepala Desa</p>
-            <blockquote className="mt-3 text-lg leading-relaxed text-stone-700 sm:text-xl">“{site.sambutan}”</blockquote>
-            {site.namaKepalaDesa ? (
-              <p className="mt-4 font-bold text-stone-900">
-                {site.namaKepalaDesa}
-                <span className="block text-sm font-normal text-stone-500">Kepala Desa {site.namaDesa}</span>
-              </p>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
+              <div>
+                <p className="flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-brand-600 uppercase">
+                  <span className="h-px w-6 bg-brand-400" aria-hidden="true" /> Sambutan Kepala Desa
+                </p>
+                <blockquote className="mt-4 text-lg leading-relaxed text-stone-700">
+                  <span className="mr-1 text-3xl leading-none font-serif text-brand-300 align-top">“</span>
+                  {site.sambutan}”
+                </blockquote>
+                {site.namaKepalaDesa ? (
+                  <p className="mt-4 font-bold text-stone-900">
+                    {site.namaKepalaDesa}
+                    <span className="block text-sm font-normal text-stone-500">Kepala Desa {site.namaDesa}</span>
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
 
-      {/* Akses cepat */}
-      <section className="container-desa mt-20" aria-labelledby="akses-cepat">
-        <h2 id="akses-cepat" className="sr-only">Akses cepat</h2>
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {AKSES.map((a) => (
-            <li key={a.href}>
-              <Link href={a.href} className="card flex h-full flex-col gap-3 p-4 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-brand-300">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-700">
-                  <Icon name={a.icon} />
-                </span>
-                <span>
-                  <span className="block font-bold text-stone-900">{a.label}</span>
-                  <span className="block text-xs text-stone-500">{a.desc}</span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+          <nav aria-label="Akses cepat" className="lg:pt-2">
+            <p className="mb-4 flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-brand-600 uppercase">
+              <span className="h-px w-6 bg-brand-400" aria-hidden="true" /> Jelajahi Desa
+            </p>
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {AKSES.map((a) => (
+                <li key={a.href}>
+                  <Link href={a.href} className="card-hover flex h-full flex-col gap-3 p-4">
+                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-700">
+                      <Icon name={a.icon} className="h-[18px] w-[18px]" />
+                    </span>
+                    <span>
+                      <span className="block text-sm font-bold text-stone-900">{a.label}</span>
+                      <span className="mt-0.5 block text-xs leading-snug text-stone-500">{a.desc}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </Section>
 
-      {/* Sorotan data */}
-      {sorotanData.length ? (
-        <section className="container-desa mt-20">
-          <SectionHeading eyebrow="Data Desa" title="Sekilas Data Marga Mulya" description="Data dikelola langsung oleh pemerintah desa melalui CMS dan diperbarui secara berkala." action={{ href: "/informasi", label: "Lihat semua data" }} />
-          <div className="grid gap-5 lg:grid-cols-2">
-            {sorotanData.map((s) => (
-              <article key={s.id} className="card p-6">
-                <h3 className="font-bold text-stone-900">{s.judul}</h3>
-                {s.tahun ? <p className="text-xs text-stone-500">Tahun {s.tahun}</p> : null}
-                <div className="mt-5">
-                  <StatView stat={s} />
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {/* Potensi */}
-      {unggulan.length ? (
-        <section className="mt-20 bg-brand-50/60 py-16">
-          <div className="container-desa">
-            <SectionHeading eyebrow="Potensi Desa" title="Wisata, Budaya & Produk Unggulan" description="Dukung ekonomi warga dengan mengunjungi destinasi dan membeli produk lokal Marga Mulya." action={{ href: "/potensi", label: "Semua potensi" }} />
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {unggulan.map((p) => (
-                <PotensiCard key={p.id} item={p} />
+      {/* ===== Sorotan data: satu cerita utama + pendukung ===== */}
+      {utama ? (
+        <Section tone="surface">
+          <SectionHeading
+            eyebrow="Data Desa"
+            title="Sekilas Data Marga Mulya"
+            description="Seluruh data dikelola langsung oleh pemerintah desa melalui CMS dan diperbarui berkala — bukan angka statis."
+            action={{ href: "/informasi", label: "Lihat semua data" }}
+          />
+          <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+            <article className="rounded-2xl bg-gradient-to-br from-brand-800 to-brand-600 p-7 text-white shadow-lg shadow-brand-900/20 sm:p-8">
+              <p className="text-xs font-bold tracking-widest text-brand-200 uppercase">{utama.tahun ? `Tahun ${utama.tahun}` : "Sorotan"}</p>
+              <h3 className="mt-1 text-xl font-bold">{utama.judul}</h3>
+              <div className="mt-6 rounded-xl bg-white/95 p-5 text-stone-800">
+                <StatView stat={utama} />
+              </div>
+              {utama.deskripsi ? <p className="mt-4 text-sm text-brand-50/85">{utama.deskripsi}</p> : null}
+            </article>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+              {pendukung.map((s) => (
+                <article key={s.id} className="card flex flex-col p-5">
+                  <h3 className="text-sm font-bold text-stone-900">{s.judul}</h3>
+                  <div className="mt-3 flex-1">
+                    <StatView stat={s} />
+                  </div>
+                </article>
               ))}
             </div>
           </div>
-        </section>
+        </Section>
       ) : null}
 
-      {/* Berita */}
+      {/* ===== Potensi ===== */}
+      {unggulan.length ? (
+        <Section tone="brand-soft">
+          <SectionHeading
+            eyebrow="Potensi Desa"
+            title="Wisata, Budaya & Produk Unggulan"
+            description="Dukung ekonomi warga dengan mengunjungi destinasi dan membeli produk lokal Marga Mulya."
+            action={{ href: "/potensi", label: "Semua potensi" }}
+          />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {unggulan.map((p) => (
+              <PotensiCard key={p.id} item={p} />
+            ))}
+          </div>
+        </Section>
+      ) : null}
+
+      {/* ===== Berita ===== */}
       {berita.length ? (
-        <section className="container-desa mt-20">
+        <Section>
           <SectionHeading eyebrow="Kabar Desa" title="Berita & Kegiatan Terbaru" action={{ href: "/berita", label: "Semua berita" }} />
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-3">
             {berita.map((b) => (
               <BeritaCard key={b.id} item={b} />
             ))}
           </div>
-        </section>
+        </Section>
       ) : null}
 
-      {/* Galeri */}
+      {/* ===== Galeri ===== */}
       {galeri.length ? (
-        <section className="container-desa mt-20">
+        <Section tone="surface">
           <SectionHeading eyebrow="Galeri" title="Potret Desa" action={{ href: "/galeri", label: "Buka galeri" }} />
-          <ul className="grid grid-cols-2 gap-3 md:grid-cols-3">
+          <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
             {galeri.slice(0, 6).map((g, i) => (
-              <li key={g.id} className={i === 0 ? "col-span-2 row-span-2 md:col-span-1" : ""}>
-                <Link href="/galeri" className="group relative block h-full overflow-hidden rounded-2xl">
-                  <Img src={g.gambar} alt={g.judul} className="aspect-[4/3] h-full w-full transition duration-300 group-hover:scale-105" />
-                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-sm font-semibold text-white">{g.judul}</span>
+              <li key={g.id} className={i === 0 ? "col-span-2 row-span-2" : ""}>
+                <Link href="/galeri" className="group relative block h-full overflow-hidden rounded-2xl ring-1 ring-stone-200/70">
+                  <Img src={g.gambar} alt={g.judul} className={`h-full w-full transition duration-500 group-hover:scale-105 ${i === 0 ? "aspect-square md:aspect-auto" : "aspect-square"}`} />
+                  <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent" aria-hidden="true" />
+                  <span className="absolute inset-x-0 bottom-0 p-3 text-sm font-semibold text-white">{g.judul}</span>
                 </Link>
               </li>
             ))}
           </ul>
-        </section>
+        </Section>
       ) : null}
 
-      {/* Peta & kontak */}
-      <section className="container-desa mt-20 grid gap-8 lg:grid-cols-[1fr_380px]">
-        <div>
-          <SectionHeading eyebrow="Peta Desa" title="Lokasi Penting di Marga Mulya" />
-          <VillageMap center={[site.lat, site.lng]} lokasi={lokasi} height="380px" />
-        </div>
-        <aside className="card flex flex-col justify-between bg-gradient-to-br from-brand-800 to-brand-600 p-7 text-white ring-0">
+      {/* ===== Peta & kontak ===== */}
+      <Section size="band-lg">
+        <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
           <div>
-            <Icon name="chat" className="h-9 w-9 text-brand-200" />
-            <h2 className="mt-4 text-2xl font-extrabold">Punya pertanyaan atau aspirasi?</h2>
-            <p className="mt-2 text-brand-50/90">Sampaikan langsung kepada pemerintah desa melalui formulir kontak, atau tanyakan kepada asisten AI <strong>Tanya Desa</strong> di pojok kanan bawah.</p>
+            <SectionHeading eyebrow="Peta Desa" title="Lokasi Penting di Marga Mulya" />
+            <VillageMap center={[site.lat, site.lng]} lokasi={lokasi} height="420px" />
           </div>
-          <Link href="/kontak" className="btn mt-6 bg-white text-brand-800 hover:bg-brand-50">
-            Hubungi Kantor Desa <Icon name="arrow" className="h-4 w-4" />
-          </Link>
-        </aside>
-      </section>
+          <aside className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-brand-900 p-8 text-white">
+            <svg className="absolute -right-8 -bottom-8 h-48 w-48 text-white/5" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+              <circle cx="50" cy="50" r="50" />
+            </svg>
+            <div className="relative">
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-sun-400">
+                <Icon name="chat" className="h-6 w-6" />
+              </span>
+              <h2 className="mt-5 text-2xl font-extrabold">Punya pertanyaan atau aspirasi?</h2>
+              <p className="mt-3 text-brand-50/85">
+                Sampaikan langsung kepada pemerintah desa melalui formulir kontak, atau tanyakan ke asisten AI <strong className="font-bold text-white">Tanya Desa</strong> di pojok kanan bawah.
+              </p>
+            </div>
+            <Link href="/kontak" className="btn relative mt-8 bg-white text-brand-800 hover:bg-brand-50">
+              Hubungi Kantor Desa <Icon name="arrow" className="h-4 w-4" />
+            </Link>
+          </aside>
+        </div>
+      </Section>
     </>
   );
 }

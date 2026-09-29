@@ -295,7 +295,7 @@ export const berita = [
     slug: "pelatihan-pemasaran-digital-umkm",
     kategori: "kegiatan",
     tanggal: "2026-08-10",
-    gambar: "/img/umkm.svg",
+    gambar: "/img/produk-kerupuk.svg",
     ringkasan: "Tiga puluh pelaku UMKM belajar foto produk, penulisan deskripsi, dan berjualan melalui marketplace serta WhatsApp Business.",
     konten:
       "Sebanyak **30 pelaku UMKM** mengikuti pelatihan pemasaran digital yang diselenggarakan pemerintah desa bersama BUMDes.\n\nMateri meliputi:\n\n1. Teknik foto produk menggunakan ponsel\n2. Menulis deskripsi produk yang menarik\n3. Berjualan melalui marketplace dan WhatsApp Business\n4. Pencatatan keuangan sederhana\n\nProduk UMKM peserta kini juga ditampilkan di halaman **Potensi Desa** pada website ini.",
@@ -329,7 +329,7 @@ export const galeri = [
   { judul: "Kantor Desa Marga Mulya", album: "Pemerintahan", gambar: "/img/kantor-desa.svg", deskripsi: "Pusat pelayanan administrasi warga.", tanggal: "2026-07-01", urutan: 4 },
   { judul: "Posyandu Serentak", album: "Kegiatan Warga", gambar: "/img/posyandu.svg", deskripsi: "Penimbangan balita oleh kader posyandu.", tanggal: "2026-09-08", urutan: 5 },
   { judul: "Kerja Bakti Saluran Irigasi", album: "Kegiatan Warga", gambar: "/img/gotong-royong.svg", deskripsi: "Gotong royong warga menjelang musim tanam.", tanggal: "2026-07-19", urutan: 6 },
-  { judul: "Produk UMKM Olahan Ikan", album: "Potensi Desa", gambar: "/img/umkm.svg", deskripsi: "Kerupuk ikan, bandeng presto, dan ikan asin buatan warga.", tanggal: "2026-08-10", urutan: 7 },
+  { judul: "Produk UMKM Olahan Ikan", album: "Potensi Desa", gambar: "/img/produk-bandeng.svg", deskripsi: "Kerupuk ikan, bandeng presto, dan ikan asin buatan warga.", tanggal: "2026-08-10", urutan: 7 },
   { judul: "Musrenbangdes 2027", album: "Pemerintahan", gambar: "/img/musyawarah.svg", deskripsi: "Musyawarah perencanaan pembangunan desa.", tanggal: "2026-09-15", urutan: 8 },
   { judul: "Latihan Pencak Silat Remaja", album: "Budaya", gambar: "/img/silat.svg", deskripsi: "Latihan rutin pencak silat di lapangan desa.", tanggal: "2026-08-17", urutan: 9 },
 ];
@@ -345,11 +345,11 @@ export const potensi = [
   { tipe: "budaya", nama: "Karnaval dan Pesta Rakyat HUT RI", unggulan: false, urutan: 2, gambar: "/img/gotong-royong.svg", deskripsi: "Setiap Agustus warga menggelar karnaval, lomba tradisional seperti panjat pinang dan balap karung, serta pentas seni antar-RW." },
   { tipe: "budaya", nama: "Sanggar Tari Kreasi Anak", unggulan: false, urutan: 3, gambar: "/img/musyawarah.svg", deskripsi: "Sanggar seni tempat anak-anak belajar tari kreasi dan tari tradisional Nusantara untuk tampil di acara desa maupun lomba antar-kecamatan." },
   // M. UMKM & Produk Lokal
-  { tipe: "umkm", nama: "Bandeng Presto Mulya", unggulan: true, urutan: 1, gambar: "/img/umkm.svg", harga: "Rp45.000 / 500 gr", kontak: "6281200000001", alamat: "RT 02/RW 01", deskripsi: "Bandeng presto duri lunak dari bandeng tambak desa, diolah higienis dan tahan hingga 3 hari tanpa pengawet." },
-  { tipe: "umkm", nama: "Kerupuk Ikan Bu Enah", unggulan: true, urutan: 2, gambar: "/img/umkm.svg", harga: "Rp20.000 / 250 gr", kontak: "6281200000002", alamat: "RT 05/RW 02", deskripsi: "Kerupuk ikan renyah dengan rasa gurih alami, tersedia mentah maupun siap santap." },
-  { tipe: "umkm", nama: "Ikan Asin dan Terasi Pesisir", unggulan: false, urutan: 3, gambar: "/img/pesisir.svg", harga: "Mulai Rp15.000", kontak: "6281200000003", alamat: "RT 01/RW 06", deskripsi: "Ikan asin dan terasi udang rebon hasil tangkapan nelayan setempat, dijemur alami di bawah sinar matahari." },
-  { tipe: "umkm", nama: "Anyaman Bambu Marga Mulya", unggulan: false, urutan: 4, gambar: "/img/anyaman.svg", harga: "Rp25.000 – Rp150.000", kontak: "6281200000004", alamat: "RT 03/RW 04", deskripsi: "Bakul, tampah, dan hiasan dinding dari anyaman bambu buatan tangan pengrajin desa. Menerima pesanan souvenir." },
-  { tipe: "umkm", nama: "Beras Sawah Mulya", unggulan: false, urutan: 5, gambar: "/img/sawah.svg", harga: "Rp68.000 / 5 kg", kontak: "6281200000005", alamat: "Gapoktan Marga Mulya", deskripsi: "Beras pulen hasil panen petani desa, dikemas oleh gabungan kelompok tani dan BUMDes." },
+  { tipe: "umkm", nama: "Bandeng Presto Mulya", unggulan: true, urutan: 1, gambar: "/img/produk-bandeng.svg", harga: "Rp45.000 / 500 gr", kontak: "6281200000001", alamat: "RT 02/RW 01", deskripsi: "Bandeng presto duri lunak dari bandeng tambak desa, diolah higienis dan tahan hingga 3 hari tanpa pengawet." },
+  { tipe: "umkm", nama: "Kerupuk Ikan Bu Enah", unggulan: true, urutan: 2, gambar: "/img/produk-kerupuk.svg", harga: "Rp20.000 / 250 gr", kontak: "6281200000002", alamat: "RT 05/RW 02", deskripsi: "Kerupuk ikan renyah dengan rasa gurih alami, tersedia mentah maupun siap santap." },
+  { tipe: "umkm", nama: "Ikan Asin dan Terasi Pesisir", unggulan: false, urutan: 3, gambar: "/img/produk-ikan-asin.svg", harga: "Mulai Rp15.000", kontak: "6281200000003", alamat: "RT 01/RW 06", deskripsi: "Ikan asin dan terasi udang rebon hasil tangkapan nelayan setempat, dijemur alami di bawah sinar matahari." },
+  { tipe: "umkm", nama: "Anyaman Bambu Marga Mulya", unggulan: false, urutan: 4, gambar: "/img/produk-anyaman.svg", harga: "Rp25.000 – Rp150.000", kontak: "6281200000004", alamat: "RT 03/RW 04", deskripsi: "Bakul, tampah, dan hiasan dinding dari anyaman bambu buatan tangan pengrajin desa. Menerima pesanan souvenir." },
+  { tipe: "umkm", nama: "Beras Sawah Mulya", unggulan: false, urutan: 5, gambar: "/img/produk-beras.svg", harga: "Rp68.000 / 5 kg", kontak: "6281200000005", alamat: "Gapoktan Marga Mulya", deskripsi: "Beras pulen hasil panen petani desa, dikemas oleh gabungan kelompok tani dan BUMDes." },
 ];
 
 export const organisasi = [
