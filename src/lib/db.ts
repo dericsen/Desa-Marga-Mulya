@@ -10,9 +10,14 @@ function createClient(): postgres.Sql {
   if (!url) {
     throw new Error("DATABASE_URL belum diatur. Tambahkan koneksi database PostgreSQL pada environment variable.");
   }
-  const isLocal = /localhost|127\.0\.0\.1/.test(url);
+  // SSL dimatikan untuk database lokal, jaringan privat Railway (*.railway.internal),
+  // atau bila diminta lewat DB_SSL=false / sslmode=disable.
+  const noSsl =
+    process.env.DB_SSL === "false" ||
+    /sslmode=disable/.test(url) ||
+    /localhost|127\.0\.0\.1|\.railway\.internal/.test(url);
   return postgres(url, {
-    ssl: isLocal ? false : "require",
+    ssl: noSsl ? false : "require",
     max: 3,
     prepare: false,
     idle_timeout: 20,

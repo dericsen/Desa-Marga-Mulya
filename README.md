@@ -76,6 +76,23 @@ npm run dev                       # http://localhost:3000, CMS di /admin
 
 Status konfigurasi (AI, Blob, kunci sesi) dapat dicek di Dasbor CMS.
 
+## Deploy ke Railway (alternatif)
+
+> Catatan: ketentuan lomba mewajibkan URL **Vercel**. Railway bisa dipakai sebagai server cadangan atau untuk uji coba.
+
+Konfigurasi sudah tersedia di `railway.json`: build memakai `next build`, lalu saat server start migrasi + seed dijalankan dulu sebelum `next start`. Urutan ini dipakai karena jaringan privat Railway belum tersedia saat proses build.
+
+1. Di [railway.com](https://railway.com): *New Project → Deploy from GitHub repo*, lalu pilih repositori ini.
+2. Di proyek yang sama: *New → Database → PostgreSQL*.
+3. Buka service aplikasi → *Variables*, lalu tambahkan:
+   - `DATABASE_URL` = `${{Postgres.DATABASE_URL}}` (referensi ke database Railway)
+   - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`, dan opsional `GEMINI_API_KEY`
+4. *Settings → Networking → Generate Domain* untuk mendapatkan URL publik `*.up.railway.app`.
+
+SSL otomatis dimatikan untuk alamat `*.railway.internal`. Untuk database lain tanpa SSL, atur `DB_SSL=false`.
+
+Di Railway gambar tersimpan di database, karena Vercel Blob hanya tersedia di Vercel.
+
 ## Data desa
 
 - **Data nyata**: nama desa, kecamatan, kabupaten, provinsi, dan kode pos. Roemah Tjoen (tempat rekreasi di Desa Marga Mulya) dan Pantai Tanjung Kait (destinasi pantai terdekat) juga nyata.

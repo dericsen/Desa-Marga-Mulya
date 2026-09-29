@@ -11,8 +11,11 @@ if (!url) {
   process.exit(0);
 }
 
-const isLocal = /localhost|127\.0\.0\.1/.test(url);
-const sql = postgres(url, { ssl: isLocal ? false : "require", max: 1, prepare: false, onnotice: () => {} });
+const noSsl =
+  process.env.DB_SSL === "false" ||
+  /sslmode=disable/.test(url) ||
+  /localhost|127\.0\.0\.1|\.railway\.internal/.test(url);
+const sql = postgres(url, { ssl: noSsl ? false : "require", max: 1, prepare: false, onnotice: () => {} });
 
 const TABLES = ["pesan", "lokasi", "organisasi", "potensi", "galeri", "berita", "aparat", "statistik", "settings", "users"];
 

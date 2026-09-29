@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/migrate.mjs && next build",
+    "build:app": "next build",
     "start": "next start",
+    "start:railway": "node scripts/migrate.mjs && next start -H 0.0.0.0 -p ${PORT:-3000}",
     "typecheck": "tsc --noEmit",
     "db:setup": "node scripts/migrate.mjs",
     "db:reset": "node scripts/migrate.mjs --reset"
