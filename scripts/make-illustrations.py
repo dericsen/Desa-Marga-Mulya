@@ -93,19 +93,26 @@ def palm_silhouette(x, base_y, s, color):
 
 illus = {}
 
-# --- HERO: layered dawn over sawah & sea, palms as silhouette, generous sky ---
-defs = (linear("hsky", [(0, "#0c3f39"), (0.55, "#17715f"), (1, "#f2c777")])
-        + radial("hsun", [(0, "#ffe6a3"), (1, "#f6c454")], 0.78, 0.28, 0.5))
+# --- HERO: warm dawn over sawah & sea; clean sun, layered depth, twin palms ---
+defs = (linear("hsky", [(0, "#0b3b47"), (0.42, "#1c6f66"), (0.72, "#4f9e7e"), (1, "#f0c66a")])
+        + radial("hsun", [(0, "#fff2cc"), (0.55, "#ffd873"), (1, "#f4b942")], 0.5, 0.5, 0.5)
+        + radial("hglow", [(0, "#ffdf8f"), (1, "rgba(255,223,143,0)")], 0.5, 0.5, 0.5))
 body = (f'<rect width="{W}" height="{H}" fill="url(#hsky)"/>'
-        + sun(1230, 300, 120, "url(#hsun)")
-        + mist(360, 120, "#ffffff", 0.08)
-        + band(560, 26, 0.9, BRAND[6], 0.5, 11)
-        + band(620, 30, 1.1, BRAND[5], 0.85, 5)
-        + band(700, 34, 0.7, BRAND[4], 1.0, 8)
-        + band(800, 30, 1.3, BRAND[3], 1.0, 2)
-        + reeds(H, BRAND[1], 26, 4, 80, 220)
-        + palm_silhouette(180, 720, 1.15, BRAND[0])
-        + palm_silhouette(1420, 760, 0.95, BRAND[0]))
+        # matahari + halo hangat di kanan atas
+        + f'<circle cx="1230" cy="300" r="420" fill="url(#hglow)" opacity="0.7"/>'
+        + f'<circle cx="1230" cy="300" r="150" fill="url(#hsun)"/>'
+        + mist(360, 130, "#ffffff", 0.07)
+        # pita bukit & sawah, dari terang di belakang ke gelap di depan
+        + band(540, 24, 0.9, BRAND[7], 0.35, 11)
+        + band(600, 28, 1.1, BRAND[6], 0.7, 5)
+        + band(680, 30, 0.7, BRAND[5], 1.0, 8)
+        + band(770, 30, 1.2, BRAND[4], 1.0, 2)
+        + band(860, 26, 0.9, BRAND[3], 1.0, 14)
+        # sawah depan bertekstur + refleksi air tipis
+        + f'<rect x="0" y="905" width="{W}" height="{H-905}" fill="{BRAND[2]}"/>'
+        + reeds(H, BRAND[0], 30, 4, 90, 240)
+        + palm_silhouette(150, 760, 1.25, BRAND[0])
+        + palm_silhouette(1440, 800, 1.0, BRAND[0]))
 illus["hero-desa"] = wrap(defs, body, 7)
 
 # --- SAWAH: bright terraced rice fields ---

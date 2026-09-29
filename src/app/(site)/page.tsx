@@ -193,11 +193,11 @@ export default async function BerandaPage() {
       {galeri.length ? (
         <Section tone="surface">
           <SectionHeading eyebrow="Galeri" title="Potret Desa" action={{ href: "/galeri", label: "Buka galeri" }} />
-          <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+          <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:auto-rows-[168px] md:grid-cols-4 lg:auto-rows-[190px]">
             {galeri.slice(0, 6).map((g, i) => (
-              <li key={g.id} className={i === 0 ? "col-span-2 row-span-2" : ""}>
-                <Link href="/galeri" className="group relative block h-full overflow-hidden rounded-2xl ring-1 ring-stone-200/70">
-                  <Img src={g.gambar} alt={g.judul} className={`h-full w-full transition duration-500 group-hover:scale-105 ${i === 0 ? "aspect-square md:aspect-auto" : "aspect-square"}`} />
+              <li key={g.id} className={i === 0 ? "col-span-2 aspect-square md:col-span-2 md:row-span-2 md:aspect-auto" : "aspect-square md:aspect-auto"}>
+                <Link href="/galeri" className="group relative block h-full w-full overflow-hidden rounded-2xl ring-1 ring-stone-200/70">
+                  <Img src={g.gambar} alt={g.judul} className="absolute inset-0 h-full w-full transition duration-500 group-hover:scale-105" />
                   <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent" aria-hidden="true" />
                   <span className="absolute inset-x-0 bottom-0 p-3 text-sm font-semibold text-white">{g.judul}</span>
                 </Link>
