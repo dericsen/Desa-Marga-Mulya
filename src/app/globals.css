@@ -81,6 +81,10 @@ body {
 @utility meta {
   @apply text-sm text-muted tabular-nums;
 }
+@utility link {
+  @apply font-medium text-ink underline decoration-ink/30 underline-offset-4 transition-colors hover:decoration-ink;
+}
+
 /* Panel gelap membulat — penanda bagian utama, "melayang" di atas latar. */
 @utility band-dark {
   @apply bg-ink text-white;
