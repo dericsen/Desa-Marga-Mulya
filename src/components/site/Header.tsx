@@ -52,14 +52,14 @@ export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
             </span>
           </Link>
 
-          <nav aria-label="Navigasi utama" className="hidden h-full lg:block">
-            <ul className="flex h-full items-stretch gap-5 xl:gap-6">
+          <nav aria-label="Navigasi utama" className="hidden h-full xl:block">
+            <ul className="flex h-full items-stretch gap-6">
               {NAV.map((item) => (
                 <li key={item.href} className="flex">
                   <Link
                     href={item.href}
                     aria-current={isActive(item.href) ? "page" : undefined}
-                    className={`-mb-px flex items-center border-b-2 text-[0.9375rem] transition-colors ${
+                    className={`-mb-px flex items-center border-b-2 text-[0.9375rem] whitespace-nowrap transition-colors ${
                       isActive(item.href) ? "border-brand-700 font-semibold text-ink" : "border-transparent text-muted hover:text-ink"
                     }`}
                   >
@@ -73,7 +73,7 @@ export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
           <div className="flex items-center gap-1">
             <Link href="/cari" className="flex items-center gap-2 rounded-md px-2.5 py-2 text-sm text-muted hover:bg-line/50 hover:text-ink" aria-label="Cari informasi">
               <Icon name="search" className="h-[18px] w-[18px]" />
-              <span className="hidden xl:inline">Cari</span>
+              <span className="hidden sm:inline xl:hidden">Cari</span>
             </Link>
             {showCart ? (
               <button
@@ -89,7 +89,7 @@ export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
             ) : null}
             <button
               type="button"
-              className="rounded-md p-2 text-ink hover:bg-line/50 lg:hidden"
+              className="rounded-md p-2 text-ink hover:bg-line/50 xl:hidden"
               aria-expanded={open}
               aria-controls="menu-mobile"
               aria-label={open ? "Tutup menu" : "Buka menu"}
@@ -102,7 +102,7 @@ export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
       </div>
 
       {open ? (
-        <nav id="menu-mobile" aria-label="Navigasi seluler" className="h-[calc(100dvh-100px)] overflow-y-auto border-b border-line bg-paper lg:hidden">
+        <nav id="menu-mobile" aria-label="Navigasi seluler" className="h-[calc(100dvh-100px)] overflow-y-auto border-b border-line bg-paper xl:hidden">
           <ul className="container-desa divide-y divide-line py-2">
             {NAV.map((item) => (
               <li key={item.href}>

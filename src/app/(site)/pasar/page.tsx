@@ -182,7 +182,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
       {detail ? (
         <ProductDialog closeHref={href(base, {})} title={detail.nama}>
           <div className="grid md:grid-cols-2">
-            <Img src={detail.gambar} alt={detail.nama} className="aspect-square w-full md:rounded-l-md" />
+            <Img src={detail.gambar} alt={detail.nama} className="aspect-square w-full md:aspect-auto md:h-full md:min-h-[26rem] md:rounded-l-md" />
             <div className="flex flex-col p-6 sm:p-8">
               <Link href={href({}, { penjual: detail.penjual_slug })} className="text-sm text-muted hover:text-ink hover:underline">
                 {detail.penjual_nama}

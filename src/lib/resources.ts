@@ -151,7 +151,7 @@ export const RESOURCES: Resource[] = [
     icon: "inbox",
     description: "Pesanan dari Pasar Desa. Pembayaran dilakukan langsung ke penjual.",
     readonly: true,
-    orderBy: "created_at desc",
+    orderBy: "created_at desc, id desc",
     searchColumn: "kode",
     columns: [
       { name: "kode", label: "Kode" },

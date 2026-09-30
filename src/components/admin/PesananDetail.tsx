@@ -3,7 +3,7 @@ import { deleteResource, setPesananStatus } from "@/app/admin/actions";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { StatusForm } from "@/components/admin/StatusForm";
 import { Icon } from "@/components/Icon";
-import { PENGIRIMAN } from "@/lib/categories";
+import { PENGIRIMAN, PESANAN_STATUS } from "@/lib/categories";
 import { formatDateTime, formatRupiah, waLink } from "@/lib/format";
 import type { PesananItem } from "@/lib/types";
 
@@ -18,7 +18,10 @@ export function PesananDetail({ row, id }: { row: Record<string, unknown>; id: n
       <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-semibold text-ink tabular-nums">Pesanan {String(row.kode)}</h1>
-          <p className="mt-1 text-sm text-muted">Masuk {formatDateTime(row.created_at as Date)} · untuk {String(row.penjual_nama)}</p>
+          <p className="mt-1 text-sm text-muted">
+            Masuk {formatDateTime(row.created_at as Date)} · untuk {String(row.penjual_nama)} · status{" "}
+            <span className="font-semibold text-ink" data-status-pesanan>{PESANAN_STATUS.find((s) => s.key === row.status)?.label ?? String(row.status)}</span>
+          </p>
         </div>
         <StatusForm action={setPesananStatus.bind(null, id)} current={String(row.status)} />
       </div>

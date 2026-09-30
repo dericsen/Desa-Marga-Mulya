@@ -3,6 +3,8 @@ import { waLink } from "@/lib/format";
 import { NAV } from "@/lib/nav";
 import type { SiteSettings } from "@/lib/types";
 
+const FULL: Record<string, string> = { "/pasar": "Pasar Desa", "/potensi": "Wisata & Budaya", "/informasi": "Informasi Desa", "/profil": "Profil Desa", "/berita": "Berita & Kegiatan" };
+
 export function Footer({ site }: { site: SiteSettings }) {
   const wa = waLink(site.whatsapp);
   const socials = [
@@ -28,7 +30,7 @@ export function Footer({ site }: { site: SiteSettings }) {
           <ul className="mt-4 space-y-2 text-sm">
             {NAV.map((n) => (
               <li key={n.href}>
-                <Link href={n.href} className="hover:text-white hover:underline">{n.label}</Link>
+                <Link href={n.href} className="hover:text-white hover:underline">{FULL[n.href] ?? n.label}</Link>
               </li>
             ))}
             <li>

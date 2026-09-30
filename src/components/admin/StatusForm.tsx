@@ -9,7 +9,7 @@ export function StatusForm({ action, current }: { action: (prev: FormState, fd: 
   return (
     <form action={formAction} className="flex flex-wrap items-center gap-2">
       <label htmlFor="status" className="text-sm text-muted">Status</label>
-      <select id="status" name="status" defaultValue={current} className="input w-auto py-2">
+      <select key={current} id="status" name="status" defaultValue={current} className="input w-auto py-2">
         {PESANAN_STATUS.map((s) => (
           <option key={s.key} value={s.key}>{s.label}</option>
         ))}

@@ -217,12 +217,13 @@ console.log("\n== CMS ==");
   // Pesanan Pasar Desa
   await page.goto(BASE + "/admin/pesanan", { waitUntil: "networkidle" });
   check((await page.getByText("Pembeli Uji CI").count()) >= 2, "pesanan Pasar Desa masuk ke CMS");
-  await page.getByRole("link", { name: "Buka" }).first().click();
+  await page.getByRole("row", { name: /Bandeng Presto Mulya/ }).getByRole("link", { name: "Buka" }).click();
   await page.getByText("Pesanan MM-").waitFor({ timeout: 15000 });
   await page.selectOption("#status", "dibatalkan");
   await page.getByRole("button", { name: "Simpan status" }).click();
   await page.getByText("Status pesanan diperbarui").waitFor({ timeout: 15000 });
-  check(true, "status pesanan dapat diubah");
+  await page.waitForFunction(() => document.querySelector("[data-status-pesanan]")?.textContent === "Dibatalkan", null, { timeout: 15000 });
+  check((await page.inputValue("#status")) === "dibatalkan", "status pesanan tersimpan dan tampil sebagai Dibatalkan");
   await page.screenshot({ path: `${OUT}/cms-pesanan.png`, fullPage: true });
 
   // Tambah produk dengan relasi penjual
@@ -234,6 +235,10 @@ console.log("\n== CMS ==");
   await page.getByText("Data berhasil ditambahkan").waitFor({ timeout: 15000 });
   await page.goto(BASE + "/pasar?q=Produk%20Uji%20CI", { waitUntil: "networkidle" });
   check((await page.getByText("Rp 12.500").count()) > 0, "produk baru dari CMS tampil di Pasar Desa");
+
+  // Pembatalan mengembalikan stok bandeng presto (23 → 24)
+  await page.goto(BASE + "/pasar?produk=bandeng-presto-mulya", { waitUntil: "networkidle" });
+  check((await page.getByText("Tersisa 24").count()) > 0, "stok kembali setelah pesanan dibatalkan");
 
   // Penjual yang masih punya produk tidak bisa dihapus
   await page.goto(BASE + "/admin/penjual", { waitUntil: "networkidle" });
