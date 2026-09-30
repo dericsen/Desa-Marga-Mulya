@@ -1,275 +1,298 @@
 // Pitch deck EcoQuest IIT Challenge 2026 — Desa Marga Mulya.
-// Sedikit kata, banyak data. Palet sama dengan website (Modern Minimalist).
+// Gaya: latar gelombang + gradasi, tab navigasi, judul tebal di tengah, kartu putus-putus & kartu gelap.
+// Menghasilkan dua varian warna (lihat themes.js). Maksimal 7 slide sesuai aturan lomba.
+const fs = require("fs");
 const path = require("path");
 const pptxgen = require("pptxgenjs");
+const { THEMES } = require("./themes");
 
-const A = (f) => path.join(__dirname, "assets", "build", f);
 const DEMO_URL = process.env.DEMO_URL || "https://desa-marga-mulya.vercel.app";
 const DEMO_LABEL = DEMO_URL.replace(/^https?:\/\//, "");
+const FONT = "Montserrat";
+const BUILD = path.join(__dirname, "assets", "build");
+const TECH = JSON.parse(fs.readFileSync(path.join(BUILD, "tech.json"), "utf8"));
+const TABS = ["Village", "Problem", "Solution", "Demo", "Impact"];
 
-const C = "36454F"; // charcoal — dominan
-const D = "253037"; // charcoal tua
-const S = "708090"; // slate
-const M = "5B6875"; // teks sekunder
-const L = "D3D3D3"; // light gray
-const P = "F4F4F4"; // permukaan
-const W = "FFFFFF";
-const FONT = "Arial";
+function build(key, t) {
+  const A = (f) => path.join(BUILD, key, f);
+  const S = (f) => path.join(BUILD, f);
+  const pres = new pptxgen();
+  pres.layout = "LAYOUT_16x9"; // 10 x 5.625 in
+  pres.title = "Desa Marga Mulya — EcoQuest IIT Challenge 2026";
 
-const pres = new pptxgen();
-pres.layout = "LAYOUT_16x9"; // 10 x 5.625 in
-pres.title = "Desa Marga Mulya — EcoQuest IIT Challenge 2026";
+  const text = (slide, v, o) => slide.addText(v, { fontFace: FONT, margin: 0, valign: "top", color: t.text, ...o });
+  const shadow = () => ({ type: "outer", color: "000000", opacity: 0.16, blur: 10, offset: 3, angle: 90 });
 
-// ---------- helpers ----------
-const text = (slide, t, o) => slide.addText(t, { fontFace: FONT, margin: 0, valign: "top", ...o });
+  function nav(slide, active) {
+    const w = 1.8;
+    TABS.forEach((tab, i) => {
+      const x = 0.5 + i * w;
+      const on = i === active;
+      if (on) slide.addShape(pres.shapes.RECTANGLE, { x: x + 0.3, y: 0.1, w: w - 0.6, h: 0.035, fill: { color: t.dark }, line: { color: t.dark } });
+      text(slide, tab, { x, y: 0.16, w, h: 0.25, fontSize: 9, bold: on, color: on ? t.text : "8C8C8C", align: "center" });
+    });
+  }
+  function heading(slide, title, sub) {
+    text(slide, title, { x: 0.5, y: 0.5, w: 9, h: 0.55, fontSize: 26, bold: true, align: "center" });
+    if (sub) text(slide, sub, { x: 0.5, y: 1.04, w: 9, h: 0.3, fontSize: 12, bold: true, align: "center", color: t.muted });
+  }
+  function logoSlot(slide, x, y, w, h) {
+    // Tempat logo resmi IIT Challenge — ganti dengan logo dari panitia.
+    slide.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { color: "000000" }, line: { color: "FFFFFF", width: 0.75, dashType: "dash" } });
+    text(slide, "IIT Challenge logo", { x, y, w, h, fontSize: 8, color: "FFFFFF", align: "center", valign: "middle" });
+  }
 
-function title(slide, t, color = C) {
-  text(slide, t, { x: 0.5, y: 0.38, w: 8.2, h: 0.6, fontSize: 28, bold: true, color });
+  // =====================================================================
+  // 1. Introduction
+  // =====================================================================
+  {
+    const s = pres.addSlide();
+    s.background = { path: A("bg-title.png") };
+    logoSlot(s, 0.13, 0.15, 1.35, 0.55);
+    s.addImage({ path: S("logo.png"), x: 2.15, y: 1.45, w: 0.95, h: 0.95 });
+    s.addText(
+      [
+        { text: "Desa ", options: { color: t.text } },
+        { text: "Marga Mulya", options: { color: t.gray } },
+      ],
+      { x: 3.2, y: 1.45, w: 5.4, h: 0.95, fontFace: FONT, fontSize: 44, bold: true, margin: 0, valign: "middle" }
+    );
+    text(s, "Village Services, Open Data & Local Trade in One Website", { x: 1.0, y: 2.62, w: 8, h: 0.4, fontSize: 18, bold: true, align: "center" });
+    text(s, "EcoQuest Web Application  |  IIT Challenge 2026", { x: 1.0, y: 3.08, w: 8, h: 0.3, fontSize: 11, align: "center", color: t.muted });
+
+    // Kotak tim — ganti lingkaran dengan foto anggota
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.6, y: 4.05, w: 3.9, h: 1.3, fill: { color: "FFFFFF", transparency: 30 }, line: { color: t.dark, width: 0.75 }, rectRadius: 0.12 });
+    ["Member 1", "Member 2", "Member 3"].forEach((n, i) => {
+      const x = 0.85 + i * 1.25;
+      s.addShape(pres.shapes.OVAL, { x: x + 0.15, y: 4.18, w: 0.7, h: 0.7, fill: { color: t.soft }, line: { color: t.dark, width: 0.75 } });
+      text(s, n, { x, y: 4.95, w: 1.0, h: 0.25, fontSize: 9, bold: true, align: "center" });
+    });
+    s.addNotes("Good morning. We are presenting the official website for Desa Marga Mulya in Mauk, Tangerang: village services, open data, and a local marketplace in one place, all managed through a CMS.");
+  }
+
+  // =====================================================================
+  // 2. Village overview
+  // =====================================================================
+  {
+    const s = pres.addSlide();
+    s.background = { path: A("bg-content.png") };
+    nav(s, 0);
+    heading(s, "A COASTAL FARMING VILLAGE", "“Rice fields, milkfish ponds, and the Java Sea”");
+    s.addImage({ path: A("map.png"), x: 1.35, y: 1.45, w: 7.3, h: 2.86 });
+
+    const cards = [
+      ["RESIDENTS", "7,842", "2,318 households"],
+      ["RICE FIELDS & FISH PONDS", "55%", "228 of 412 ha of land"],
+      ["FARMING & FISHING JOBS", "41%", "1,638 of 4,035 workers"],
+    ];
+    cards.forEach(([label, value, note], i) => {
+      const x = 0.75 + i * 2.95;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 4.45, w: 2.6, h: 1.0, fill: { color: "FFFFFF" }, line: { color: "FFFFFF" }, rectRadius: 0.12, shadow: shadow() });
+      text(s, label, { x, y: 4.52, w: 2.6, h: 0.22, fontSize: 8, bold: true, align: "center" });
+      text(s, value, { x, y: 4.72, w: 2.6, h: 0.45, fontSize: 24, bold: true, align: "center" });
+      text(s, note, { x, y: 5.17, w: 2.6, h: 0.2, fontSize: 7, italic: true, align: "center", color: t.muted });
+    });
+    s.addNotes("Marga Mulya sits on the north coast of Tangerang. More than half of its land is rice fields and fish ponds, and about four in ten workers farm or fish. Village figures follow the competition's data structure and can be replaced with official data in the CMS.");
+  }
+
+  // =====================================================================
+  // 3. Problem identification
+  // =====================================================================
+  {
+    const s = pres.addSlide();
+    s.background = { path: A("bg-content.png") };
+    nav(s, 1);
+    heading(s, "Connected, But Not Informed", "Search “Desa Marga Mulya Mauk”: 0 official websites found");
+
+    const cw = 2.85;
+    const xs = [0.55, 3.575, 6.6];
+    const top = 1.5;
+    const ch = 3.05;
+    const dashed = (x) => s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: top, w: cw, h: ch, fill: { color: "FFFFFF", transparency: 20 }, line: { color: t.dark, width: 1.25, dashType: "sysDot" }, rectRadius: 0.1 });
+
+    // Kartu 1: jangkauan desa
+    dashed(xs[0]);
+    text(s, "Rural Reach", { x: xs[0], y: top + 0.15, w: cw, h: 0.3, fontSize: 14, bold: true, align: "center" });
+    text(s, "74%", { x: xs[0] + 0.2, y: top + 0.5, w: 1.35, h: 0.55, fontSize: 32, bold: true });
+    text(s, "of rural residents are online", { x: xs[0] + 1.55, y: top + 0.55, w: 1.15, h: 0.5, fontSize: 9, bold: true });
+    s.addChart(pres.charts.PIE, [{ name: "Rural", labels: ["Online", "Offline"], values: [74, 26] }], {
+      x: xs[0] + 0.72, y: top + 1.08, w: 1.4, h: 1.4, chartColors: [t.dark, t.soft], showLegend: false, showValue: false, showPercent: false, dataBorder: { pt: 1, color: "FFFFFF" },
+    });
+    text(s, "yet rural areas make up only 30.5% of national internet use", { x: xs[0] + 0.2, y: top + 2.5, w: cw - 0.4, h: 0.45, fontSize: 9, align: "center" });
+
+    // Kartu 2: UMKM offline
+    dashed(xs[1]);
+    text(s, "The Analog Trap", { x: xs[1], y: top + 0.15, w: cw, h: 0.3, fontSize: 14, bold: true, align: "center" });
+    text(s, "6 of 10 MSMEs are still offline", { x: xs[1] + 0.2, y: top + 0.55, w: cw - 0.4, h: 0.5, fontSize: 12, bold: true, align: "center" });
+    for (let i = 0; i < 10; i++) {
+      const col = i % 5;
+      const row = Math.floor(i / 5);
+      s.addImage({ path: A(i < 6 ? "store-on.png" : "store-off.png"), x: xs[1] + 0.3 + col * 0.46, y: top + 1.2 + row * 0.55, w: 0.38, h: 0.38 });
+    }
+    text(s, "27M of ~65M MSMEs are digital", { x: xs[1] + 0.2, y: top + 2.5, w: cw - 0.4, h: 0.45, fontSize: 9, align: "center" });
+
+    // Kartu 3: mesin ekonomi
+    dashed(xs[2]);
+    text(s, "The Nation’s Engine", { x: xs[2], y: top + 0.15, w: cw, h: 0.3, fontSize: 14, bold: true, align: "center" });
+    [["61%", "of GDP"], ["97%", "of jobs"]].forEach(([v, l], i) => {
+      const bx = xs[2] + 0.22 + i * 1.25;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: bx, y: top + 0.6, w: 1.15, h: 1.55, fill: { color: "FFFFFF" }, line: { color: t.dark, width: 1 }, rectRadius: 0.12 });
+      text(s, v, { x: bx, y: top + 0.95, w: 1.15, h: 0.5, fontSize: 24, bold: true, align: "center" });
+      text(s, l, { x: bx, y: top + 1.55, w: 1.15, h: 0.3, fontSize: 9, bold: true, align: "center" });
+    });
+    text(s, "MSMEs carry the economy, but most still sell offline", { x: xs[2] + 0.2, y: top + 2.5, w: cw - 0.4, h: 0.45, fontSize: 9, align: "center" });
+
+    const src = ["source: APJII Internet Survey, 2024", "source: Statista 2023; GoodStats 2023", "source: Kemenkeu, via ITEJ journal"];
+    src.forEach((v, i) => text(s, v, { x: xs[i] + 0.1, y: top + ch + 0.08, w: cw, h: 0.2, fontSize: 7, italic: true, color: t.muted }));
+    s.addNotes("80 percent of Indonesians are online, and 74 percent of rural residents too, yet rural areas generate only 30 percent of internet use. When we searched for Desa Marga Mulya we found no official website. Six in ten small businesses are still offline, even though they generate 61 percent of GDP and 97 percent of jobs.");
+  }
+
+  // =====================================================================
+  // 4. Proposed solution
+  // =====================================================================
+  {
+    const s = pres.addSlide();
+    s.background = { path: A("bg-content.png") };
+    nav(s, 2);
+    heading(s, "Our Unfair Advantage", "Village information and local trade, in one place");
+
+    // Kuadran posisi (indikatif)
+    const ox = 2.55;
+    const oy = 3.3;
+    s.addShape(pres.shapes.LINE, { x: 0.75, y: oy, w: 3.6, h: 0, line: { color: t.dark, width: 2, beginArrowType: "triangle", endArrowType: "triangle" } });
+    s.addShape(pres.shapes.LINE, { x: ox, y: 1.55, w: 0, h: 3.5, line: { color: t.dark, width: 2, beginArrowType: "triangle", endArrowType: "triangle" } });
+    text(s, "Rich village info", { x: ox - 1, y: 1.36, w: 2, h: 0.2, fontSize: 9, align: "center" });
+    text(s, "Little village info", { x: ox - 1, y: 5.08, w: 2, h: 0.2, fontSize: 9, align: "center" });
+    text(s, "No local trade", { x: 0.35, y: oy - 0.95, w: 0.25, h: 1.9, fontSize: 9, rotate: 270, align: "center", valign: "middle" });
+    text(s, "Local trade built in", { x: 4.45, y: oy - 0.95, w: 0.25, h: 1.9, fontSize: 9, rotate: 90, align: "center", valign: "middle" });
+    const chip = (label, x, y, dark = false) => {
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: 1.45, h: 0.38, fill: { color: dark ? t.dark : "FFFFFF" }, line: { color: t.dark, width: 0.75 }, rectRadius: 0.19, shadow: dark ? shadow() : undefined });
+      text(s, label, { x, y, w: 1.45, h: 0.38, fontSize: 8, bold: true, align: "center", valign: "middle", color: dark ? "FFFFFF" : t.text });
+    };
+    chip("Desa Marga Mulya", 2.8, 1.85, true);
+    chip("Village info systems", 0.85, 2.3);
+    chip("Village social media", 0.85, 4.2);
+    chip("Big marketplaces", 2.8, 4.2);
+    text(s, "Indicative positioning by team", { x: 0.75, y: 5.3, w: 3.6, h: 0.18, fontSize: 7, italic: true, color: t.muted });
+
+    // Empat keunggulan dengan angka
+    const rows = [
+      ["services", "LIVE OFFICE STATUS", "7", "service checklists"],
+      ["data", "OPEN VILLAGE DATA", "42", "tables, CSV export"],
+      ["market", "PASAR DESA", "0%", "seller commission"],
+      ["ai", "TANYA DESA AI", "24/7", "answers from CMS data"],
+    ];
+    rows.forEach(([ic, label, value, note], i) => {
+      const y = 1.5 + i * 0.93;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 5.0, y, w: 4.5, h: 0.78, fill: { color: t.dark }, line: { color: t.dark }, rectRadius: 0.14, shadow: shadow() });
+      s.addShape(pres.shapes.OVAL, { x: 5.15, y: y + 0.14, w: 0.5, h: 0.5, fill: { color: t.primary }, line: { color: t.primary } });
+      s.addImage({ path: A(`icon-${ic}-w.png`), x: 5.27, y: y + 0.26, w: 0.26, h: 0.26 });
+      text(s, label, { x: 5.85, y: y + 0.12, w: 2.2, h: 0.28, fontSize: 11, bold: true, color: "FFFFFF" });
+      text(s, note, { x: 5.85, y: y + 0.42, w: 2.2, h: 0.24, fontSize: 8, color: "D0D0D0" });
+      text(s, value, { x: 7.9, y: y + 0.1, w: 1.45, h: 0.58, fontSize: 24, bold: true, color: t.highlight, align: "right", valign: "middle" });
+    });
+    s.addNotes("Village information systems give data but no trade. Marketplaces give trade but take fees and know nothing about the village. Our website does both: live office status with service checklists, 42 open data tables, a commission-free village market, and an AI assistant that answers from the village's own data.");
+  }
+
+  // =====================================================================
+  // 5. Features & demonstration
+  // =====================================================================
+  {
+    const s = pres.addSlide();
+    s.background = { path: A("bg-content.png") };
+    nav(s, 3);
+    heading(s, "Built and Live", `Live demo: ${DEMO_LABEL}`);
+
+    s.addImage({ path: A("blob.png"), x: -0.3, y: 2.35, w: 3.2, h: 2.4 });
+    s.addImage({ path: A("blob.png"), x: 7.4, y: 2.25, w: 3.2, h: 2.4, flipH: true });
+
+    // Laptop
+    const lx = 0.9, ly = 1.5, lw = 4.6, lh = 2.72;
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: lx, y: ly, w: lw, h: lh, fill: { color: "1A1A1A" }, line: { color: "1A1A1A" }, rectRadius: 0.1, shadow: shadow() });
+    s.addImage({ path: S("shot-home.png"), x: lx + 0.1, y: ly + 0.1, w: lw - 0.2, h: lh - 0.2, sizing: { type: "cover", w: lw - 0.2, h: lh - 0.2 } });
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: lx - 0.25, y: ly + lh, w: lw + 0.5, h: 0.12, fill: { color: "BFBFBF" }, line: { color: "BFBFBF" }, rectRadius: 0.05 });
+    text(s, "Home: live office status", { x: lx, y: ly + lh + 0.18, w: lw, h: 0.22, fontSize: 9, bold: true, align: "center" });
+
+    // Dua ponsel
+    [["shot-cart.png", "Cart split per seller"], ["shot-seller.png", "Seller portal"]].forEach(([f, cap], i) => {
+      const px = 5.95 + i * 1.75, py = 1.45, pw = 1.45, ph = 2.95;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: px, y: py, w: pw, h: ph, fill: { color: "1A1A1A" }, line: { color: "1A1A1A" }, rectRadius: 0.18, shadow: shadow() });
+      s.addImage({ path: S(f), x: px + 0.07, y: py + 0.07, w: pw - 0.14, h: ph - 0.14, sizing: { type: "cover", w: pw - 0.14, h: ph - 0.14 } });
+      text(s, cap, { x: px - 0.15, y: py + ph + 0.08, w: pw + 0.3, h: 0.22, fontSize: 9, bold: true, align: "center" });
+    });
+
+    // Tech stack
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.55, y: 4.75, w: 8.9, h: 0.72, fill: { color: "FFFFFF" }, line: { color: t.dark, width: 1 }, rectRadius: 0.14 });
+    text(s, "Tech Stack", { x: 0.75, y: 4.75, w: 1.2, h: 0.72, fontSize: 11, bold: true, valign: "middle" });
+    const step = 7.2 / Math.max(TECH.length, 1);
+    TECH.forEach((tc, i) => {
+      const x = 2.05 + i * step;
+      s.addImage({ path: A(tc.file), x: x + step / 2 - 0.15, y: 4.83, w: 0.3, h: 0.3 });
+      text(s, tc.label, { x, y: 5.15, w: step, h: 0.2, fontSize: 7, align: "center", color: t.muted });
+    });
+    s.addNotes("This is the live site. Residents see whether the office is open right now. In the Pasar Desa, one cart can hold products from several sellers and becomes one WhatsApp order per seller. Sellers manage price and stock from their phone, and new products are reviewed by the admin first.");
+  }
+
+  // =====================================================================
+  // 6. Impact & feasibility
+  // =====================================================================
+  {
+    const s = pres.addSlide();
+    s.background = { path: A("bg-content.png") };
+    nav(s, 4);
+    heading(s, "A True Win-Win-Win", "Impact & feasibility");
+
+    const cols = [
+      { who: "Residents", dark: true, rows: [["7", "services with checklists"], ["24/7", "AI answers"], ["0", "trips just to ask"]] },
+      { who: "Village Office", dark: false, rows: [["Rp 0", "monthly hosting"], ["11", "CMS collections"], ["109", "automated checks"]] },
+      { who: "Sellers", dark: true, rows: [["0%", "commission"], ["3", "steps to WhatsApp order"], ["16", "products online"]] },
+    ];
+    cols.forEach((c, i) => {
+      const x = 0.75 + i * 2.95, y = 1.5, w = 2.55, h = 3.15;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, fill: { color: c.dark ? t.dark : "FFFFFF" }, line: { color: c.dark ? t.dark : "FFFFFF" }, rectRadius: 0.2, shadow: shadow() });
+      text(s, c.who, { x, y: y + 0.22, w, h: 0.4, fontSize: 18, bold: true, align: "center", color: c.dark ? "FFFFFF" : t.text });
+      c.rows.forEach(([v, l], r) => {
+        const ry = y + 0.85 + r * 0.73;
+        text(s, v, { x: x + 0.25, y: ry, w: 1.05, h: 0.5, fontSize: 22, bold: true, color: c.dark ? t.highlight : t.primary, valign: "middle" });
+        text(s, l, { x: x + 1.3, y: ry, w: w - 1.45, h: 0.5, fontSize: 9, bold: true, color: c.dark ? "FFFFFF" : t.text, valign: "middle" });
+      });
+    });
+
+    const sdg = ["SDG 8  Decent work", "SDG 9  Innovation", "SDG 11  Communities", "SDG 16  Institutions"];
+    sdg.forEach((v, i) => {
+      const x = 0.95 + i * 2.1;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 4.88, w: 1.95, h: 0.4, fill: { color: "FFFFFF" }, line: { color: t.dark, width: 0.75 }, rectRadius: 0.2 });
+      text(s, v, { x, y: 4.88, w: 1.95, h: 0.4, fontSize: 9, bold: true, align: "center", valign: "middle" });
+    });
+    s.addNotes("Residents get answers without a trip to the office. The village office pays nothing per month on free tiers and updates everything through the CMS, backed by 109 automated checks. Sellers keep all their income and take orders in three steps. This supports SDGs 8, 9, 11, and 16.");
+  }
+
+  // =====================================================================
+  // 7. Conclusion
+  // =====================================================================
+  {
+    const s = pres.addSlide();
+    s.background = { path: A("bg-end.png") };
+    logoSlot(s, 0.13, 0.1, 1.2, 0.42);
+    text(s, "THANK YOU", { x: 0.7, y: 1.3, w: 5.4, h: 0.8, fontSize: 44, bold: true });
+    text(s, "Village information, one tap away.", { x: 0.7, y: 2.1, w: 5.4, h: 0.4, fontSize: 16, bold: true, color: t.muted });
+    [["10", "public pages"], ["42", "data tables"], ["16", "local products"]].forEach(([v, l], i) => {
+      const x = 0.7 + i * 1.8;
+      text(s, v, { x, y: 3.0, w: 1.6, h: 0.6, fontSize: 32, bold: true });
+      text(s, l, { x, y: 3.6, w: 1.6, h: 0.25, fontSize: 10, bold: true, color: t.muted });
+    });
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 6.75, y: 1.2, w: 2.6, h: 3.3, fill: { color: "FFFFFF" }, line: { color: "FFFFFF" }, rectRadius: 0.2, shadow: shadow() });
+    s.addImage({ path: S("qr.png"), x: 7.05, y: 1.45, w: 2.0, h: 2.0 });
+    text(s, "Scan to try the live demo", { x: 6.75, y: 3.6, w: 2.6, h: 0.3, fontSize: 11, bold: true, align: "center" });
+    text(s, DEMO_LABEL, { x: 6.75, y: 3.9, w: 2.6, h: 0.3, fontSize: 8, align: "center", color: t.muted });
+    s.addNotes("To sum up: residents get answers without a trip, local businesses get a commission-free market, and the village gets a website its own staff can run. Scan the code to try it. Thank you.");
+  }
+
+  const out = path.join(__dirname, "out", `Desa-Marga-Mulya-Pitch-Deck-${t.label}.pptx`);
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  return pres.writeFile({ fileName: out });
 }
 
-function stat(slide, x, y, w, value, label, o = {}) {
-  const vc = o.dark ? W : C;
-  const lc = o.dark ? L : M;
-  text(slide, value, { x, y, w, h: o.vh ?? 0.62, fontSize: o.size ?? 34, bold: true, color: vc });
-  text(slide, label, { x, y: y + (o.vh ?? 0.62), w, h: 0.45, fontSize: o.lsize ?? 11, color: lc });
-}
-
-function sources(slide, t, dark = false) {
-  text(slide, t, { x: 0.5, y: 5.22, w: 9, h: 0.25, fontSize: 8, color: dark ? L : M });
-}
-
-function logoSlot(slide, dark) {
-  // Tempat logo resmi IIT Challenge (wajib). Ganti kotak ini dengan file logo dari panitia.
-  slide.addShape(pres.shapes.RECTANGLE, {
-    x: 8.2, y: 0.32, w: 1.3, h: 0.5,
-    fill: { color: dark ? D : P },
-    line: { color: dark ? S : L, width: 0.75, dashType: "dash" },
-  });
-  text(slide, "IIT Challenge logo", { x: 8.2, y: 0.32, w: 1.3, h: 0.5, fontSize: 8, color: dark ? L : M, align: "center", valign: "middle" });
-}
-
-// =====================================================================
-// 1. Introduction
-// =====================================================================
-{
-  const s = pres.addSlide();
-  s.background = { color: C };
-  logoSlot(s, true);
-  text(s, "EcoQuest Web Application\nIIT Challenge 2026", { x: 0.5, y: 0.38, w: 5, h: 0.5, fontSize: 11, color: L });
-  text(s, "Desa Marga Mulya", { x: 0.5, y: 1.35, w: 9, h: 1.0, fontSize: 54, bold: true, color: W });
-  text(s, "Village services, data, and local trade in one website.", { x: 0.5, y: 2.35, w: 8, h: 0.45, fontSize: 18, color: L });
-
-  s.addShape(pres.shapes.LINE, { x: 0.5, y: 3.3, w: 9, h: 0, line: { color: S, width: 0.75 } });
-  const items = [["10", "public pages"], ["42", "village data tables"], ["16", "local products"], ["3", "user roles"]];
-  items.forEach(([v, l], i) => stat(s, 0.5 + i * 2.25, 3.55, 2, v, l, { dark: true, size: 36, lsize: 12 }));
-  sources(s, "Mauk, Tangerang Regency, Banten", true);
-  s.addNotes(
-    "Good morning. We built the official website for Desa Marga Mulya in Mauk, Tangerang. It brings village services, open data, and a local marketplace together, and every piece of content is managed through a CMS."
-  );
-}
-
-// =====================================================================
-// 2. Village overview
-// =====================================================================
-{
-  const s = pres.addSlide();
-  s.background = { color: W };
-  title(s, "A coastal farming village");
-  text(s, "North coast of Tangerang, near Tanjung Kait beach", { x: 0.5, y: 0.95, w: 8, h: 0.3, fontSize: 12, color: M });
-
-  // Angka kunci 2x2
-  const k = [["7,842", "residents"], ["2,318", "households"], ["412 ha", "total area"], ["24", "neighbourhoods (RT)"]];
-  k.forEach(([v, l], i) => stat(s, 0.5 + (i % 2) * 1.55, 1.6 + Math.floor(i / 2) * 1.35, 1.45, v, l, { size: 26, vh: 0.5 }));
-
-  // Penggunaan lahan
-  s.addChart(pres.charts.DOUGHNUT, [{ name: "Land use", labels: ["Rice fields", "Housing", "Fish ponds", "Yards", "Other"], values: [142, 98, 86, 36, 50] }], {
-    x: 3.55, y: 1.35, w: 2.9, h: 3.55,
-    holeSize: 58,
-    chartColors: [C, S, "8A96A1", "AAB4BD", L],
-    showTitle: true, title: "Land use (ha)", titleFontFace: FONT, titleFontSize: 12, titleColor: C,
-    showLegend: true, legendPos: "b", legendFontFace: FONT, legendFontSize: 9, legendColor: M,
-    showPercent: true, showValue: false, dataLabelColor: W, dataLabelFontSize: 9, dataLabelFontFace: FONT,
-  });
-
-  // Mata pencaharian
-  s.addChart(pres.charts.BAR, [{ name: "Workers", labels: ["Traders", "Fishers", "Farm workers", "Farmers", "Private sector"], values: [402, 486, 540, 612, 1105] }], {
-    x: 6.6, y: 1.35, w: 2.95, h: 3.55,
-    barDir: "bar",
-    chartColors: [S],
-    showTitle: true, title: "Main livelihoods (people)", titleFontFace: FONT, titleFontSize: 12, titleColor: C,
-    showLegend: false,
-    showValue: true, dataLabelPosition: "outEnd", dataLabelColor: C, dataLabelFontSize: 9, dataLabelFontFace: FONT,
-    catAxisLabelColor: M, catAxisLabelFontSize: 9, catAxisLabelFontFace: FONT, catAxisLineShow: false,
-    valAxisHidden: true, valGridLine: { style: "none" }, catGridLine: { style: "none" },
-    barGapWidthPct: 60,
-  });
-
-  sources(s, "Sample figures following the EcoQuest data structure (sections A–M); all values are editable in the website CMS.");
-  s.addNotes(
-    "Marga Mulya is a coastal farming village. Rice fields take the largest share of land, followed by housing and milkfish ponds. Most residents work in the private sector, in farming, or as fishers. These figures follow the competition's data structure and can be replaced with official data through the CMS."
-  );
-}
-
-// =====================================================================
-// 3. Problem identification
-// =====================================================================
-{
-  const s = pres.addSlide();
-  s.background = { color: W };
-  title(s, "Connected, but not informed");
-
-  // Angka besar
-  text(s, "80.66%", { x: 0.5, y: 1.25, w: 3.1, h: 1.0, fontSize: 54, bold: true, color: C });
-  text(s, "of Indonesians are online", { x: 0.5, y: 2.25, w: 3.0, h: 0.35, fontSize: 13, color: M });
-  text(s, "0", { x: 0.5, y: 3.05, w: 3.0, h: 0.8, fontSize: 44, bold: true, color: C });
-  text(s, "official websites found when searching\n“Desa Marga Mulya Mauk”", { x: 0.5, y: 3.85, w: 3.0, h: 0.6, fontSize: 12, color: M });
-
-  // Desa: online tapi pemakaian kecil
-  s.addChart(pres.charts.BAR, [{ name: "Rural", labels: ["Rural residents online", "Rural share of national usage"], values: [74, 30.5] }], {
-    x: 3.75, y: 1.2, w: 2.85, h: 3.4,
-    barDir: "col",
-    chartColors: [C],
-    showTitle: true, title: "Rural internet (%)", titleFontFace: FONT, titleFontSize: 12, titleColor: C,
-    showLegend: false,
-    showValue: true, dataLabelPosition: "outEnd", dataLabelColor: C, dataLabelFontSize: 12, dataLabelFontFace: FONT, dataLabelFormatCode: "0.#",
-    catAxisLabelColor: M, catAxisLabelFontSize: 9, catAxisLabelFontFace: FONT,
-    valAxisHidden: true, valAxisMaxVal: 100, valAxisMinVal: 0, valGridLine: { style: "none" }, catGridLine: { style: "none" },
-    barGapWidthPct: 45,
-  });
-
-  // UMKM digital
-  s.addChart(pres.charts.DOUGHNUT, [{ name: "MSMEs", labels: ["Digital (27M)", "Not yet (38M)"], values: [27, 38] }], {
-    x: 6.75, y: 1.2, w: 2.8, h: 3.4,
-    holeSize: 62,
-    chartColors: [C, S],
-    showTitle: true, title: "MSMEs online (millions)", titleFontFace: FONT, titleFontSize: 12, titleColor: C,
-    showLegend: true, legendPos: "b", legendFontFace: FONT, legendFontSize: 10, legendColor: M,
-    showPercent: true, dataLabelColor: W, dataLabelFontSize: 12, dataLabelFontFace: FONT,
-  });
-
-  s.addShape(pres.shapes.RECTANGLE, { x: 3.75, y: 4.7, w: 5.8, h: 0.42, fill: { color: P }, line: { color: P } });
-  text(s, "MSMEs generate ~61% of GDP and ~97% of jobs.", { x: 3.9, y: 4.7, w: 5.6, h: 0.42, fontSize: 11, color: C, valign: "middle" });
-
-  sources(s, "Sources: APJII 2024–2025; Kemenkeu via ITEJ; Statista 2023; GoodStats 2023; team web search, Sep 2026.");
-  s.addNotes(
-    "Connectivity is not the barrier: 80 percent of Indonesians are online and 74 percent of rural residents too. But rural areas generate only 30 percent of internet usage, and when we searched for Desa Marga Mulya we found no official website. For local businesses the gap is similar: MSMEs carry most of the economy, yet about 58 percent are still offline."
-  );
-}
-
-// =====================================================================
-// 4. Proposed solution
-// =====================================================================
-{
-  const s = pres.addSlide();
-  s.background = { color: P };
-  title(s, "One platform, four users");
-
-  const cols = [
-    { icon: "residents", who: "Residents", need: "Is the office open?\nWhat do I bring?", value: "7", unit: "service checklists + live office status" },
-    { icon: "buyers", who: "Visitors & buyers", need: "What can I buy\nor visit?", value: "16", unit: "local products, WhatsApp checkout" },
-    { icon: "sellers", who: "Sellers", need: "How do I sell\nwithout a store?", value: "0%", unit: "commission, own seller portal" },
-    { icon: "admin", who: "Village admin", need: "How do I update\nthe website?", value: "11", unit: "CMS collections, no coding" },
-  ];
-  const cw = 2.08, gap = 0.22;
-  cols.forEach((c, i) => {
-    const x = 0.5 + i * (cw + gap);
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.25, w: cw, h: 3.75, fill: { color: W }, line: { color: L, width: 0.75 }, rectRadius: 0.08 });
-    s.addShape(pres.shapes.OVAL, { x: x + 0.25, y: 1.5, w: 0.62, h: 0.62, fill: { color: C }, line: { color: C } });
-    s.addImage({ path: A(`icon-${c.icon}.png`), x: x + 0.39, y: 1.64, w: 0.34, h: 0.34 });
-    text(s, c.who, { x: x + 0.25, y: 2.3, w: cw - 0.4, h: 0.35, fontSize: 14, bold: true, color: C });
-    text(s, c.need, { x: x + 0.25, y: 2.68, w: cw - 0.4, h: 0.6, fontSize: 11, color: M, italic: true });
-    text(s, c.value, { x: x + 0.25, y: 3.5, w: cw - 0.4, h: 0.62, fontSize: 32, bold: true, color: C });
-    text(s, c.unit, { x: x + 0.25, y: 4.12, w: cw - 0.4, h: 0.7, fontSize: 10, color: M });
-  });
-  sources(s, "Every page and number on the website is stored in the database and edited through the CMS.");
-  s.addNotes(
-    "We designed for four users. Residents see right away whether the office is open and what documents to bring. Visitors can buy local products and send the order straight to the seller on WhatsApp. Sellers get their own portal with no commission. And the village admin updates everything through the CMS, without writing code."
-  );
-}
-
-// =====================================================================
-// 5. Features & demonstration
-// =====================================================================
-{
-  const s = pres.addSlide();
-  s.background = { color: W };
-  title(s, "Built and live");
-
-  s.addImage({ path: A("home.png"), x: 0.5, y: 1.15, w: 4.9, h: 3.06, sizing: { type: "cover", w: 4.9, h: 3.06 } });
-  s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 1.15, w: 4.9, h: 3.06, fill: { type: "none" }, line: { color: L, width: 0.75 } });
-  text(s, "Home: live office status", { x: 0.5, y: 4.25, w: 4.9, h: 0.25, fontSize: 9, color: M });
-
-  const phones = [
-    ["cart.png", "Cart, split per seller"],
-    ["seller.png", "Seller portal"],
-  ];
-  phones.forEach(([f, cap], i) => {
-    const x = 5.7 + i * 2.0;
-    s.addImage({ path: A(f), x, y: 1.15, w: 1.8, h: 3.06, sizing: { type: "cover", w: 1.8, h: 3.06 } });
-    s.addShape(pres.shapes.RECTANGLE, { x, y: 1.15, w: 1.8, h: 3.06, fill: { type: "none" }, line: { color: L, width: 0.75 } });
-    text(s, cap, { x, y: 4.25, w: 1.8, h: 0.25, fontSize: 9, color: M });
-  });
-
-  const st = [["10", "public pages"], ["42", "data tables, CSV export"], ["109", "automated checks passing"], ["AI", "Tanya Desa assistant"]];
-  st.forEach(([v, l], i) => stat(s, 0.5 + i * 2.3, 4.55, 2.2, v, l, { size: 20, vh: 0.36, lsize: 9 }));
-  sources(s, `Live demo: ${DEMO_LABEL}`);
-  s.addNotes(
-    "Here is the live site. On the home page, residents see whether the office is open right now. In the marketplace, one cart can hold products from several sellers and is split into one WhatsApp order per seller. Sellers manage price and stock on their phone, and new products are approved by the admin before they go live. 109 automated checks run on every update."
-  );
-}
-
-// =====================================================================
-// 6. Impact & feasibility
-// =====================================================================
-{
-  const s = pres.addSlide();
-  s.background = { color: W };
-  title(s, "Low cost, high reach");
-
-  const big = [["Rp 0", "monthly hosting on free tiers"], ["0%", "commission for village sellers"], ["3", "steps from product to WhatsApp order"]];
-  big.forEach(([v, l], i) => {
-    const y = 1.2 + i * 1.25;
-    text(s, v, { x: 0.5, y, w: 2.6, h: 0.75, fontSize: 40, bold: true, color: C });
-    text(s, l, { x: 3.15, y: y + 0.18, w: 2.3, h: 0.55, fontSize: 12, color: M });
-  });
-
-  text(s, "SDG targets", { x: 5.9, y: 1.2, w: 3.6, h: 0.3, fontSize: 12, bold: true, color: C });
-  const sdg = [["8", "Decent work"], ["9", "Innovation"], ["11", "Sustainable communities"], ["16", "Strong institutions"]];
-  sdg.forEach(([n, l], i) => {
-    const x = 5.9 + (i % 2) * 1.85;
-    const y = 1.6 + Math.floor(i / 2) * 1.62;
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: 1.7, h: 1.45, fill: { color: i === 0 ? C : P }, line: { color: i === 0 ? C : P }, rectRadius: 0.08 });
-    text(s, n, { x: x + 0.18, y: y + 0.15, w: 1.3, h: 0.65, fontSize: 32, bold: true, color: i === 0 ? W : C });
-    text(s, l, { x: x + 0.18, y: y + 0.85, w: 1.4, h: 0.5, fontSize: 10, color: i === 0 ? L : M });
-  });
-  sources(s, "Stack: Next.js on Vercel (Hobby), PostgreSQL on Neon (free), Google Gemini API (free tier). Free-tier limits apply.");
-  s.addNotes(
-    "The whole platform runs on free tiers, so the village pays nothing per month to start. Sellers keep all of their income, and ordering takes three steps. It supports SDG 8 through local business income, SDG 9 through digital infrastructure, SDG 11 for the community, and SDG 16 through transparent public information."
-  );
-}
-
-// =====================================================================
-// 7. Conclusion
-// =====================================================================
-{
-  const s = pres.addSlide();
-  s.background = { color: C };
-  logoSlot(s, true);
-  text(s, "Village information,\none tap away.", { x: 0.5, y: 1.2, w: 5.6, h: 1.6, fontSize: 40, bold: true, color: W });
-
-  const r = [["7", "services explained"], ["16", "products online"], ["24/7", "AI answers"]];
-  r.forEach(([v, l], i) => stat(s, 0.5 + i * 1.9, 3.35, 1.8, v, l, { dark: true, size: 30, vh: 0.55, lsize: 11 }));
-
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 6.85, y: 1.2, w: 2.65, h: 3.2, fill: { color: W }, line: { color: W }, rectRadius: 0.1 });
-  s.addImage({ path: A("qr.png"), x: 7.1, y: 1.4, w: 2.15, h: 2.15 });
-  text(s, "Try the live demo", { x: 6.85, y: 3.65, w: 2.65, h: 0.3, fontSize: 12, bold: true, color: C, align: "center" });
-  text(s, DEMO_LABEL, { x: 6.85, y: 3.95, w: 2.65, h: 0.3, fontSize: 9, color: M, align: "center" });
-  sources(s, "Thank you.", true);
-  s.addNotes(
-    "To sum up: residents get answers without a trip to the office, local businesses get a market with no commission, and the village gets a website its own staff can run. Scan the code to try it. Thank you."
-  );
-}
-
-const out = path.join(__dirname, "out", "Desa-Marga-Mulya-Pitch-Deck.pptx");
-require("fs").mkdirSync(path.dirname(out), { recursive: true });
-pres.writeFile({ fileName: out }).then((f) => console.log("wrote", f));
+(async () => {
+  for (const [key, t] of Object.entries(THEMES)) console.log("wrote", await build(key, t));
+})();

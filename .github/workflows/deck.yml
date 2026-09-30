@@ -28,21 +28,32 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Buat deck
         run: npm run build
-      - name: Pasang LibreOffice & Poppler
+      - name: Pasang LibreOffice, Poppler & Montserrat
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq libreoffice-impress poppler-utils fonts-liberation > /dev/null
+          sudo apt-get install -y -qq fonts-montserrat > /dev/null 2>&1 || {
+            mkdir -p ~/.fonts
+            for w in Regular Bold Italic BoldItalic; do
+              curl -sSfL -o ~/.fonts/Montserrat-$w.ttf "https://github.com/JulietaUla/Montserrat/raw/master/fonts/ttf/Montserrat-$w.ttf"
+            done
+          }
+          fc-cache -f > /dev/null; fc-list | grep -i montserrat | head -3
           pip install -q python-pptx "markitdown[pptx]"
       - name: Periksa isi & file
         run: |
-          python3 -c "from pptx import Presentation; p=Presentation('out/Desa-Marga-Mulya-Pitch-Deck.pptx'); print('slides:', len(p.slides))"
-          markitdown out/Desa-Marga-Mulya-Pitch-Deck.pptx > out/deck-text.md
+          for f in out/*.pptx; do
+            python3 -c "import sys; from pptx import Presentation; p=Presentation(sys.argv[1]); print(sys.argv[1], 'slides:', len(p.slides))" "$f"
+          done
+          markitdown out/Desa-Marga-Mulya-Pitch-Deck-Mono.pptx > out/deck-text.md
           cat out/deck-text.md
       - name: Render ke PDF & gambar
         run: |
           cd out
-          soffice --headless --convert-to pdf Desa-Marga-Mulya-Pitch-Deck.pptx > /dev/null
-          pdftoppm -jpeg -r 110 Desa-Marga-Mulya-Pitch-Deck.pdf slide
+          for v in Mono Red; do
+            soffice --headless --convert-to pdf Desa-Marga-Mulya-Pitch-Deck-$v.pptx > /dev/null
+            pdftoppm -jpeg -r 110 Desa-Marga-Mulya-Pitch-Deck-$v.pdf $v-slide
+          done
           ls -la
       - uses: actions/upload-artifact@v4
         with:
