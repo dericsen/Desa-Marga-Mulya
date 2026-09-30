@@ -49,13 +49,13 @@ function build(key, t) {
     const s = pres.addSlide();
     s.background = { path: A("bg-title.png") };
     logoSlot(s, 0.13, 0.15, 1.35, 0.55);
-    s.addImage({ path: S("logo.png"), x: 2.15, y: 1.45, w: 0.95, h: 0.95 });
+    s.addImage({ path: S("logo.png"), x: 1.3, y: 1.5, w: 0.85, h: 0.85 });
     s.addText(
       [
         { text: "Desa ", options: { color: t.text } },
         { text: "Marga Mulya", options: { color: t.gray } },
       ],
-      { x: 3.2, y: 1.45, w: 5.4, h: 0.95, fontFace: FONT, fontSize: 44, bold: true, margin: 0, valign: "middle" }
+      { x: 2.3, y: 1.45, w: 6.6, h: 0.95, fontFace: FONT, fontSize: 40, bold: true, margin: 0, valign: "middle", fit: "shrink" }
     );
     text(s, "Village Services, Open Data & Local Trade in One Website", { x: 1.0, y: 2.62, w: 8, h: 0.4, fontSize: 18, bold: true, align: "center" });
     text(s, "EcoQuest Web Application  |  IIT Challenge 2026", { x: 1.0, y: 3.08, w: 8, h: 0.3, fontSize: 11, align: "center", color: t.muted });
@@ -163,8 +163,8 @@ function build(key, t) {
     s.addShape(pres.shapes.LINE, { x: ox, y: 1.55, w: 0, h: 3.5, line: { color: t.dark, width: 2, beginArrowType: "triangle", endArrowType: "triangle" } });
     text(s, "Rich village info", { x: ox - 1, y: 1.36, w: 2, h: 0.2, fontSize: 9, align: "center" });
     text(s, "Little village info", { x: ox - 1, y: 5.08, w: 2, h: 0.2, fontSize: 9, align: "center" });
-    text(s, "No local trade", { x: 0.35, y: oy - 0.95, w: 0.25, h: 1.9, fontSize: 9, rotate: 270, align: "center", valign: "middle" });
-    text(s, "Local trade built in", { x: 4.45, y: oy - 0.95, w: 0.25, h: 1.9, fontSize: 9, rotate: 90, align: "center", valign: "middle" });
+    text(s, "No local trade", { x: 0.75, y: oy + 0.08, w: 1.4, h: 0.2, fontSize: 8 });
+    text(s, "Local trade built in", { x: 2.95, y: oy + 0.08, w: 1.4, h: 0.2, fontSize: 8, align: "right" });
     const chip = (label, x, y, dark = false) => {
       s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: 1.45, h: 0.38, fill: { color: dark ? t.dark : "FFFFFF" }, line: { color: t.dark, width: 0.75 }, rectRadius: 0.19, shadow: dark ? shadow() : undefined });
       text(s, label, { x, y, w: 1.45, h: 0.38, fontSize: 8, bold: true, align: "center", valign: "middle", color: dark ? "FFFFFF" : t.text });
@@ -203,7 +203,7 @@ function build(key, t) {
     nav(s, 3);
     heading(s, "Built and Live", `Live demo: ${DEMO_LABEL}`);
 
-    s.addImage({ path: A("blob.png"), x: -0.3, y: 2.35, w: 3.2, h: 2.4 });
+    s.addImage({ path: A("blob.png"), x: -0.35, y: 2.55, w: 2.3, h: 1.75 });
     s.addImage({ path: A("blob.png"), x: 7.4, y: 2.25, w: 3.2, h: 2.4, flipH: true });
 
     // Laptop
