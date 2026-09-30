@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
@@ -9,6 +10,7 @@ import type { Pesan } from "@/lib/types";
 export const metadata: Metadata = { title: "Dasbor" };
 
 export default async function DashboardPage() {
+  await requireAdmin();
   const sql = db();
   const counts = await Promise.all(
     RESOURCES.map(async (r) => {

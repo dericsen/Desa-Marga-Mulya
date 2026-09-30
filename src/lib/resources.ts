@@ -1,6 +1,6 @@
 // Konfigurasi koleksi konten CMS. Setiap koleksi dipetakan ke satu tabel database,
 // sehingga halaman admin (daftar, tambah, ubah, hapus) dibuat secara generik dari konfigurasi ini.
-import { BERITA_TYPES, LOKASI_TYPES, PESANAN_STATUS, POTENSI_TYPES, PRODUK_KATEGORI, STAT_CATEGORIES, type IconName } from "./categories";
+import { BERITA_TYPES, LOKASI_TYPES, PESANAN_STATUS, POTENSI_TYPES, PRODUK_KATEGORI, PRODUK_TINJAU, STAT_CATEGORIES, type IconName } from "./categories";
 
 export type FieldType =
   | "text" | "textarea" | "markdown" | "number" | "select" | "image" | "date" | "boolean" | "items" | "list" | "email" | "relation";
@@ -45,6 +45,8 @@ export type Resource = {
   searchColumn?: string;
   /** Kolom yang dibuat otomatis menjadi slug bila field slug kosong. */
   slugFrom?: string;
+  /** Tautan filter cepat di daftar CMS, mis. hanya produk yang menunggu tinjauan. */
+  quickFilter?: { column: string; value: string; label: string };
   publicPath?: string;
 };
 
@@ -87,15 +89,17 @@ export const RESOURCES: Resource[] = [
     icon: "store",
     description: "Produk UMKM yang dijual di Pasar Desa. Harga ditulis dalam rupiah tanpa titik.",
     publicPath: "/pasar",
-    orderBy: "penjual_id, urutan, id",
+    orderBy: "(status_tinjau = 'menunggu') desc, penjual_id, urutan, id",
     searchColumn: "nama",
     slugFrom: "nama",
+    quickFilter: { column: "status_tinjau", value: "menunggu", label: "Menunggu tinjauan" },
     columns: [
       { name: "gambar", label: "", type: "image" },
       { name: "nama", label: "Produk" },
       { name: "penjual_id", label: "Penjual", type: "relation", relation: { table: "penjual", labelColumn: "nama" } },
       { name: "harga", label: "Harga", type: "rupiah" },
       { name: "stok", label: "Stok", type: "number" },
+      { name: "status_tinjau", label: "Tinjauan", type: "select" },
       { name: "tersedia", label: "Dijual", type: "boolean" },
     ],
     fields: [
@@ -111,6 +115,8 @@ export const RESOURCES: Resource[] = [
       { name: "slug", label: "Slug URL", type: "text", help: "Kosongkan untuk dibuat otomatis dari nama." },
       { name: "gambar", label: "Foto Produk", type: "image", wide: true },
       { name: "deskripsi", label: "Deskripsi", type: "textarea", wide: true, help: "Tulis bahan, ukuran, daya tahan, dan cara penyimpanan." },
+      { name: "status_tinjau", label: "Status tinjauan", type: "select", options: opt(PRODUK_TINJAU), required: true, help: "Hanya produk berstatus Disetujui yang tampil di Pasar Desa." },
+      { name: "catatan_tinjau", label: "Catatan untuk penjual", type: "textarea", wide: true, placeholder: "mis. Foto kurang jelas, mohon unggah foto kemasan." },
     ],
   },
   {
@@ -340,6 +346,26 @@ export const RESOURCES: Resource[] = [
       { name: "pesan", label: "Pesan", type: "textarea", wide: true },
     ],
   },
+];
+
+/** Field produk yang boleh diisi penjual sendiri (tanpa pilihan penjual, unggulan, urutan, slug). */
+export const PRODUK_PENJUAL_FIELDS: Field[] = [
+  { name: "nama", label: "Nama produk", type: "text", required: true, wide: true, placeholder: "mis. Bandeng Presto Duri Lunak" },
+  { name: "kategori", label: "Kategori", type: "select", options: opt(PRODUK_KATEGORI), required: true },
+  { name: "harga", label: "Harga (Rp)", type: "number", required: true, placeholder: "45000", help: "Angka saja, tanpa titik." },
+  { name: "satuan", label: "Kemasan / satuan", type: "text", placeholder: "mis. 500 gr, isi 10, per ikat" },
+  { name: "stok", label: "Stok", type: "number", help: "Kosongkan bila selalu tersedia." },
+  { name: "gambar", label: "Foto produk", type: "image", wide: true, help: "Foto dari HP sudah cukup. Gunakan cahaya terang dan latar polos." },
+  { name: "deskripsi", label: "Deskripsi", type: "textarea", wide: true, placeholder: "Bahan, ukuran, daya tahan, cara penyimpanan." },
+  { name: "tersedia", label: "Tampilkan dan jual di Pasar Desa", type: "boolean", wide: true },
+];
+
+/** Field profil toko yang boleh diubah penjual. */
+export const PROFIL_TOKO_FIELDS: Field[] = [
+  { name: "pemilik", label: "Nama pemilik", type: "text" },
+  { name: "alamat", label: "Alamat (RT/RW)", type: "text" },
+  { name: "foto", label: "Foto toko atau produk andalan", type: "image", wide: true },
+  { name: "deskripsi", label: "Tentang usaha", type: "textarea", wide: true, placeholder: "Sejak kapan berjualan, hari produksi, menerima pesanan hajatan, dll." },
 ];
 
 export function getResource(key: string): Resource | undefined {

@@ -32,7 +32,7 @@ async function cari(q: string): Promise<Hasil[]> {
       select judul, album, deskripsi from galeri where judul ilike ${like} or deskripsi ilike ${like} or album ilike ${like} limit 10`,
     sql<{ nama: string; slug: string; harga: number; satuan: string | null; penjual: string }[]>`
       select p.nama, p.slug, p.harga, p.satuan, j.nama as penjual from produk p join penjual j on j.id = p.penjual_id
-      where p.tersedia = true and j.aktif = true and (p.nama ilike ${like} or p.deskripsi ilike ${like} or j.nama ilike ${like}) limit 10`,
+      where p.tersedia = true and p.status_tinjau = 'disetujui' and j.aktif = true and (p.nama ilike ${like} or p.deskripsi ilike ${like} or j.nama ilike ${like}) limit 10`,
   ]);
 
   return [

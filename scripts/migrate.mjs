@@ -171,6 +171,14 @@ create table if not exists pesanan (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+-- Portal penjual: akun per penjual dan tinjauan produk oleh admin
+alter table users add column if not exists role text not null default 'admin';
+alter table users add column if not exists penjual_id integer references penjual(id) on delete cascade;
+alter table users add column if not exists aktif boolean not null default true;
+alter table produk add column if not exists status_tinjau text not null default 'disetujui';
+alter table produk add column if not exists catatan_tinjau text;
+alter table produk add column if not exists diajukan_at timestamptz;
+create index if not exists produk_tinjau_idx on produk (status_tinjau);
 create index if not exists produk_penjual_idx on produk (penjual_id);
 create index if not exists pesanan_created_idx on pesanan (created_at desc);
 create index if not exists statistik_kategori_idx on statistik (kategori, urutan);
@@ -232,7 +240,17 @@ async function main() {
     await insertRows("produk", rows);
   }
 
-  if (await isEmpty("users")) {
+  // Akun penjual contoh (hanya bila SELLER_DEMO_PASSWORD diatur) — untuk demo dan pengujian.
+  if (process.env.SELLER_DEMO_PASSWORD) {
+    const [j] = await sql`select id from penjual where slug = 'bandeng-presto-mulya'`;
+    const [exists] = await sql`select 1 from users where email = '6281200000001'`;
+    if (j && !exists) {
+      await sql`insert into users (nama, email, password_hash, role, penjual_id) values ('Ibu Sumiati', '6281200000001', ${hashPassword(process.env.SELLER_DEMO_PASSWORD)}, 'penjual', ${j.id})`;
+      console.log("[migrate] Akun penjual contoh dibuat: login 081200000001 (Bandeng Presto Mulya).");
+    }
+  }
+
+  if ((await sql`select 1 from users where role = 'admin' limit 1`).length === 0) {
     const email = (process.env.ADMIN_EMAIL || "admin@margamulya.desa.id").toLowerCase();
     const password = process.env.ADMIN_PASSWORD || "MargaMulya2026!";
     await sql`insert into users (nama, email, password_hash) values ('Administrator Desa', ${email}, ${hashPassword(password)})`;

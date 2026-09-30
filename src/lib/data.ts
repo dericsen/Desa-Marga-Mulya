@@ -114,7 +114,7 @@ export async function getProduk(f: ProdukFilter = {}): Promise<Produk[]> {
   const rows = await sql<Produk[]>`
     select p.*, j.nama as penjual_nama, j.slug as penjual_slug, j.alamat as penjual_alamat
     from produk p join penjual j on j.id = p.penjual_id
-    where p.tersedia = true and j.aktif = true
+    where p.tersedia = true and p.status_tinjau = 'disetujui' and j.aktif = true
       ${f.kategori ? sql`and p.kategori = ${f.kategori}` : sql``}
       ${f.penjual ? sql`and j.slug = ${f.penjual}` : sql``}
       ${f.unggulan ? sql`and p.unggulan = true and (p.stok is null or p.stok > 0)` : sql``}
@@ -128,7 +128,7 @@ export async function getProdukBySlug(slug: string): Promise<Produk | null> {
   const rows = await db()<Produk[]>`
     select p.*, j.nama as penjual_nama, j.slug as penjual_slug, j.alamat as penjual_alamat
     from produk p join penjual j on j.id = p.penjual_id
-    where p.slug = ${slug} and p.tersedia = true and j.aktif = true`;
+    where p.slug = ${slug} and p.tersedia = true and p.status_tinjau = 'disetujui' and j.aktif = true`;
   const r = rows[0];
   return r ? { ...r, harga: Number(r.harga), stok: r.stok === null ? null : Number(r.stok) } : null;
 }
@@ -138,7 +138,7 @@ export type PenjualRingkas = Penjual & { jumlah_produk: number; harga_min: numbe
 export const getPenjual = cache(async (): Promise<PenjualRingkas[]> => {
   const rows = await db()<PenjualRingkas[]>`
     select j.*, count(p.id)::int as jumlah_produk, min(p.harga) as harga_min
-    from penjual j left join produk p on p.penjual_id = j.id and p.tersedia = true
+    from penjual j left join produk p on p.penjual_id = j.id and p.tersedia = true and p.status_tinjau = 'disetujui'
     where j.aktif = true
     group by j.id
     order by j.urutan, j.id`;

@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth";
 import type { Metadata } from "next";
 import { saveSettings } from "@/app/admin/actions";
 import { CmsForm } from "@/components/admin/CmsForm";
@@ -7,6 +8,7 @@ import { SETTINGS_GROUPS } from "@/lib/resources";
 export const metadata: Metadata = { title: "Pengaturan Situs" };
 
 export default async function PengaturanPage() {
+  await requireAdmin();
   const site = await getSite();
   return (
     <div className="mx-auto max-w-4xl">

@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { saveResource } from "@/app/admin/actions";
@@ -13,6 +14,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function NewResourcePage({ params }: Props) {
+  await requireAdmin();
   const { resource: key } = await params;
   const resource = getResource(key);
   if (!resource || resource.readonly) notFound();
@@ -23,6 +25,7 @@ export default async function NewResourcePage({ params }: Props) {
     if (f.type === "boolean" && f.name === "terbit") initial[f.name] = true;
     if (f.name === "tahun") initial[f.name] = new Date().getFullYear();
     if (f.type === "boolean" && (f.name === "tersedia" || f.name === "aktif")) initial[f.name] = true;
+    if (f.name === "status_tinjau") initial[f.name] = "disetujui";
   }
   const fields = await withRelationOptions(resource.fields);
 

@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteResource } from "@/app/admin/actions";
@@ -15,7 +16,7 @@ const PESAN: Record<string, string> = {
   "gagal-hapus": "Data tidak dapat dihapus karena masih dipakai data lain (mis. penjual yang masih punya produk). Hapus atau pindahkan data terkait terlebih dahulu.",
 };
 
-type Props = { params: Promise<{ resource: string }>; searchParams: Promise<{ q?: string; pesan?: string }> };
+type Props = { params: Promise<{ resource: string }>; searchParams: Promise<{ q?: string; pesan?: string; saring?: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { resource } = await params;
@@ -23,17 +24,33 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function ResourceListPage({ params, searchParams }: Props) {
+  await requireAdmin();
   const { resource: key } = await params;
-  const { q = "", pesan } = await searchParams;
+  const { q = "", pesan, saring } = await searchParams;
   const resource = getResource(key);
   if (!resource) notFound();
 
   const searchCol = resource.searchColumn ?? resource.columns.find((c) => !c.type)?.name ?? "id";
   const sql = db();
   const keyword = q.trim().slice(0, 100);
+  const qf = resource.quickFilter;
+  const pakaiSaring = Boolean(qf && saring === "1");
+  const where: string[] = [];
+  const args: string[] = [];
+  if (keyword) {
+    args.push(`%${keyword}%`);
+    where.push(`"${searchCol}"::text ilike $${args.length}`);
+  }
+  if (pakaiSaring && qf) {
+    args.push(qf.value);
+    where.push(`"${qf.column}" = $${args.length}`);
+  }
+  const [{ n: jumlahSaring }] = qf
+    ? ((await sql.unsafe(`select count(*)::int as n from "${resource.table}" where "${qf.column}" = $1`, [qf.value])) as unknown as { n: number }[])
+    : [{ n: 0 }];
   const rows = (await sql.unsafe(
-    `select * from "${resource.table}" ${keyword ? `where "${searchCol}"::text ilike $1` : ""} order by ${resource.orderBy} limit 500`,
-    keyword ? [`%${keyword}%`] : []
+    `select * from "${resource.table}" ${where.length ? `where ${where.join(" and ")}` : ""} order by ${resource.orderBy} limit 500`,
+    args
   )) as unknown as Record<string, unknown>[];
 
   const relMaps = new Map<string, Map<string, string>>();
@@ -69,7 +86,23 @@ export default async function ResourceListPage({ params, searchParams }: Props) 
         </p>
       ) : null}
 
+      {qf ? (
+        <p className="mt-5 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+          <Link href={`/admin/${key}`} aria-current={!pakaiSaring ? "true" : undefined} className={!pakaiSaring ? "font-semibold text-ink" : "text-muted hover:text-ink"}>
+            Semua
+          </Link>
+          <Link
+            href={`/admin/${key}?saring=1`}
+            aria-current={pakaiSaring ? "true" : undefined}
+            className={pakaiSaring ? "font-semibold text-ink" : "text-muted hover:text-ink"}
+          >
+            {qf.label} <span className={`ml-1 rounded-sm px-1.5 py-0.5 text-xs tabular-nums ${jumlahSaring ? "bg-sun-400 text-ink" : "bg-line text-muted"}`}>{jumlahSaring}</span>
+          </Link>
+        </p>
+      ) : null}
+
       <form className="mt-5 flex max-w-md gap-2" role="search">
+        {pakaiSaring ? <input type="hidden" name="saring" value="1" /> : null}
         <label htmlFor="q" className="sr-only">Cari</label>
         <input id="q" name="q" defaultValue={keyword} placeholder={`Cari ${(resource.columns.find((c) => c.name === searchCol) ?? resource.columns.find((c) => !c.type))?.label.toLowerCase() ?? ""}…`} className="input" />
         <button type="submit" className="btn-light">
@@ -150,6 +183,10 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 function Cell({ type, name, value, label }: { type?: string; name: string; value: unknown; label?: string }) {
+  if (name === "status_tinjau" && typeof value === "string") {
+    const tone = value === "menunggu" ? STATUS_STYLE.baru : value === "ditolak" ? STATUS_STYLE.dibatalkan : STATUS_STYLE.diproses;
+    return <span className={`rounded-sm border px-2 py-0.5 text-xs font-semibold ${tone}`}>{label}</span>;
+  }
   if (name === "status" && typeof value === "string") {
     return <span className={`rounded-sm border px-2 py-0.5 text-xs font-semibold ${STATUS_STYLE[value] ?? ""}`}>{label}</span>;
   }

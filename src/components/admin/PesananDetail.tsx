@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { deleteResource, setPesananStatus } from "@/app/admin/actions";
+import { deleteResource, setPesananStatus, type FormState } from "@/app/admin/actions";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { StatusForm } from "@/components/admin/StatusForm";
 import { Icon } from "@/components/Icon";
@@ -7,14 +7,23 @@ import { PENGIRIMAN, PESANAN_STATUS } from "@/lib/categories";
 import { formatDateTime, formatRupiah, waLink } from "@/lib/format";
 import type { PesananItem } from "@/lib/types";
 
-export function PesananDetail({ row, id }: { row: Record<string, unknown>; id: number }) {
+type Props = {
+  row: Record<string, unknown>;
+  id: number;
+  /** Default: aksi admin. Portal penjual memberi aksi yang memeriksa kepemilikan. */
+  statusAction?: (prev: FormState, fd: FormData) => Promise<FormState>;
+  backHref?: string;
+  allowDelete?: boolean;
+};
+
+export function PesananDetail({ row, id, statusAction, backHref = "/admin/pesanan", allowDelete = true }: Props) {
   const items = (Array.isArray(row.items) ? row.items : []) as PesananItem[];
   const pengiriman = PENGIRIMAN.find((p) => p.key === row.pengiriman)?.label ?? String(row.pengiriman);
   const wa = waLink(String(row.telepon || ""), `Halo ${row.nama_pembeli}, pesanan Anda ${row.kode} di Pasar Desa Marga Mulya: `);
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/admin/pesanan" className="text-sm font-semibold text-brand-700 hover:underline">← Pesanan</Link>
+      <Link href={backHref} className="text-sm font-semibold text-brand-700 hover:underline">← Pesanan</Link>
       <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-semibold text-ink tabular-nums">Pesanan {String(row.kode)}</h1>
@@ -23,7 +32,7 @@ export function PesananDetail({ row, id }: { row: Record<string, unknown>; id: n
             <span className="font-semibold text-ink" data-status-pesanan>{PESANAN_STATUS.find((s) => s.key === row.status)?.label ?? String(row.status)}</span>
           </p>
         </div>
-        <StatusForm action={setPesananStatus.bind(null, id)} current={String(row.status)} />
+        <StatusForm action={statusAction ?? setPesananStatus.bind(null, id)} current={String(row.status)} />
       </div>
 
       <section className="card mt-6 p-5">
@@ -76,11 +85,13 @@ export function PesananDetail({ row, id }: { row: Record<string, unknown>; id: n
             <Icon name="whatsapp" className="h-4 w-4 text-[#1f8a4c]" /> Hubungi pembeli
           </a>
         ) : null}
-        <form action={deleteResource.bind(null, "pesanan", id)}>
-          <ConfirmButton message="Hapus pesanan ini? Stok tidak dikembalikan otomatis — batalkan dulu bila perlu." className="btn-light text-red-700">
-            <Icon name="trash" className="h-4 w-4" /> Hapus
-          </ConfirmButton>
-        </form>
+        {allowDelete ? (
+          <form action={deleteResource.bind(null, "pesanan", id)}>
+            <ConfirmButton message="Hapus pesanan ini? Stok tidak dikembalikan otomatis — batalkan dulu bila perlu." className="btn-light text-red-700">
+              <Icon name="trash" className="h-4 w-4" /> Hapus
+            </ConfirmButton>
+          </form>
+        ) : null}
       </div>
       <p className="mt-4 text-xs text-muted">Membatalkan pesanan akan mengembalikan stok produk secara otomatis.</p>
     </div>

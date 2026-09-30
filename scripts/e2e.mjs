@@ -151,6 +151,59 @@ console.log("\n== Pasar Desa ==");
   await ctx.close();
 }
 
+console.log("\n== Portal penjual ==");
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto(BASE + "/admin/login", { waitUntil: "networkidle" });
+  await page.fill("#email", "0812-0000-0001");
+  await page.fill("#password", process.env.SELLER_DEMO_PASSWORD);
+  await page.getByRole("button", { name: "Masuk" }).click();
+  await page.waitForURL("**/admin/toko", { timeout: 15000 });
+  check((await page.getByRole("heading", { name: "Bandeng Presto Mulya" }).count()) > 0, "penjual login dengan nomor HP dan masuk ke portal tokonya");
+  await page.screenshot({ path: `${OUT}/penjual-ringkasan.png`, fullPage: true });
+
+  for (const path of ["/admin", "/admin/pengaturan", "/admin/produk", "/admin/pesanan", "/admin/penjual/1"]) {
+    await page.goto(BASE + path, { waitUntil: "networkidle" });
+    check(new URL(page.url()).pathname === "/admin/toko", `penjual tidak bisa membuka ${path}`);
+  }
+  const res = await page.goto(BASE + "/admin/toko/produk/13", { waitUntil: "networkidle" });
+  check(res?.status() === 404, `penjual tidak bisa membuka produk toko lain (${res?.status()})`);
+
+  // Ubah cepat harga: langsung berlaku
+  await page.goto(BASE + "/admin/toko/produk", { waitUntil: "networkidle" });
+  check((await page.getByText("Menunggu tinjauan").count()) > 0, "produk yang diajukan tampil dengan status Menunggu tinjauan");
+  const row = page.locator('li[data-produk="Otak-otak Bandeng"]');
+  await row.locator('input[name="harga"]').fill("32000");
+  await row.getByRole("button", { name: /Simpan harga dan stok/ }).click();
+  await row.getByText("Tersimpan").waitFor({ timeout: 15000 });
+  await page.screenshot({ path: `${OUT}/penjual-produk.png`, fullPage: true });
+  await page.goto(BASE + "/pasar?produk=otak-otak-bandeng", { waitUntil: "networkidle" });
+  check((await page.getByText("Rp 32.000").count()) > 0, "harga baru dari penjual langsung tampil di Pasar Desa");
+
+  // Produk baru: menunggu tinjauan, belum tampil
+  await page.goto(BASE + "/admin/toko/produk/baru", { waitUntil: "networkidle" });
+  await page.fill("#f-nama", "Pepes Bandeng Uji CI");
+  await page.fill("#f-harga", "25000");
+  await page.fill("#f-deskripsi", "Produk uji otomatis dari portal penjual.");
+  await page.getByRole("button", { name: "Kirim untuk ditinjau" }).click();
+  await page.getByText("Produk baru sudah dikirim").waitFor({ timeout: 15000 });
+  check(true, "penjual mengajukan produk baru");
+  await page.goto(BASE + "/pasar?q=Pepes%20Bandeng%20Uji", { waitUntil: "networkidle" });
+  check((await page.getByText("Tidak ada produk yang cocok").count()) > 0, "produk yang belum disetujui tidak tampil di Pasar Desa");
+
+  // Pesanan: hanya milik toko sendiri
+  await page.goto(BASE + "/admin/toko/pesanan", { waitUntil: "networkidle" });
+  check((await page.getByText("Pembeli Uji CI").count()) === 1, "penjual melihat pesanan untuk tokonya");
+  check((await page.getByText("Beras Sawah Mulya").count()) === 0, "penjual tidak melihat pesanan toko lain");
+  await page.screenshot({ path: `${OUT}/penjual-pesanan.png`, fullPage: true });
+
+  check(errors.length === 0, `portal penjual tanpa error JavaScript ${errors.length ? JSON.stringify(errors) : ""}`);
+  await ctx.close();
+}
+
 console.log("\n== CMS ==");
 {
   const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
@@ -163,7 +216,7 @@ console.log("\n== CMS ==");
   await page.fill("#email", process.env.ADMIN_EMAIL);
   await page.fill("#password", "salah-sandi");
   await page.getByRole("button", { name: "Masuk" }).click();
-  await page.getByText("Email atau kata sandi salah").waitFor();
+  await page.getByText("kata sandi salah").waitFor();
   check(true, "login dengan kata sandi salah ditolak");
   await page.fill("#password", process.env.ADMIN_PASSWORD);
   await page.getByRole("button", { name: "Masuk" }).click();
@@ -246,6 +299,45 @@ console.log("\n== CMS ==");
   await page.getByRole("button", { name: "Hapus" }).first().click();
   await page.getByText("tidak dapat dihapus").waitFor({ timeout: 15000 });
   check(true, "penjual dengan produk dilindungi dari penghapusan");
+
+  // Antrean tinjauan: setujui produk dari penjual
+  await page.goto(BASE + "/admin/produk?saring=1", { waitUntil: "networkidle" });
+  check((await page.getByText("Pepes Bandeng Uji CI").count()) > 0, "produk dari penjual masuk antrean tinjauan admin");
+  await page.getByRole("row", { name: /Pepes Bandeng Uji CI/ }).getByRole("link", { name: "Ubah" }).click();
+  await page.getByText("Produk menunggu tinjauan").waitFor({ timeout: 15000 });
+  await page.screenshot({ path: `${OUT}/cms-tinjauan.png`, fullPage: true });
+  await page.getByRole("button", { name: "Setujui dan tayangkan" }).click();
+  await page.getByText("Produk disetujui").waitFor({ timeout: 15000 });
+  await page.goto(BASE + "/pasar?q=Pepes%20Bandeng%20Uji", { waitUntil: "networkidle" });
+  check((await page.getByText("Rp 25.000").count()) > 0, "produk tampil di Pasar Desa setelah disetujui");
+
+  // Akun penjual baru dari halaman Pelaku Usaha
+  await page.goto(BASE + "/admin/penjual", { waitUntil: "networkidle" });
+  await page.getByRole("row", { name: /Dapur Bu Enah/ }).getByRole("link", { name: "Ubah" }).click();
+  await page.fill("#akun-nama", "Ibu Enah");
+  await page.fill("#akun-login", "081200000002");
+  await page.fill("#akun-password", "RahasiaBuEnah1");
+  await page.getByRole("button", { name: "Buat akun penjual" }).click();
+  await page.getByText("Akun penjual dibuat").waitFor({ timeout: 15000 });
+  check(true, "admin membuat akun penjual");
+  const penjualUrl = page.url();
+  {
+    const c2 = await browser.newContext();
+    const p2 = await c2.newPage();
+    await p2.goto(BASE + "/admin/login");
+    await p2.fill("#email", "081200000002");
+    await p2.fill("#password", "RahasiaBuEnah1");
+    await p2.getByRole("button", { name: "Masuk" }).click();
+    await p2.waitForURL("**/admin/toko", { timeout: 15000 });
+    check((await p2.getByRole("heading", { name: "Dapur Bu Enah" }).count()) > 0, "akun penjual baru bisa login ke tokonya");
+    // Admin menonaktifkan akun → akses penjual langsung dicabut
+    await page.goto(penjualUrl, { waitUntil: "networkidle" });
+    await page.getByRole("button", { name: "Nonaktifkan" }).click();
+    await page.getByText("Nonaktif", { exact: true }).waitFor({ timeout: 15000 });
+    await p2.goto(BASE + "/admin/toko", { waitUntil: "networkidle" });
+    check(new URL(p2.url()).pathname === "/admin/login" && (await p2.getByText("dinonaktifkan").count()) > 0, "akun penjual yang dinonaktifkan langsung kehilangan akses");
+    await c2.close();
+  }
 
   // Pesan masuk
   await page.goto(BASE + "/admin/pesan", { waitUntil: "networkidle" });

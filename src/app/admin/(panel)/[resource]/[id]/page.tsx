@@ -1,6 +1,9 @@
+import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { deleteResource, saveResource, setPesanDibaca } from "@/app/admin/actions";
+import { deleteResource, saveResource, setPesanDibaca, tinjauProduk } from "@/app/admin/actions";
+import { ReviewPanel } from "@/components/admin/ReviewPanel";
+import { SellerAccounts } from "@/components/admin/SellerAccounts";
 import { CmsForm } from "@/components/admin/CmsForm";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { Icon } from "@/components/Icon";
@@ -18,6 +21,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function EditResourcePage({ params }: Props) {
+  await requireAdmin();
   const { resource: key, id: rawId } = await params;
   const resource = getResource(key);
   const id = Number(rawId);
@@ -91,6 +95,23 @@ export default async function EditResourcePage({ params }: Props) {
           </ConfirmButton>
         </form>
       </div>
+      {key === "produk" ? (
+        <ReviewPanel
+          action={tinjauProduk.bind(null, id)}
+          status={String(row.status_tinjau)}
+          penjual={(await sql<{ nama: string }[]>`select nama from penjual where id = ${Number(row.penjual_id)}`)[0]?.nama ?? "penjual"}
+          diajukan={row.diajukan_at ? formatDateTime(row.diajukan_at as Date) : null}
+          catatan={(row.catatan_tinjau as string | null) ?? null}
+        />
+      ) : null}
+      {key === "penjual" ? (
+        <SellerAccounts
+          penjualId={id}
+          penjualNama={String(row.nama)}
+          akun={(await sql<{ id: number; nama: string; email: string; aktif: boolean }[]>`
+            select id, nama, email, aktif from users where role = 'penjual' and penjual_id = ${id} order by id`).map((a) => ({ ...a }))}
+        />
+      ) : null}
       <CmsForm action={saveResource.bind(null, key, id)} groups={[{ fields: await withRelationOptions(resource.fields) }]} initial={initial} cancelHref={`/admin/${key}`} />
     </div>
   );

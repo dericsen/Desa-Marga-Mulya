@@ -19,7 +19,7 @@ function Status({ state }: { state: FormState }) {
   return <p role="status" className={`text-sm font-semibold ${state.ok ? "text-brand-700" : "text-red-600"}`}>{state.message}</p>;
 }
 
-export function AccountForms() {
+export function AccountForms({ canAddAdmin = true }: { canAddAdmin?: boolean }) {
   const [pwState, pwAction, pwPending] = useActionState<FormState, FormData>(changePassword, null);
   const [adState, adAction, adPending] = useActionState<FormState, FormData>(addAdmin, null);
   const adRef = useRef<HTMLFormElement>(null);
@@ -28,7 +28,7 @@ export function AccountForms() {
   }, [adState]);
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className={canAddAdmin ? "grid gap-6 md:grid-cols-2" : ""}>
       <form action={pwAction} className="card space-y-4 p-5">
         <h2 className="font-bold text-stone-900">Ganti Kata Sandi</h2>
         <Input name="current" label="Kata sandi saat ini" type="password" autoComplete="current-password" error={pwState?.errors?.current} />
@@ -38,6 +38,7 @@ export function AccountForms() {
         <button type="submit" className="btn-primary" disabled={pwPending}>{pwPending ? "Menyimpan…" : "Ganti Kata Sandi"}</button>
       </form>
 
+      {canAddAdmin ? (
       <form ref={adRef} action={adAction} className="card space-y-4 p-5">
         <h2 className="font-bold text-stone-900">Tambah Admin</h2>
         <Input name="nama" label="Nama" error={adState?.errors?.nama} />
@@ -46,6 +47,7 @@ export function AccountForms() {
         <Status state={adState} />
         <button type="submit" className="btn-primary" disabled={adPending}>{adPending ? "Menyimpan…" : "Tambah Admin"}</button>
       </form>
+      ) : null}
     </div>
   );
 }

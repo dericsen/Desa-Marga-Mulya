@@ -3,16 +3,25 @@ import { deleteAdmin } from "@/app/admin/actions";
 import { AccountForms } from "@/components/admin/AccountForms";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { Icon } from "@/components/Icon";
-import { requireAdmin } from "@/lib/auth";
+import { requireStaff } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatDateTime } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Akun Admin" };
 
 export default async function AkunPage() {
-  const session = await requireAdmin();
+  const session = await requireStaff();
+  if (session.role === "penjual") {
+    return (
+      <div className="mx-auto max-w-lg">
+        <h1 className="font-display text-2xl font-semibold text-ink">Ganti kata sandi</h1>
+        <p className="mt-1 mb-6 text-sm text-muted">Login Anda: <span className="font-semibold text-ink tabular-nums">{session.email}</span>. Lupa kata sandi? Minta admin desa mengatur ulang.</p>
+        <AccountForms canAddAdmin={false} />
+      </div>
+    );
+  }
   const users = await db()<{ id: number; nama: string; email: string; created_at: Date }[]>`
-    select id, nama, email, created_at from users order by id`;
+    select id, nama, email, created_at from users where role = 'admin' order by id`;
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -42,7 +51,7 @@ export default async function AkunPage() {
         </ul>
       </section>
 
-      <AccountForms />
+      <AccountForms canAddAdmin />
     </div>
   );
 }

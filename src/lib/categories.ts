@@ -57,3 +57,19 @@ export const PENGIRIMAN = [
   { key: "ambil", label: "Ambil sendiri di tempat penjual" },
   { key: "antar", label: "Diantar (dalam Desa Marga Mulya)" },
 ];
+
+/** Status tinjauan produk yang diajukan penjual. */
+export const PRODUK_TINJAU = [
+  { key: "menunggu", label: "Menunggu tinjauan" },
+  { key: "disetujui", label: "Disetujui" },
+  { key: "ditolak", label: "Perlu diperbaiki" },
+];
+
+/** Label status produk dari sudut pandang penjual. */
+export function statusProdukPenjual(p: { status_tinjau: string; tersedia: boolean; stok: number | null }): { label: string; tone: "live" | "wait" | "fix" | "off" } {
+  if (p.status_tinjau === "menunggu") return { label: "Menunggu tinjauan", tone: "wait" };
+  if (p.status_tinjau === "ditolak") return { label: "Perlu diperbaiki", tone: "fix" };
+  if (!p.tersedia) return { label: "Disembunyikan", tone: "off" };
+  if (p.stok === 0) return { label: "Habis", tone: "off" };
+  return { label: "Tayang", tone: "live" };
+}

@@ -84,7 +84,7 @@ export async function buatPesanan(input: CheckoutInput): Promise<CheckoutResult>
       const rows = await tx<Row[]>`
         select p.id, p.nama, p.satuan, p.harga, p.stok, p.penjual_id, j.nama as penjual_nama, j.whatsapp
         from produk p join penjual j on j.id = p.penjual_id
-        where p.id in ${tx(ids)} and p.tersedia = true and j.aktif = true
+        where p.id in ${tx(ids)} and p.tersedia = true and p.status_tinjau = 'disetujui' and j.aktif = true
         for update of p`;
       const byId = new Map(rows.map((r) => [r.id, r]));
 

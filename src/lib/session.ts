@@ -4,7 +4,9 @@
 export const SESSION_COOKIE = "mm_session";
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
-export type Session = { uid: number; email: string; nama: string; exp: number };
+export type Role = "admin" | "penjual";
+/** pid = id penjual (hanya untuk role penjual). */
+export type Session = { uid: number; email: string; nama: string; role: Role; pid: number | null; exp: number };
 
 const enc = new TextEncoder();
 const dec = new TextDecoder();
@@ -45,12 +47,21 @@ export async function verifySession(token: string | undefined | null): Promise<S
   try {
     const ok = await crypto.subtle.verify("HMAC", await hmacKey(), fromB64Url(sig) as BufferSource, enc.encode(body));
     if (!ok) return null;
-    const payload = JSON.parse(dec.decode(fromB64Url(body))) as Session;
-    if (!payload.exp || payload.exp < Date.now()) return null;
-    return payload;
+    const payload = JSON.parse(dec.decode(fromB64Url(body))) as Partial<Session>;
+    if (!payload.exp || payload.exp < Date.now() || typeof payload.uid !== "number") return null;
+    // Sesi lama (sebelum ada peran) selalu milik admin.
+    const role: Role = payload.role === "penjual" ? "penjual" : "admin";
+    const pid = role === "penjual" && typeof payload.pid === "number" ? payload.pid : null;
+    if (role === "penjual" && pid === null) return null;
+    return { uid: payload.uid, email: String(payload.email ?? ""), nama: String(payload.nama ?? ""), role, pid, exp: payload.exp };
   } catch {
     return null;
   }
 }
 
 export const SESSION_MAX_AGE_SECONDS = MAX_AGE_MS / 1000;
+
+/** Halaman CMS yang boleh dibuka penjual. Selain ini hanya untuk admin. */
+export function sellerMayAccess(pathname: string): boolean {
+  return pathname === "/admin/toko" || pathname.startsWith("/admin/toko/") || pathname === "/admin/akun";
+}

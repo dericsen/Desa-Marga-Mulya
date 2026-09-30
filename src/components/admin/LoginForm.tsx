@@ -7,10 +7,11 @@ export function LoginForm() {
   const [state, action, pending] = useActionState<FormState, FormData>(login, null);
   return (
     <form action={action} className="card space-y-4 p-6">
-      <h1 className="font-display text-xl font-semibold text-ink">Masuk Admin</h1>
+      <h1 className="font-display text-xl font-semibold text-ink">Masuk</h1>
+      <p className="-mt-2 text-sm text-muted">Untuk admin desa dan penjual Pasar Desa.</p>
       <div>
-        <label htmlFor="email" className="label">Email</label>
-        <input id="email" name="email" type="email" autoComplete="username" required className="input" defaultValue={String(state?.values?.email ?? "")} />
+        <label htmlFor="email" className="label">Email atau nomor HP</label>
+        <input id="email" name="email" type="text" inputMode="email" autoComplete="username" required className="input" defaultValue={String(state?.values?.email ?? "")} />
       </div>
       <div>
         <label htmlFor="password" className="label">Kata Sandi</label>

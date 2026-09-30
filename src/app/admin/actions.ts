@@ -3,12 +3,12 @@
 import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdmin, requireStaff } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { parseFields } from "@/lib/form-parse";
+import { ubahStatusPesanan } from "@/lib/pesanan";
 import { slugify } from "@/lib/format";
-import { hashPassword, verifyPassword } from "@/lib/password";
-import { PESANAN_STATUS } from "@/lib/categories";
+import { hashPassword, normalizeLogin, verifyPassword } from "@/lib/password";
 import { getResource, SETTINGS_GROUPS } from "@/lib/resources";
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, signSession } from "@/lib/session";
 
@@ -19,27 +19,41 @@ export type FormState = { ok?: boolean; message?: string; errors?: Record<string
 const attempts = new Map<string, { count: number; until: number }>();
 
 export async function login(_prev: FormState, formData: FormData): Promise<FormState> {
-  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const raw = String(formData.get("email") || "");
+  const ident = normalizeLogin(raw);
   const password = String(formData.get("password") || "");
   const h = await headers();
   const ip = (h.get("x-forwarded-for") || "lokal").split(",")[0].trim();
   const a = attempts.get(ip);
+  const values = { email: raw.trim() };
   if (a && a.count >= 5 && a.until > Date.now()) {
-    return { message: "Terlalu banyak percobaan login. Coba lagi dalam 10 menit.", values: { email } };
+    return { message: "Terlalu banyak percobaan login. Coba lagi dalam 10 menit.", values };
   }
-  if (!email || !password) return { message: "Email dan kata sandi wajib diisi.", values: { email } };
+  if (!ident || !password) return { message: "Email/nomor HP dan kata sandi wajib diisi.", values };
 
-  const rows = await db()<{ id: number; nama: string; email: string; password_hash: string }[]>`
-    select id, nama, email, password_hash from users where email = ${email}`;
+  const rows = await db()<{ id: number; nama: string; email: string; password_hash: string; role: string; penjual_id: number | null; aktif: boolean; penjual_aktif: boolean | null }[]>`
+    select u.id, u.nama, u.email, u.password_hash, u.role, u.penjual_id, u.aktif, j.aktif as penjual_aktif
+    from users u left join penjual j on j.id = u.penjual_id
+    where u.email = ${ident}`;
   const user = rows[0];
   if (!user || !verifyPassword(password, user.password_hash)) {
     const cur = a && a.until > Date.now() ? a : { count: 0, until: 0 };
     attempts.set(ip, { count: cur.count + 1, until: Date.now() + 10 * 60 * 1000 });
-    return { message: "Email atau kata sandi salah.", values: { email } };
+    return { message: "Email/nomor HP atau kata sandi salah.", values };
+  }
+  const isPenjual = user.role === "penjual";
+  if (!user.aktif || (isPenjual && (!user.penjual_id || !user.penjual_aktif))) {
+    return { message: "Akun ini sedang dinonaktifkan. Hubungi admin desa.", values };
   }
   attempts.delete(ip);
 
-  const token = await signSession({ uid: user.id, email: user.email, nama: user.nama });
+  const token = await signSession({
+    uid: user.id,
+    email: user.email,
+    nama: user.nama,
+    role: isPenjual ? "penjual" : "admin",
+    pid: isPenjual ? user.penjual_id : null,
+  });
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -47,7 +61,7 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
     path: "/",
     maxAge: SESSION_MAX_AGE_SECONDS,
   });
-  redirect("/admin");
+  redirect(isPenjual ? "/admin/toko" : "/admin");
 }
 
 export async function logout() {
@@ -136,24 +150,72 @@ export async function setPesanDibaca(id: number, dibaca: boolean) {
 
 export async function setPesananStatus(id: number, _prev: FormState, formData: FormData): Promise<FormState> {
   await requireAdmin();
-  const status = String(formData.get("status") || "");
-  if (!PESANAN_STATUS.some((s) => s.key === status)) return { message: "Status tidak valid." };
-  const sql = db();
-  const rows = await sql<{ status: string; items: { produk_id: number; qty: number }[] }[]>`select status, items from pesanan where id = ${id}`;
-  const cur = rows[0];
-  if (!cur) return { message: "Pesanan tidak ditemukan." };
-  await sql.begin(async (tx) => {
-    // Pesanan dibatalkan: kembalikan stok. Dibuka kembali dari batal: kurangi stok lagi.
-    if (status === "dibatalkan" && cur.status !== "dibatalkan") {
-      for (const it of cur.items) await tx`update produk set stok = stok + ${it.qty} where id = ${it.produk_id} and stok is not null`;
-    } else if (cur.status === "dibatalkan" && status !== "dibatalkan") {
-      for (const it of cur.items) await tx`update produk set stok = greatest(stok - ${it.qty}, 0) where id = ${it.produk_id} and stok is not null`;
-    }
-    await tx`update pesanan set status = ${status}, updated_at = now() where id = ${id}`;
-  });
+  const res = await ubahStatusPesanan(id, String(formData.get("status") || ""));
   revalidatePath("/admin", "layout");
   revalidatePath("/pasar");
-  return { ok: true, message: "Status pesanan diperbarui." };
+  return res;
+}
+
+/* ---------------------------- Tinjauan produk penjual ---------------------------- */
+
+export async function tinjauProduk(id: number, _prev: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin();
+  const keputusan = String(formData.get("keputusan") || "");
+  const catatan = String(formData.get("catatan") || "").trim().slice(0, 500);
+  if (keputusan !== "setujui" && keputusan !== "tolak") return { message: "Pilih setujui atau minta perbaikan." };
+  if (keputusan === "tolak" && catatan.length < 5) return { errors: { catatan: "Tulis alasan agar penjual tahu apa yang harus diperbaiki." } };
+  const res = await db()`
+    update produk set status_tinjau = ${keputusan === "setujui" ? "disetujui" : "ditolak"},
+      catatan_tinjau = ${keputusan === "tolak" ? catatan : null}, updated_at = now()
+    where id = ${id} returning id`;
+  if (!res.length) return { message: "Produk tidak ditemukan." };
+  revalidatePath("/pasar");
+  revalidatePath("/admin", "layout");
+  return { ok: true, message: keputusan === "setujui" ? "Produk disetujui dan kini tampil di Pasar Desa." : "Permintaan perbaikan dikirim ke penjual." };
+}
+
+/* ---------------------------- Akun penjual ---------------------------- */
+
+export async function buatAkunPenjual(penjualId: number, _prev: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin();
+  const nama = String(formData.get("nama") || "").trim();
+  const loginRaw = String(formData.get("login") || "");
+  const login = normalizeLogin(loginRaw);
+  const password = String(formData.get("password") || "");
+  const errors: Record<string, string> = {};
+  if (nama.length < 2) errors.nama = "Nama pemegang akun wajib diisi.";
+  if (!/^62\d{8,14}$/.test(login) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(login)) errors.login = "Isi nomor HP (08…) atau email yang valid.";
+  if (password.length < 8) errors.password = "Kata sandi minimal 8 karakter.";
+  if (Object.keys(errors).length) return { errors, values: { nama, login: loginRaw } };
+
+  const sql = db();
+  const [j] = await sql`select id from penjual where id = ${penjualId}`;
+  if (!j) return { message: "Pelaku usaha tidak ditemukan." };
+  if ((await sql`select 1 from users where email = ${login}`).length) return { errors: { login: "Nomor/email ini sudah dipakai akun lain." }, values: { nama, login: loginRaw } };
+  await sql`insert into users (nama, email, password_hash, role, penjual_id) values (${nama}, ${login}, ${hashPassword(password)}, 'penjual', ${penjualId})`;
+  revalidatePath(`/admin/penjual/${penjualId}`);
+  return { ok: true, message: `Akun penjual dibuat. Berikan login ${loginRaw.trim()} dan kata sandinya kepada ${nama}.` };
+}
+
+export async function resetSandiPenjual(userId: number, _prev: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin();
+  const password = String(formData.get("password") || "");
+  if (password.length < 8) return { errors: { password: "Kata sandi minimal 8 karakter." } };
+  const res = await db()`update users set password_hash = ${hashPassword(password)} where id = ${userId} and role = 'penjual' returning penjual_id`;
+  if (!res.length) return { message: "Akun tidak ditemukan." };
+  return { ok: true, message: "Kata sandi baru disimpan. Sampaikan kepada penjual." };
+}
+
+export async function aturAkunPenjual(userId: number, aktif: boolean) {
+  await requireAdmin();
+  const res = await db()`update users set aktif = ${aktif} where id = ${userId} and role = 'penjual' returning penjual_id`;
+  if (res[0]) revalidatePath(`/admin/penjual/${res[0].penjual_id}`);
+}
+
+export async function hapusAkunPenjual(userId: number) {
+  await requireAdmin();
+  const res = await db()`delete from users where id = ${userId} and role = 'penjual' returning penjual_id`;
+  if (res[0]) revalidatePath(`/admin/penjual/${res[0].penjual_id}`);
 }
 
 /* ---------------------------- Pengaturan situs ---------------------------- */
@@ -182,7 +244,7 @@ export async function saveSettings(_prev: FormState, formData: FormData): Promis
 /* ---------------------------- Akun admin ---------------------------- */
 
 export async function changePassword(_prev: FormState, formData: FormData): Promise<FormState> {
-  const session = await requireAdmin();
+  const session = await requireStaff();
   const current = String(formData.get("current") || "");
   const next = String(formData.get("next") || "");
   const confirm = String(formData.get("confirm") || "");
@@ -210,7 +272,7 @@ export async function addAdmin(_prev: FormState, formData: FormData): Promise<Fo
   const sql = db();
   const exists = await sql`select 1 from users where email = ${email}`;
   if (exists.length) return { errors: { email: "Email sudah terdaftar." } };
-  await sql`insert into users (nama, email, password_hash) values (${nama}, ${email}, ${hashPassword(password)})`;
+  await sql`insert into users (nama, email, password_hash, role) values (${nama}, ${email}, ${hashPassword(password)}, 'admin')`;
   revalidatePath("/admin/akun");
   return { ok: true, message: `Admin ${nama} berhasil ditambahkan.` };
 }
@@ -219,8 +281,8 @@ export async function deleteAdmin(id: number) {
   const session = await requireAdmin();
   if (id === session.uid) return;
   const sql = db();
-  const [{ count }] = await sql<{ count: number }[]>`select count(*)::int as count from users`;
+  const [{ count }] = await sql<{ count: number }[]>`select count(*)::int as count from users where role = 'admin'`;
   if (count <= 1) return;
-  await sql`delete from users where id = ${id}`;
+  await sql`delete from users where id = ${id} and role = 'admin'`;
   revalidatePath("/admin/akun");
 }

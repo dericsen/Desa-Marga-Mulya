@@ -27,6 +27,7 @@ jobs:
       ADMIN_EMAIL: admin@margamulya.desa.id
       ADMIN_PASSWORD: UjiCI-Rahasia-2026
       SESSION_SECRET: rahasia-sesi-khusus-ci-yang-panjang
+      SELLER_DEMO_PASSWORD: Penjual-CI-2026
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
