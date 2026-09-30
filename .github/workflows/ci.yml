@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+    paths-ignore: ["deck/**", ".github/workflows/deck.yml"]
   pull_request:
   workflow_dispatch:
 

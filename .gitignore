@@ -8,3 +8,8 @@ out
 next-env.d.ts
 npm-debug.log*
 .DS_Store
+
+# Pitch deck build output
+deck/node_modules
+deck/out
+deck/assets/build

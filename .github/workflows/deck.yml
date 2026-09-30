@@ -1,0 +1,50 @@
+name: Pitch deck
+
+on:
+  push:
+    paths: ["deck/**", ".github/workflows/deck.yml"]
+  workflow_dispatch:
+    inputs:
+      demo_url:
+        description: "URL website untuk slide & kode QR"
+        required: false
+        default: "https://desa-marga-mulya.vercel.app"
+
+jobs:
+  deck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: deck
+    env:
+      DEMO_URL: ${{ github.event.inputs.demo_url || 'https://desa-marga-mulya.vercel.app' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Pasang dependensi deck
+        run: npm install --no-audit --no-fund
+      - name: Buat deck
+        run: npm run build
+      - name: Pasang LibreOffice & Poppler
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libreoffice-impress poppler-utils fonts-liberation > /dev/null
+          pip install -q python-pptx "markitdown[pptx]"
+      - name: Periksa isi & file
+        run: |
+          python3 -c "from pptx import Presentation; p=Presentation('out/Desa-Marga-Mulya-Pitch-Deck.pptx'); print('slides:', len(p.slides))"
+          markitdown out/Desa-Marga-Mulya-Pitch-Deck.pptx > out/deck-text.md
+          cat out/deck-text.md
+      - name: Render ke PDF & gambar
+        run: |
+          cd out
+          soffice --headless --convert-to pdf Desa-Marga-Mulya-Pitch-Deck.pptx > /dev/null
+          pdftoppm -jpeg -r 110 Desa-Marga-Mulya-Pitch-Deck.pdf slide
+          ls -la
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pitch-deck
+          path: deck/out/
