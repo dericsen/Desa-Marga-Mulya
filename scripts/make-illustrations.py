@@ -258,7 +258,10 @@ illus["produk-beras"] = product("beras", "#e6efd6", f'<circle cx="800" cy="500" 
 # Anyaman product reuse
 illus["produk-anyaman"] = product("anyamanp", "#f0dcb4", '<g transform="translate(800 500)"><ellipse cx="0" cy="60" rx="230" ry="70" fill="#b5843b"/><path d="M-230 60 Q0 -140 230 60" fill="#d3ab63"/></g>')
 
+import importlib.util
+_spec = importlib.util.spec_from_file_location("tone", os.path.join(os.path.dirname(__file__), "tone-illustrations.py"))
+_tone = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(_tone)
 for name, svg in illus.items():
     with open(os.path.join(OUT, f"{name}.svg"), "w") as f:
-        f.write(svg)
+        f.write(_tone.tone(svg))
 print(f"wrote {len(illus)} illustrations")
