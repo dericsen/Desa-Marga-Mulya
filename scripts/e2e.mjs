@@ -44,6 +44,14 @@ async function publicPages(name, viewport) {
     const res = await page.goto(BASE + path, { waitUntil: "networkidle" });
     check(res?.status() === 200, `${path} status 200 (${res?.status()})`);
     check((await page.getByText(text, { exact: false }).count()) > 0, `${path} memuat "${text}"`);
+    await page.evaluate(async () => {
+      for (let y = 0; y < document.body.scrollHeight; y += 700) {
+        window.scrollTo(0, y);
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      window.scrollTo(0, 0);
+    });
+    await page.waitForLoadState("networkidle");
     await page.screenshot({ path: `${OUT}/${name}-${slug}.png`, fullPage: true });
   }
   check(errors.length === 0, `tanpa error JavaScript di browser ${errors.length ? JSON.stringify(errors) : ""}`);

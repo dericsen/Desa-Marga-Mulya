@@ -10,7 +10,7 @@ export function PageHeader({ title, description, crumb }: { title: string; descr
   return (
     <header className="container-desa pt-2">
       <div className="panel-dark px-6 pt-7 pb-12 sm:px-12 sm:pt-9 sm:pb-16">
-        <Contours className="right-[-10%] bottom-[-20%] h-[140%] w-[80%] text-sun-400/40" />
+        <Contours className="right-[-6%] bottom-[-35%] h-[130%] w-[60%] text-sun-400/35 [mask-image:linear-gradient(to_right,transparent,black_55%)]" />
         <nav aria-label="Remah roti" className="text-sm text-white/55">
           <ol className="flex flex-wrap items-center gap-2">
             <li>
@@ -59,7 +59,7 @@ export function SectionHeading({
   );
 }
 
-export function Img({ src, alt, className = "" }: { src: string | null | undefined; alt: string; className?: string }) {
+export function Img({ src, alt, className = "", eager = false }: { src: string | null | undefined; alt: string; className?: string; eager?: boolean }) {
   if (!src) {
     return (
       <div className={`grid place-items-center bg-line/60 text-muted ${className}`} role="img" aria-label={alt || "Belum ada gambar"}>
@@ -67,7 +67,7 @@ export function Img({ src, alt, className = "" }: { src: string | null | undefin
       </div>
     );
   }
-  return <img src={src} alt={alt} loading="lazy" decoding="async" className={`object-cover ${className}`} />;
+  return <img src={src} alt={alt} loading={eager ? "eager" : "lazy"} decoding="async" className={`object-cover ${className}`} />;
 }
 
 export function kategoriBerita(key: string) {

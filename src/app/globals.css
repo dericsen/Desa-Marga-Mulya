@@ -135,10 +135,10 @@ body {
 
 /* ---------- Ritme vertikal antar-bagian ---------- */
 @utility section {
-  @apply py-16 sm:py-20;
+  @apply py-12 sm:py-16;
 }
 @utility section-lg {
-  @apply py-20 sm:py-28;
+  @apply py-16 sm:py-20;
 }
 
 /* ---------- Konten Markdown ---------- */

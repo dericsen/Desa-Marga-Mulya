@@ -12,6 +12,18 @@ import { excerpt, formatDate, toDateInput, waLink } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
+/** Angka kunci: bagian angka besar, satuan kecil (mis. "7.842" + "jiwa"). Teks tanpa pola tetap utuh. */
+function AngkaKunci({ nilai }: { nilai: string }) {
+  const m = nilai.match(/^([\d.,]+)\s+([^\d]+)$/);
+  if (!m) return <span className="block text-[1.375rem] leading-tight sm:text-[1.5rem]">{nilai}</span>;
+  return (
+    <>
+      <span className="block text-[1.875rem] sm:text-[2.125rem]">{m[1]}</span>
+      <span className="mt-1.5 block text-sm font-medium tracking-normal opacity-60">{m[2]}</span>
+    </>
+  );
+}
+
 export default async function BerandaPage() {
   const [site, statistik, potensi, berita, galeri, lokasi, produkPilihan] = await Promise.all([
     getSite(),
@@ -35,7 +47,7 @@ export default async function BerandaPage() {
       {/* ===== Pembuka: identitas desa + status kantor ===== */}
       <section className="container-desa pt-2">
         <div className="panel-dark px-6 py-12 sm:px-12 sm:py-16 lg:px-14">
-          <Contours className="right-[-8%] bottom-[-25%] h-[130%] w-[75%] text-sun-400/45" />
+          <Contours className="right-[-6%] bottom-[-30%] h-[120%] w-[62%] text-sun-400/40 [mask-image:linear-gradient(to_right,transparent,black_55%)]" />
           <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-7">
               <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-sm text-white/80">
@@ -104,7 +116,9 @@ export default async function BerandaPage() {
             {site.angkaKunci.map((a, i) => (
               <div key={i} className={`flex flex-col justify-between rounded-[1.5rem] p-5 ${i === 0 ? "bg-sun-400 text-ink" : "bg-white"}`}>
                 <dt className={`text-sm ${i === 0 ? "text-ink/70" : "text-muted"}`}>{a.label}</dt>
-                <dd className="font-display mt-6 text-[1.875rem] leading-none font-semibold tabular-nums">{a.nilai}</dd>
+                <dd className="font-display mt-6 leading-none font-semibold tabular-nums">
+                  <AngkaKunci nilai={String(a.nilai)} />
+                </dd>
               </div>
             ))}
           </dl>
@@ -158,7 +172,7 @@ export default async function BerandaPage() {
       {site.layanan.length ? (
         <section id="layanan" className="container-desa scroll-mt-24" aria-labelledby="judul-layanan">
           <div className="panel-dark px-6 py-12 sm:px-12 sm:py-16">
-            <Contours className="left-[-15%] top-[-30%] h-[80%] w-[70%] text-sun-400/20" />
+            <Contours className="right-[-10%] bottom-[-40%] h-[80%] w-[55%] text-sun-400/15 [mask-image:linear-gradient(to_right,transparent,black_60%)]" />
             <div className="grid gap-10 lg:grid-cols-12">
               <div className="lg:col-span-4">
                 <p className="mb-3 text-sm font-medium text-sun-400">Layanan kantor desa</p>
@@ -174,7 +188,12 @@ export default async function BerandaPage() {
               </div>
               <ul className="grid gap-3 sm:grid-cols-2 lg:col-span-8">
                 {site.layanan.map((l, i) => (
-                  <li key={i} className="rounded-3xl bg-white/[0.06] p-5 ring-1 ring-white/10 transition-colors hover:bg-white/[0.09]">
+                  <li
+                    key={i}
+                    className={`rounded-3xl bg-white/[0.06] p-5 ring-1 ring-white/10 transition-colors hover:bg-white/[0.09] ${
+                      i === site.layanan.length - 1 && site.layanan.length % 2 === 1 ? "sm:col-span-2" : ""
+                    }`}
+                  >
                     <div className="flex items-start gap-3">
                       <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-sun-400 text-xs font-semibold text-ink tabular-nums">{i + 1}</span>
                       <div>
@@ -260,7 +279,7 @@ export default async function BerandaPage() {
             {galeri.slice(0, 4).map((g) => (
               <li key={g.id}>
                 <Link href="/galeri" className="group block">
-                  <Img src={g.gambar} alt={g.judul} className="aspect-[4/5] w-full rounded-3xl transition-transform duration-500 group-hover:scale-[1.02]" />
+                  <Img eager src={g.gambar} alt={g.judul} className="aspect-[4/5] w-full rounded-3xl transition-transform duration-500 group-hover:scale-[1.02]" />
                   <p className="mt-3 text-sm leading-snug font-medium text-ink">{g.judul}</p>
                   <p className="text-xs text-muted">{g.album}</p>
                 </Link>
