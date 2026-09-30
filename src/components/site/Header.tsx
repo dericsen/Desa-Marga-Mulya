@@ -5,12 +5,15 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { NAV } from "@/lib/nav";
+import { useCart } from "@/components/pasar/CartContext";
 
 type Props = { namaDesa: string; wilayah: string; jamRingkas: string; telepon: string };
 
 export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const cart = useCart();
+  const showCart = cart.ready && (cart.count > 0 || pathname.startsWith("/pasar"));
 
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
@@ -50,7 +53,7 @@ export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
           </Link>
 
           <nav aria-label="Navigasi utama" className="hidden h-full lg:block">
-            <ul className="flex h-full items-stretch gap-6">
+            <ul className="flex h-full items-stretch gap-5 xl:gap-6">
               {NAV.map((item) => (
                 <li key={item.href} className="flex">
                   <Link
@@ -72,6 +75,18 @@ export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
               <Icon name="search" className="h-[18px] w-[18px]" />
               <span className="hidden xl:inline">Cari</span>
             </Link>
+            {showCart ? (
+              <button
+                type="button"
+                onClick={() => cart.setOpen(true)}
+                className="flex items-center gap-2 rounded-md px-2.5 py-2 text-sm font-semibold text-ink hover:bg-line/50"
+                aria-label={`Buka keranjang, ${cart.count} barang`}
+              >
+                <Icon name="store" className="h-[18px] w-[18px]" />
+                <span className="hidden sm:inline">Keranjang</span>
+                <span className={`min-w-5 rounded-sm px-1 text-center text-xs tabular-nums ${cart.count ? "bg-brand-700 text-white" : "bg-line text-muted"}`}>{cart.count}</span>
+              </button>
+            ) : null}
             <button
               type="button"
               className="rounded-md p-2 text-ink hover:bg-line/50 lg:hidden"

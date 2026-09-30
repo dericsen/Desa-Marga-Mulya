@@ -1,9 +1,12 @@
 // Konfigurasi koleksi konten CMS. Setiap koleksi dipetakan ke satu tabel database,
 // sehingga halaman admin (daftar, tambah, ubah, hapus) dibuat secara generik dari konfigurasi ini.
-import { BERITA_TYPES, LOKASI_TYPES, POTENSI_TYPES, STAT_CATEGORIES, type IconName } from "./categories";
+import { BERITA_TYPES, LOKASI_TYPES, PESANAN_STATUS, POTENSI_TYPES, PRODUK_KATEGORI, STAT_CATEGORIES, type IconName } from "./categories";
 
 export type FieldType =
-  | "text" | "textarea" | "markdown" | "number" | "select" | "image" | "date" | "boolean" | "items" | "list" | "email";
+  | "text" | "textarea" | "markdown" | "number" | "select" | "image" | "date" | "boolean" | "items" | "list" | "email" | "relation";
+
+/** Relasi ke tabel lain; pilihan diisi dari database saat form dibuka. */
+export type Relation = { table: string; labelColumn: string };
 
 export type Field = {
   name: string;
@@ -16,6 +19,14 @@ export type Field = {
   step?: string;
   /** Kolom lebar penuh pada form. */
   wide?: boolean;
+  relation?: Relation;
+};
+
+export type Column = {
+  name: string;
+  label: string;
+  type?: "date" | "boolean" | "image" | "select" | "datetime" | "rupiah" | "relation" | "number";
+  relation?: Relation;
 };
 
 export type Resource = {
@@ -26,10 +37,14 @@ export type Resource = {
   icon: IconName;
   description: string;
   fields: Field[];
-  columns: { name: string; label: string; type?: "date" | "boolean" | "image" | "select" | "datetime" }[];
+  columns: Column[];
   orderBy: string;
   /** Koleksi hanya-baca dari admin (mis. pesan masuk dari formulir kontak). */
   readonly?: boolean;
+  /** Kolom yang dipakai untuk pencarian di daftar CMS. */
+  searchColumn?: string;
+  /** Kolom yang dibuat otomatis menjadi slug bila field slug kosong. */
+  slugFrom?: string;
   publicPath?: string;
 };
 
@@ -45,6 +60,7 @@ export const RESOURCES: Resource[] = [
     description: "Berita, kegiatan warga, dan pengumuman desa.",
     publicPath: "/berita",
     orderBy: "tanggal desc, id desc",
+    slugFrom: "judul",
     columns: [
       { name: "gambar", label: "", type: "image" },
       { name: "judul", label: "Judul" },
@@ -61,6 +77,92 @@ export const RESOURCES: Resource[] = [
       { name: "gambar", label: "Gambar Utama", type: "image", wide: true },
       { name: "ringkasan", label: "Ringkasan", type: "textarea", wide: true },
       { name: "konten", label: "Isi Berita", type: "markdown", wide: true, help: "Mendukung format sederhana: **tebal**, *miring*, ## Subjudul, - daftar, 1. daftar bernomor, [tautan](https://...)." },
+    ],
+  },
+  {
+    key: "produk",
+    table: "produk",
+    label: "Produk Pasar Desa",
+    singular: "Produk",
+    icon: "store",
+    description: "Produk UMKM yang dijual di Pasar Desa. Harga ditulis dalam rupiah tanpa titik.",
+    publicPath: "/pasar",
+    orderBy: "penjual_id, urutan, id",
+    searchColumn: "nama",
+    slugFrom: "nama",
+    columns: [
+      { name: "gambar", label: "", type: "image" },
+      { name: "nama", label: "Produk" },
+      { name: "penjual_id", label: "Penjual", type: "relation", relation: { table: "penjual", labelColumn: "nama" } },
+      { name: "harga", label: "Harga", type: "rupiah" },
+      { name: "stok", label: "Stok", type: "number" },
+      { name: "tersedia", label: "Dijual", type: "boolean" },
+    ],
+    fields: [
+      { name: "nama", label: "Nama Produk", type: "text", required: true, wide: true },
+      { name: "penjual_id", label: "Penjual", type: "relation", relation: { table: "penjual", labelColumn: "nama" }, required: true },
+      { name: "kategori", label: "Kategori", type: "select", options: opt(PRODUK_KATEGORI), required: true },
+      { name: "harga", label: "Harga (Rp)", type: "number", required: true, placeholder: "45000", help: "Angka saja, tanpa titik. Contoh: 45000" },
+      { name: "satuan", label: "Satuan / Kemasan", type: "text", placeholder: "mis. 500 gr, per ikat, isi 10" },
+      { name: "stok", label: "Stok", type: "number", help: "Kosongkan bila selalu tersedia. Stok berkurang otomatis saat ada pesanan." },
+      { name: "urutan", label: "Urutan", type: "number" },
+      { name: "tersedia", label: "Tampilkan dan jual di Pasar Desa", type: "boolean" },
+      { name: "unggulan", label: "Tampilkan di Beranda", type: "boolean" },
+      { name: "slug", label: "Slug URL", type: "text", help: "Kosongkan untuk dibuat otomatis dari nama." },
+      { name: "gambar", label: "Foto Produk", type: "image", wide: true },
+      { name: "deskripsi", label: "Deskripsi", type: "textarea", wide: true, help: "Tulis bahan, ukuran, daya tahan, dan cara penyimpanan." },
+    ],
+  },
+  {
+    key: "penjual",
+    table: "penjual",
+    label: "Pelaku Usaha",
+    singular: "Pelaku Usaha",
+    icon: "users",
+    description: "Penjual di Pasar Desa. Pesanan dikirim ke nomor WhatsApp penjual.",
+    publicPath: "/pasar",
+    orderBy: "urutan, id",
+    searchColumn: "nama",
+    slugFrom: "nama",
+    columns: [
+      { name: "foto", label: "", type: "image" },
+      { name: "nama", label: "Nama Usaha" },
+      { name: "pemilik", label: "Pemilik" },
+      { name: "whatsapp", label: "WhatsApp" },
+      { name: "aktif", label: "Aktif", type: "boolean" },
+    ],
+    fields: [
+      { name: "nama", label: "Nama Usaha", type: "text", required: true, wide: true },
+      { name: "pemilik", label: "Nama Pemilik", type: "text" },
+      { name: "whatsapp", label: "Nomor WhatsApp", type: "text", required: true, placeholder: "62812xxxxxxx", help: "Pesanan pembeli dikirim ke nomor ini." },
+      { name: "alamat", label: "Alamat (RT/RW)", type: "text" },
+      { name: "urutan", label: "Urutan", type: "number" },
+      { name: "aktif", label: "Aktif berjualan", type: "boolean" },
+      { name: "slug", label: "Slug URL", type: "text", help: "Kosongkan untuk dibuat otomatis." },
+      { name: "foto", label: "Foto Usaha", type: "image", wide: true },
+      { name: "deskripsi", label: "Tentang Usaha", type: "textarea", wide: true },
+    ],
+  },
+  {
+    key: "pesanan",
+    table: "pesanan",
+    label: "Pesanan",
+    singular: "Pesanan",
+    icon: "inbox",
+    description: "Pesanan dari Pasar Desa. Pembayaran dilakukan langsung ke penjual.",
+    readonly: true,
+    orderBy: "created_at desc",
+    searchColumn: "kode",
+    columns: [
+      { name: "kode", label: "Kode" },
+      { name: "nama_pembeli", label: "Pembeli" },
+      { name: "penjual_nama", label: "Penjual" },
+      { name: "total", label: "Total", type: "rupiah" },
+      { name: "status", label: "Status", type: "select" },
+      { name: "created_at", label: "Masuk", type: "datetime" },
+    ],
+    fields: [
+      { name: "status", label: "Status", type: "select", options: opt(PESANAN_STATUS) },
     ],
   },
   {
@@ -102,7 +204,7 @@ export const RESOURCES: Resource[] = [
     label: "Potensi Desa",
     singular: "Potensi",
     icon: "star",
-    description: "Wisata, budaya & kesenian, serta UMKM dan produk lokal.",
+    description: "Wisata serta budaya & kesenian. Produk UMKM kini dikelola di menu Produk Pasar Desa.",
     publicPath: "/potensi",
     orderBy: "tipe, urutan, id",
     columns: [

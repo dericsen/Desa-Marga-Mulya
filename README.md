@@ -6,18 +6,26 @@ Semua konten publik diambil dari database dan dikelola melalui CMS. Tidak ada da
 
 ## Fitur
 
-**Website publik (9 halaman, batas lomba 10)**
+**Website publik (10 halaman, sesuai batas lomba)**
 
 | Halaman | Isi |
 |---|---|
 | `/` Beranda | Hero, angka kunci, sambutan kepala desa, akses cepat, sorotan data, potensi unggulan, berita terbaru, galeri, peta |
 | `/profil` Profil Desa | Sejarah, visi & misi, identitas wilayah, batas wilayah, peta interaktif, struktur aparat |
 | `/informasi` Informasi Desa | Dasbor data (bagian A–I dokumen EcoQuest) dengan grafik batang, grafik donat, dan tabel per kategori, lengkap dengan unduhan CSV |
-| `/potensi` Potensi | Wisata, budaya & kesenian, UMKM, serta tombol pesan lewat WhatsApp (bagian J, K, M) |
+| `/pasar` Pasar Desa | Katalog produk UMKM (bagian M): pencarian, kategori, urutan harga, detail produk, keranjang, dan pemesanan ke WhatsApp penjual |
+| `/potensi` Wisata & Budaya | Tempat wisata serta budaya & kesenian (bagian J, K) |
 | `/berita` dan `/berita/[slug]` | Berita, kegiatan, pengumuman, serta organisasi & kegiatan rutin (bagian L) |
 | `/galeri` Galeri | Album foto dengan filter dan *lightbox* (bisa dikendalikan dengan keyboard) |
 | `/kontak` Kontak | Info kontak, jam layanan, WhatsApp, peta & petunjuk arah, formulir aspirasi yang tersimpan ke CMS |
 | `/cari` Pencarian | Pencarian di berita, data, potensi, organisasi, dan galeri |
+
+**Pasar Desa (marketplace UMKM)**
+- Pembeli memasukkan produk dari satu atau beberapa penjual ke keranjang, lalu mengisi nama, nomor HP, dan cara pengambilan (ambil sendiri atau diantar di dalam desa).
+- Setiap penjual mendapat pesanan terpisah dengan kode unik (mis. `MM-260929-4K7Q`). Pembeli menekan tombol untuk mengirim rincian pesanan ke WhatsApp penjual.
+- Harga dan stok dihitung ulang di server dalam satu transaksi database, sehingga tidak bisa dimanipulasi dari browser. Stok berkurang otomatis dan dikembalikan bila pesanan dibatalkan.
+- Pembayaran langsung ke penjual (tunai/transfer). Website tidak memakai payment gateway, sehingga tidak ada biaya atau izin tambahan bagi desa.
+- Admin mengelola Pelaku Usaha, Produk (harga, stok, foto, kategori), dan Pesanan (baru → diproses → selesai/dibatalkan) di CMS.
 
 **Asisten AI "Tanya Desa"**: tombol mengambang di semua halaman.
 - Menjawab hanya berdasarkan data di CMS. Memakai Google Gemini bila `GEMINI_API_KEY` diisi.
@@ -26,7 +34,7 @@ Semua konten publik diambil dari database dan dikelola melalui CMS. Tidak ada da
 
 **CMS (`/admin`)**
 - Login admin dengan sesi aman (cookie HttpOnly bertanda tangan HMAC, kata sandi di-hash scrypt, pembatasan percobaan login).
-- Kelola: Pengaturan Situs, Berita & Kegiatan, Data Statistik (editor baris label/nilai), Potensi, Galeri, Aparat Desa, Organisasi, Titik Peta, dan Pesan Masuk (tandai dibaca, balas via email/WhatsApp).
+- Kelola: Pengaturan Situs, Berita & Kegiatan, Produk Pasar Desa, Pelaku Usaha, Pesanan, Data Statistik (editor baris label/nilai), Potensi, Galeri, Aparat Desa, Organisasi, Titik Peta, dan Pesan Masuk (tandai dibaca, balas via email/WhatsApp).
 - Unggah gambar. Gambar dikompres otomatis di browser, lalu disimpan ke Vercel Blob. Jika Blob tidak diatur, gambar disimpan di database.
 - Kelola akun admin: ganti kata sandi, tambah/hapus admin.
 

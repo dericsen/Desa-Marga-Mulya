@@ -355,12 +355,6 @@ export const potensi = [
   { tipe: "budaya", nama: "Pencak Silat", unggulan: true, urutan: 1, gambar: "/img/silat.svg", deskripsi: "Perguruan pencak silat desa melatih anak dan remaja setiap pekan, sekaligus tampil pada acara desa dan peringatan hari besar nasional." },
   { tipe: "budaya", nama: "Karnaval dan Pesta Rakyat HUT RI", unggulan: false, urutan: 2, gambar: "/img/gotong-royong.svg", deskripsi: "Setiap Agustus warga menggelar karnaval, lomba tradisional seperti panjat pinang dan balap karung, serta pentas seni antar-RW." },
   { tipe: "budaya", nama: "Sanggar Tari Kreasi Anak", unggulan: false, urutan: 3, gambar: "/img/musyawarah.svg", deskripsi: "Sanggar seni tempat anak-anak belajar tari kreasi dan tari tradisional Nusantara untuk tampil di acara desa maupun lomba antar-kecamatan." },
-  // M. UMKM & Produk Lokal
-  { tipe: "umkm", nama: "Bandeng Presto Mulya", unggulan: true, urutan: 1, gambar: "/img/produk-bandeng.svg", harga: "Rp45.000 / 500 gr", kontak: "6281200000001", alamat: "RT 02/RW 01", deskripsi: "Bandeng presto duri lunak dari bandeng tambak desa, diolah higienis dan tahan hingga 3 hari tanpa pengawet." },
-  { tipe: "umkm", nama: "Kerupuk Ikan Bu Enah", unggulan: true, urutan: 2, gambar: "/img/produk-kerupuk.svg", harga: "Rp20.000 / 250 gr", kontak: "6281200000002", alamat: "RT 05/RW 02", deskripsi: "Kerupuk ikan renyah dengan rasa gurih alami, tersedia mentah maupun siap santap." },
-  { tipe: "umkm", nama: "Ikan Asin dan Terasi Pesisir", unggulan: false, urutan: 3, gambar: "/img/produk-ikan-asin.svg", harga: "Mulai Rp15.000", kontak: "6281200000003", alamat: "RT 01/RW 06", deskripsi: "Ikan asin dan terasi udang rebon hasil tangkapan nelayan setempat, dijemur alami di bawah sinar matahari." },
-  { tipe: "umkm", nama: "Anyaman Bambu Marga Mulya", unggulan: false, urutan: 4, gambar: "/img/produk-anyaman.svg", harga: "Rp25.000 – Rp150.000", kontak: "6281200000004", alamat: "RT 03/RW 04", deskripsi: "Bakul, tampah, dan hiasan dinding dari anyaman bambu buatan tangan pengrajin desa. Menerima pesanan souvenir." },
-  { tipe: "umkm", nama: "Beras Sawah Mulya", unggulan: false, urutan: 5, gambar: "/img/produk-beras.svg", harga: "Rp68.000 / 5 kg", kontak: "6281200000005", alamat: "Gapoktan Marga Mulya", deskripsi: "Beras pulen hasil panen petani desa, dikemas oleh gabungan kelompok tani dan BUMDes." },
 ];
 
 export const organisasi = [
@@ -386,4 +380,32 @@ export const lokasi = [
   { nama: "Kawasan Tambak Bandeng", kategori: "wisata", lat: -6.0280, lng: 106.5205, deskripsi: "Eduwisata tambak dan mangrove." },
   { nama: "Sentra UMKM Olahan Ikan", kategori: "umkm", lat: -6.0365, lng: 106.5220, deskripsi: "Bandeng presto, kerupuk ikan, ikan asin." },
   { nama: "Lapangan Desa", kategori: "umum", lat: -6.0378, lng: 106.5190, deskripsi: "Lapangan olahraga dan kegiatan warga." },
+];
+
+// M. UMKM & Produk Lokal — Pasar Desa (katalog produk warga).
+// Harga, stok, dan nomor WhatsApp adalah data contoh; admin dapat menggantinya melalui CMS.
+export const penjual = [
+  { nama: "Bandeng Presto Mulya", slug: "bandeng-presto-mulya", pemilik: "Ibu Sumiati", alamat: "RT 02/RW 01", whatsapp: "6281200000001", urutan: 1, foto: "/img/produk-bandeng.svg", deskripsi: "Mengolah bandeng dari tambak desa sejak 2016. Diproduksi setiap Selasa dan Jumat." },
+  { nama: "Dapur Bu Enah", slug: "dapur-bu-enah", pemilik: "Ibu Enah", alamat: "RT 05/RW 02", whatsapp: "6281200000002", urutan: 2, foto: "/img/produk-kerupuk.svg", deskripsi: "Kerupuk ikan dan camilan rumahan. Menerima pesanan untuk hajatan." },
+  { nama: "Olahan Laut Pesisir", slug: "olahan-laut-pesisir", pemilik: "Bapak Darsim", alamat: "RT 01/RW 06", whatsapp: "6281200000003", urutan: 3, foto: "/img/produk-ikan-asin.svg", deskripsi: "Ikan asin, terasi, dan rebon dari hasil tangkapan kelompok nelayan desa." },
+  { nama: "Anyaman Bambu Marga Mulya", slug: "anyaman-bambu-marga-mulya", pemilik: "Kelompok Pengrajin RW 04", alamat: "RT 03/RW 04", whatsapp: "6281200000004", urutan: 4, foto: "/img/produk-anyaman.svg", deskripsi: "Perabot anyaman bambu buatan tangan. Pesanan souvenir minimal 20 buah." },
+  { nama: "Gapoktan Sawah Mulya", slug: "gapoktan-sawah-mulya", pemilik: "Gabungan Kelompok Tani", alamat: "Balai Gapoktan, RW 04", whatsapp: "6281200000005", urutan: 5, foto: "/img/produk-beras.svg", deskripsi: "Beras dan hasil kebun anggota kelompok tani, dikemas bersama BUMDes." },
+];
+
+export const produk = [
+  { penjual: "bandeng-presto-mulya", nama: "Bandeng Presto Mulya", slug: "bandeng-presto-mulya", kategori: "olahan-laut", harga: 45000, satuan: "500 gr (2 ekor)", stok: 24, unggulan: true, urutan: 1, gambar: "/img/produk-bandeng.svg", deskripsi: "Bandeng tambak desa dimasak presto hingga duri lunak. Tahan 3 hari di suhu ruang, 2 minggu di kulkas. Tanpa pengawet." },
+  { penjual: "bandeng-presto-mulya", nama: "Otak-otak Bandeng", slug: "otak-otak-bandeng", kategori: "olahan-laut", harga: 30000, satuan: "isi 10", stok: 15, urutan: 2, gambar: "/img/produk-bandeng.svg", deskripsi: "Daging bandeng giling dibungkus daun pisang. Dijual beku, tinggal dibakar atau dikukus." },
+  { penjual: "bandeng-presto-mulya", nama: "Bandeng Asap", slug: "bandeng-asap", kategori: "olahan-laut", harga: 55000, satuan: "500 gr", stok: 0, urutan: 3, gambar: "/img/tambak.svg", deskripsi: "Diasap perlahan dengan batok kelapa. Stok diproduksi ulang setiap Jumat." },
+  { penjual: "dapur-bu-enah", nama: "Kerupuk Ikan Mentah", slug: "kerupuk-ikan-mentah", kategori: "makanan", harga: 20000, satuan: "250 gr", stok: 40, unggulan: true, urutan: 1, gambar: "/img/produk-kerupuk.svg", deskripsi: "Kerupuk ikan tenggiri, dijemur matahari. Goreng dengan minyak panas sedang." },
+  { penjual: "dapur-bu-enah", nama: "Kerupuk Ikan Siap Santap", slug: "kerupuk-ikan-siap-santap", kategori: "makanan", harga: 15000, satuan: "150 gr", stok: 30, urutan: 2, gambar: "/img/produk-kerupuk.svg", deskripsi: "Sudah digoreng dan dikemas rapat. Renyah hingga 2 minggu setelah dibuka bila ditutup kembali." },
+  { penjual: "dapur-bu-enah", nama: "Rempeyek Rebon", slug: "rempeyek-rebon", kategori: "makanan", harga: 18000, satuan: "200 gr", stok: 20, urutan: 3, gambar: "/img/produk-kerupuk.svg", deskripsi: "Rempeyek tipis dengan udang rebon dari nelayan pesisir." },
+  { penjual: "olahan-laut-pesisir", nama: "Ikan Asin Jambal", slug: "ikan-asin-jambal", kategori: "olahan-laut", harga: 35000, satuan: "250 gr", stok: 18, unggulan: true, urutan: 1, gambar: "/img/produk-ikan-asin.svg", deskripsi: "Jambal roti dijemur alami tanpa bahan kimia. Kadar garam sedang." },
+  { penjual: "olahan-laut-pesisir", nama: "Terasi Udang Rebon", slug: "terasi-udang-rebon", kategori: "olahan-laut", harga: 12000, satuan: "100 gr", stok: 50, urutan: 2, gambar: "/img/pesisir.svg", deskripsi: "Terasi tradisional dari rebon segar, difermentasi 2 minggu." },
+  { penjual: "olahan-laut-pesisir", nama: "Rebon Kering", slug: "rebon-kering", kategori: "olahan-laut", harga: 16000, satuan: "100 gr", stok: null, urutan: 3, gambar: "/img/pesisir.svg", deskripsi: "Udang rebon kering untuk sambal, nasi goreng, atau peyek. Selalu tersedia." },
+  { penjual: "anyaman-bambu-marga-mulya", nama: "Tampah Bambu", slug: "tampah-bambu", kategori: "kerajinan", harga: 35000, satuan: "diameter 50 cm", stok: 12, urutan: 1, gambar: "/img/produk-anyaman.svg", deskripsi: "Tampah anyaman bambu tali untuk menampi beras atau alas tumpeng." },
+  { penjual: "anyaman-bambu-marga-mulya", nama: "Bakul Nasi Anyaman", slug: "bakul-nasi-anyaman", kategori: "kerajinan", harga: 25000, satuan: "per buah", stok: 20, urutan: 2, gambar: "/img/anyaman.svg", deskripsi: "Bakul nasi ukuran keluarga, dianyam rapat sehingga nasi tidak mudah kering." },
+  { penjual: "anyaman-bambu-marga-mulya", nama: "Hiasan Dinding Anyaman", slug: "hiasan-dinding-anyaman", kategori: "kerajinan", harga: 150000, satuan: "60 × 60 cm", stok: 4, urutan: 3, gambar: "/img/anyaman.svg", deskripsi: "Motif anyaman sasag dengan bingkai kayu. Dibuat sesuai pesanan, 5–7 hari." },
+  { penjual: "gapoktan-sawah-mulya", nama: "Beras Sawah Mulya", slug: "beras-sawah-mulya", kategori: "hasil-tani", harga: 68000, satuan: "5 kg", stok: 35, unggulan: true, urutan: 1, gambar: "/img/produk-beras.svg", deskripsi: "Beras pulen varietas Ciherang dari panen musim ini. Digiling di penggilingan desa." },
+  { penjual: "gapoktan-sawah-mulya", nama: "Beras Sawah Mulya", slug: "beras-sawah-mulya-10kg", kategori: "hasil-tani", harga: 132000, satuan: "10 kg", stok: 20, urutan: 2, gambar: "/img/produk-beras.svg", deskripsi: "Kemasan hemat 10 kg, varietas dan asal yang sama dengan kemasan 5 kg." },
+  { penjual: "gapoktan-sawah-mulya", nama: "Kangkung dan Bayam Segar", slug: "kangkung-bayam-segar", kategori: "hasil-tani", harga: 5000, satuan: "per ikat", stok: null, urutan: 3, gambar: "/img/sawah.svg", deskripsi: "Dipetik pagi hari. Pesanan sebelum pukul 09.00 dapat diambil siang hari." },
 ];

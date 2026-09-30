@@ -2,8 +2,8 @@
 // Mode utama memakai Google Gemini (bila GEMINI_API_KEY diatur); jika tidak tersedia/gagal,
 // asisten memakai pencarian kata kunci lokal atas data yang sama sehingga tetap berfungsi.
 import { categoryLabel, POTENSI_TYPES } from "./categories";
-import { getAparat, getBerita, getLokasi, getOrganisasi, getPotensi, getSite, getStatistik } from "./data";
-import { excerpt, formatDate, formatNumber } from "./format";
+import { getAparat, getBerita, getLokasi, getOrganisasi, getPotensi, getProduk, getSite, getStatistik } from "./data";
+import { excerpt, formatDate, formatNumber, formatRupiah } from "./format";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 type Doc = { title: string; text: string; link: string };
@@ -13,8 +13,8 @@ let cached: Knowledge | null = null;
 
 async function buildKnowledge(): Promise<Knowledge> {
   if (cached && Date.now() - cached.at < 60_000) return cached;
-  const [site, statistik, aparat, potensi, organisasi, berita, lokasi] = await Promise.all([
-    getSite(), getStatistik(), getAparat(), getPotensi(), getOrganisasi(), getBerita({ limit: 12 }), getLokasi(),
+  const [site, statistik, aparat, potensi, organisasi, berita, lokasi, produk] = await Promise.all([
+    getSite(), getStatistik(), getAparat(), getPotensi(), getOrganisasi(), getBerita({ limit: 12 }), getLokasi(), getProduk({ limit: 80 }),
   ]);
 
   const docs: Doc[] = [];
@@ -58,6 +58,15 @@ async function buildKnowledge(): Promise<Knowledge> {
       `${p.nama} (${tipe})`,
       `${p.nama} — ${tipe}. ${p.deskripsi ?? ""}${p.harga ? ` Harga: ${p.harga}.` : ""}${p.alamat ? ` Lokasi: ${p.alamat}.` : ""}${p.kontak ? ` WhatsApp: ${p.kontak}.` : ""}`,
       `/potensi?jenis=${p.tipe}`
+    );
+  }
+  if (produk.length) {
+    add(
+      "Produk UMKM di Pasar Desa (cara belanja)",
+      `Produk warga dapat dipesan di halaman Pasar Desa: pilih produk, isi nama dan nomor HP, lalu kirim pesanan ke WhatsApp penjual. Pembayaran langsung ke penjual. Daftar produk: ${produk
+        .map((p) => `${p.nama}${p.satuan ? ` (${p.satuan})` : ""} ${formatRupiah(p.harga)} dari ${p.penjual_nama}${p.stok === 0 ? " — sedang habis" : ""}`)
+        .join("; ")}.`,
+      "/pasar"
     );
   }
   for (const o of organisasi) {

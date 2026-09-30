@@ -1,9 +1,11 @@
+// Label navigasi dibuat ringkas agar muat di layar laptop; judul halaman tetap lengkap.
 export const NAV = [
   { href: "/", label: "Beranda" },
-  { href: "/profil", label: "Profil Desa" },
-  { href: "/informasi", label: "Informasi Desa" },
-  { href: "/potensi", label: "Potensi" },
-  { href: "/berita", label: "Berita & Kegiatan" },
+  { href: "/profil", label: "Profil" },
+  { href: "/informasi", label: "Informasi" },
+  { href: "/pasar", label: "Pasar Desa" },
+  { href: "/potensi", label: "Wisata & Budaya" },
+  { href: "/berita", label: "Berita" },
   { href: "/galeri", label: "Galeri" },
   { href: "/kontak", label: "Kontak" },
 ];

@@ -1,21 +1,23 @@
 import Link from "next/link";
 import { StatView } from "@/components/charts";
-import { Img, kategoriBerita, PotensiCard, SectionHeading } from "@/components/site/ui";
+import { ProductCard } from "@/components/pasar/ProductCard";
+import { Img, kategoriBerita, SectionHeading } from "@/components/site/ui";
 import { VillageMap } from "@/components/site/VillageMap";
 import { STAT_CATEGORIES } from "@/lib/categories";
-import { getBerita, getGaleri, getLokasi, getPotensi, getSite, getStatistik } from "@/lib/data";
+import { getBerita, getGaleri, getLokasi, getPotensi, getProduk, getSite, getStatistik } from "@/lib/data";
 import { excerpt, formatDate, toDateInput, waLink } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function BerandaPage() {
-  const [site, statistik, potensi, berita, galeri, lokasi] = await Promise.all([
+  const [site, statistik, potensi, berita, galeri, lokasi, produkPilihan] = await Promise.all([
     getSite(),
     getStatistik(),
     getPotensi(),
     getBerita({ limit: 5 }),
     getGaleri(),
     getLokasi(),
+    getProduk({ unggulan: true, limit: 4 }),
   ]);
 
   const wa = waLink(site.whatsapp, `Halo Pemerintah Desa ${site.namaDesa}, saya ingin bertanya tentang layanan desa.`);
@@ -23,10 +25,7 @@ export default async function BerandaPage() {
   const dataUtama = statistik.find((s) => /mata pencaharian/i.test(s.judul)) ?? statistik.find((s) => s.tipe_grafik === "bar");
   const kategoriData = STAT_CATEGORIES.map((c) => ({ ...c, jumlah: statistik.filter((s) => s.kategori === c.key).length })).filter((c) => c.jumlah > 0);
   const tahunData = Math.max(0, ...statistik.map((s) => s.tahun ?? 0));
-  const pilihanPotensi = [
-    ...potensi.filter((p) => p.unggulan && p.tipe === "umkm").slice(0, 2),
-    ...potensi.filter((p) => p.unggulan && p.tipe !== "umkm").slice(0, 1),
-  ];
+  const wisataUnggulan = potensi.filter((p) => p.tipe === "wisata" && p.unggulan).slice(0, 3);
 
   return (
     <>
@@ -213,21 +212,29 @@ export default async function BerandaPage() {
         </section>
       ) : null}
 
-      {/* ===== Potensi & produk ===== */}
-      {pilihanPotensi.length ? (
-        <section className="border-t border-line" aria-labelledby="judul-potensi">
+      {/* ===== Pasar Desa ===== */}
+      {produkPilihan.length ? (
+        <section className="border-t border-line" aria-labelledby="judul-pasar">
           <div className="container-desa section-lg">
             <SectionHeading
-              id="judul-potensi"
-              title="Produk warga & tempat wisata"
-              description="Beli langsung dari pembuatnya. Setiap pesanan lewat WhatsApp masuk ke pelaku usaha, bukan perantara."
-              action={{ href: "/potensi", label: "Semua potensi desa" }}
+              id="judul-pasar"
+              title="Pasar Desa"
+              description="Olahan ikan, beras, dan kerajinan dari warga. Pesanan diteruskan ke WhatsApp penjual, dan pembayaran langsung ke mereka."
+              action={{ href: "/pasar", label: "Belanja di Pasar Desa" }}
             />
-            <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-              {pilihanPotensi.map((p) => (
-                <PotensiCard key={p.id} item={p} showType />
+            <ul className="grid grid-cols-2 gap-x-5 gap-y-10 lg:grid-cols-4">
+              {produkPilihan.map((p) => (
+                <li key={p.id}>
+                  <ProductCard p={p} detailHref={`/pasar?produk=${p.slug}`} />
+                </li>
               ))}
-            </div>
+            </ul>
+            {wisataUnggulan.length ? (
+              <p className="mt-12 border-t border-line pt-5 text-sm text-muted">
+                Berkunjung ke desa? Dekat dari sini: {wisataUnggulan.map((w) => w.nama).join(", ")}.{" "}
+                <Link href="/potensi" className="link">Lihat wisata & budaya</Link>
+              </p>
+            ) : null}
           </div>
         </section>
       ) : null}

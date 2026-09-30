@@ -56,3 +56,11 @@ export function excerpt(text: string | null | undefined, len = 160): string {
   const plain = text.replace(/[#*>_`\[\]()-]/g, "").replace(/\s+/g, " ").trim();
   return plain.length > len ? plain.slice(0, len).trimEnd() + "…" : plain;
 }
+
+const rupiahFormat = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
+
+export function formatRupiah(n: number | string | null | undefined): string {
+  const v = typeof n === "string" ? Number(n) : n;
+  if (v === null || v === undefined || Number.isNaN(v)) return "-";
+  return rupiahFormat.format(v).replace(/\u00a0/g, " ");
+}

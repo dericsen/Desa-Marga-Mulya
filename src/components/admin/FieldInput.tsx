@@ -30,6 +30,28 @@ export function FieldInput({ field, value, error }: { field: Field; value: unkno
     case "email":
       control = <input {...common} type="email" defaultValue={str} className="input" required={field.required} />;
       break;
+    case "relation":
+      control = (
+        <select {...common} defaultValue={str} className="input" required={field.required}>
+          <option value="" disabled>
+            Pilih {field.label.toLowerCase()}
+          </option>
+          {field.options?.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      );
+      if (!field.options?.length) {
+        control = (
+          <>
+            {control}
+            <p className="mt-1 text-xs text-sun-600">Belum ada data {field.label.toLowerCase()}. Tambahkan terlebih dahulu di menunya.</p>
+          </>
+        );
+      }
+      break;
     case "select":
       control = (
         <select {...common} defaultValue={str || field.options?.[0]?.value} className="input" required={field.required}>

@@ -37,3 +37,23 @@ export const LOKASI_TYPES = [
   { key: "umkm", label: "UMKM", color: "#b27a22" },
   { key: "umum", label: "Fasilitas umum", color: "#6f746f" },
 ];
+
+export const PRODUK_KATEGORI = [
+  { key: "olahan-laut", label: "Olahan ikan & hasil laut" },
+  { key: "makanan", label: "Makanan & camilan" },
+  { key: "hasil-tani", label: "Hasil tani" },
+  { key: "kerajinan", label: "Kerajinan" },
+  { key: "lainnya", label: "Lainnya" },
+];
+
+export const PESANAN_STATUS = [
+  { key: "baru", label: "Baru" },
+  { key: "diproses", label: "Diproses" },
+  { key: "selesai", label: "Selesai" },
+  { key: "dibatalkan", label: "Dibatalkan" },
+];
+
+export const PENGIRIMAN = [
+  { key: "ambil", label: "Ambil sendiri di tempat penjual" },
+  { key: "antar", label: "Diantar (dalam Desa Marga Mulya)" },
+];

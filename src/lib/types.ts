@@ -118,3 +118,38 @@ export type Pesan = {
   dibaca: boolean;
   created_at: Date;
 };
+
+export type Penjual = {
+  id: number;
+  nama: string;
+  slug: string;
+  pemilik: string | null;
+  deskripsi: string | null;
+  alamat: string | null;
+  whatsapp: string;
+  foto: string | null;
+  aktif: boolean;
+  urutan: number;
+};
+
+export type Produk = {
+  id: number;
+  penjual_id: number;
+  nama: string;
+  slug: string;
+  kategori: string;
+  deskripsi: string | null;
+  harga: number;
+  satuan: string | null;
+  stok: number | null;
+  tersedia: boolean;
+  gambar: string | null;
+  unggulan: boolean;
+  urutan: number;
+  /** Diisi lewat join */
+  penjual_nama: string;
+  penjual_slug: string;
+  penjual_alamat: string | null;
+};
+
+export type PesananItem = { produk_id: number; nama: string; satuan: string | null; harga: number; qty: number; subtotal: number };

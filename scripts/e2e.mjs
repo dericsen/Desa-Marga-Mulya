@@ -21,7 +21,10 @@ const PAGES = [
   ["profil", "/profil", "Struktur Aparat Desa"],
   ["informasi", "/informasi", "Mata Pencaharian Pokok"],
   ["informasi-kesehatan", "/informasi?kategori=kesehatan", "Status Gizi Balita"],
-  ["potensi", "/potensi", "Bandeng Presto Mulya"],
+  ["potensi", "/potensi", "Pantai Tanjung Kait"],
+  ["pasar", "/pasar", "Bandeng Presto Mulya"],
+  ["pasar-detail", "/pasar?produk=bandeng-presto-mulya", "Pembayaran"],
+  ["pasar-penjual", "/pasar?penjual=dapur-bu-enah", "Kerupuk Ikan Mentah"],
   ["berita", "/berita", "Lembaga Kemasyarakatan Desa"],
   ["berita-detail", "/berita/musrenbangdes-2027", "Usulan prioritas"],
   ["galeri", "/galeri", "Hamparan Sawah Marga Mulya"],
@@ -110,6 +113,44 @@ console.log("\n== Interaksi pengunjung ==");
   await ctx.close();
 }
 
+console.log("\n== Pasar Desa ==");
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto(BASE + "/pasar", { waitUntil: "networkidle" });
+  check((await page.getByText("Stok habis").count()) > 0, "produk dengan stok 0 ditandai habis");
+  await page.getByRole("button", { name: "Tambah ke keranjang: Bandeng Presto Mulya" }).first().click();
+  await page.getByRole("button", { name: "Tambah ke keranjang: Beras Sawah Mulya" }).first().click();
+  await page.getByRole("button", { name: /Buka keranjang, 2 barang/ }).click();
+  await page.getByRole("dialog").getByText("Total belanja").waitFor();
+  check((await page.getByText("Dibagi menjadi 2 pesanan").count()) > 0, "keranjang dikelompokkan per penjual");
+  await page.screenshot({ path: `${OUT}/pasar-keranjang.png` });
+  await page.getByRole("button", { name: "Lanjut isi data pemesan" }).click();
+  await page.getByRole("button", { name: "Buat pesanan" }).click();
+  await page.getByText("Nama wajib diisi").waitFor({ timeout: 15000 });
+  check(true, "validasi data pemesan tampil");
+  await page.fill("#pembeli-nama", "Pembeli Uji CI");
+  await page.fill("#pembeli-telepon", "081234567890");
+  await page.getByRole("button", { name: "Buat pesanan" }).click();
+  await page.getByText("Pesanan sudah tercatat").waitFor({ timeout: 15000 });
+  const kode = await page.locator("[data-kode-pesanan]").allInnerTexts();
+  check(kode.length === 2 && kode.every((k) => /^MM-\d{6}-[A-Z0-9]{4}$/.test(k)), `dua kode pesanan dibuat (${kode.join(", ")})`);
+  const wa = await page.getByRole("link", { name: /Kirim ke WhatsApp/ }).first().getAttribute("href");
+  check(Boolean(wa && wa.startsWith("https://wa.me/62") && decodeURIComponent(wa).includes("Kode pesanan")), "tautan WhatsApp berisi rincian pesanan");
+  await page.screenshot({ path: `${OUT}/pasar-selesai.png` });
+
+  // Stok berkurang (bandeng presto: 24 → 23)
+  await page.goto(BASE + "/pasar?produk=bandeng-presto-mulya", { waitUntil: "networkidle" });
+  check((await page.getByText("Tersisa 23").count()) > 0, "stok produk berkurang setelah pesanan");
+  await page.screenshot({ path: `${OUT}/pasar-detail-mobile.png` });
+
+  // Harga tidak bisa dimanipulasi dari browser: server menghitung ulang
+  check(errors.length === 0, `Pasar tanpa error JavaScript ${errors.length ? JSON.stringify(errors) : ""}`);
+  await ctx.close();
+}
+
 console.log("\n== CMS ==");
 {
   const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
@@ -172,6 +213,34 @@ console.log("\n== CMS ==");
   await page.goto(BASE + "/", { waitUntil: "networkidle" });
   check((await page.getByText("Tagline Uji CI").count()) > 0, "pengaturan situs tampil di website publik");
   check((await page.getByText("Surat keterangan domisili").count()) > 0, "daftar layanan dari CMS tampil di beranda");
+
+  // Pesanan Pasar Desa
+  await page.goto(BASE + "/admin/pesanan", { waitUntil: "networkidle" });
+  check((await page.getByText("Pembeli Uji CI").count()) >= 2, "pesanan Pasar Desa masuk ke CMS");
+  await page.getByRole("link", { name: "Buka" }).first().click();
+  await page.getByText("Pesanan MM-").waitFor({ timeout: 15000 });
+  await page.selectOption("#status", "dibatalkan");
+  await page.getByRole("button", { name: "Simpan status" }).click();
+  await page.getByText("Status pesanan diperbarui").waitFor({ timeout: 15000 });
+  check(true, "status pesanan dapat diubah");
+  await page.screenshot({ path: `${OUT}/cms-pesanan.png`, fullPage: true });
+
+  // Tambah produk dengan relasi penjual
+  await page.goto(BASE + "/admin/produk/baru", { waitUntil: "networkidle" });
+  await page.fill("#f-nama", "Produk Uji CI");
+  await page.selectOption("#f-penjual_id", { label: "Dapur Bu Enah" });
+  await page.fill("#f-harga", "12500");
+  await page.getByRole("button", { name: "Simpan" }).click();
+  await page.getByText("Data berhasil ditambahkan").waitFor({ timeout: 15000 });
+  await page.goto(BASE + "/pasar?q=Produk%20Uji%20CI", { waitUntil: "networkidle" });
+  check((await page.getByText("Rp 12.500").count()) > 0, "produk baru dari CMS tampil di Pasar Desa");
+
+  // Penjual yang masih punya produk tidak bisa dihapus
+  await page.goto(BASE + "/admin/penjual", { waitUntil: "networkidle" });
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "Hapus" }).first().click();
+  await page.getByText("tidak dapat dihapus").waitFor({ timeout: 15000 });
+  check(true, "penjual dengan produk dilindungi dari penghapusan");
 
   // Pesan masuk
   await page.goto(BASE + "/admin/pesan", { waitUntil: "networkidle" });

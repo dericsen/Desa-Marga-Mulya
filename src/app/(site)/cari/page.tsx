@@ -4,19 +4,19 @@ import { Icon } from "@/components/Icon";
 import { PageHeader } from "@/components/site/ui";
 import { categoryLabel, POTENSI_TYPES } from "@/lib/categories";
 import { db } from "@/lib/db";
-import { excerpt } from "@/lib/format";
+import { excerpt, formatRupiah } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Pencarian" };
 
 type Hasil = { jenis: string; judul: string; ringkas: string; href: string };
 
-const CONTOH = ["posyandu", "bandeng", "jumlah penduduk", "surat domisili", "irigasi"];
+const CONTOH = ["bandeng", "beras", "posyandu", "jumlah penduduk", "irigasi"];
 
 async function cari(q: string): Promise<Hasil[]> {
   const sql = db();
   const like = `%${q.replace(/[%_\\]/g, (c) => `\\${c}`)}%`;
-  const [berita, potensi, statistik, organisasi, galeri] = await Promise.all([
+  const [berita, potensi, statistik, organisasi, galeri, produk] = await Promise.all([
     sql<{ judul: string; slug: string; ringkasan: string | null; konten: string | null }[]>`
       select judul, slug, ringkasan, konten from berita
       where terbit = true and (judul ilike ${like} or ringkasan ilike ${like} or konten ilike ${like})
@@ -30,9 +30,13 @@ async function cari(q: string): Promise<Hasil[]> {
       select nama, deskripsi, jadwal from organisasi where nama ilike ${like} or deskripsi ilike ${like} or jadwal ilike ${like} limit 10`,
     sql<{ judul: string; album: string; deskripsi: string | null }[]>`
       select judul, album, deskripsi from galeri where judul ilike ${like} or deskripsi ilike ${like} or album ilike ${like} limit 10`,
+    sql<{ nama: string; slug: string; harga: number; satuan: string | null; penjual: string }[]>`
+      select p.nama, p.slug, p.harga, p.satuan, j.nama as penjual from produk p join penjual j on j.id = p.penjual_id
+      where p.tersedia = true and j.aktif = true and (p.nama ilike ${like} or p.deskripsi ilike ${like} or j.nama ilike ${like}) limit 10`,
   ]);
 
   return [
+    ...produk.map((p) => ({ jenis: "Pasar Desa", judul: p.nama, ringkas: `${formatRupiah(p.harga)}${p.satuan ? ` / ${p.satuan}` : ""} · ${p.penjual}`, href: `/pasar?produk=${p.slug}` })),
     ...berita.map((b) => ({ jenis: "Berita", judul: b.judul, ringkas: b.ringkasan || excerpt(b.konten), href: `/berita/${b.slug}` })),
     ...statistik.map((s) => ({ jenis: `Data · ${categoryLabel(s.kategori)}`, judul: s.judul, ringkas: excerpt(s.deskripsi) || "Lihat grafik dan tabel data.", href: `/informasi?kategori=${s.kategori}#${s.kategori}` })),
     ...potensi.map((p) => ({ jenis: POTENSI_TYPES.find((t) => t.key === p.tipe)?.label ?? "Potensi", judul: p.nama, ringkas: excerpt(p.deskripsi), href: `/potensi?jenis=${p.tipe}` })),
@@ -48,7 +52,7 @@ export default async function CariPage({ searchParams }: { searchParams: Promise
 
   return (
     <>
-      <PageHeader title="Pencarian" description="Cari di berita, data desa, potensi, organisasi, dan galeri." />
+      <PageHeader title="Pencarian" description="Cari di Pasar Desa, berita, data desa, wisata, organisasi, dan galeri." />
       <div className="container-desa max-w-[48rem] pt-10">
         <form action="/cari" method="get" role="search" className="flex gap-2">
           <label htmlFor="q" className="sr-only">Kata kunci</label>

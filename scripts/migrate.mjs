@@ -17,7 +17,7 @@ const noSsl =
   /localhost|127\.0\.0\.1|\.railway\.internal/.test(url);
 const sql = postgres(url, { ssl: noSsl ? false : "require", max: 1, prepare: false, onnotice: () => {} });
 
-const TABLES = ["pesan", "lokasi", "organisasi", "potensi", "galeri", "berita", "aparat", "statistik", "settings", "users"];
+const TABLES = ["pesanan", "produk", "penjual", "pesan", "lokasi", "organisasi", "potensi", "galeri", "berita", "aparat", "statistik", "settings", "users"];
 
 const SCHEMA = `
 create table if not exists users (
@@ -124,6 +124,55 @@ create table if not exists pesan (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+create table if not exists penjual (
+  id serial primary key,
+  nama text not null,
+  slug text not null unique,
+  pemilik text,
+  deskripsi text,
+  alamat text,
+  whatsapp text not null,
+  foto text,
+  aktif boolean not null default true,
+  urutan integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create table if not exists produk (
+  id serial primary key,
+  penjual_id integer not null references penjual(id) on delete restrict,
+  nama text not null,
+  slug text not null unique,
+  kategori text not null default 'makanan',
+  deskripsi text,
+  harga integer not null check (harga >= 0),
+  satuan text,
+  stok integer check (stok is null or stok >= 0),
+  tersedia boolean not null default true,
+  gambar text,
+  unggulan boolean not null default false,
+  urutan integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create table if not exists pesanan (
+  id serial primary key,
+  kode text not null unique,
+  penjual_id integer references penjual(id) on delete set null,
+  penjual_nama text not null,
+  nama_pembeli text not null,
+  telepon text not null,
+  alamat text,
+  pengiriman text not null default 'ambil',
+  catatan text,
+  items jsonb not null,
+  total integer not null,
+  status text not null default 'baru',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists produk_penjual_idx on produk (penjual_id);
+create index if not exists pesanan_created_idx on pesanan (created_at desc);
 create index if not exists statistik_kategori_idx on statistik (kategori, urutan);
 create index if not exists berita_tanggal_idx on berita (tanggal desc);
 `;
@@ -173,6 +222,15 @@ async function main() {
   if (await isEmpty("potensi")) await insertRows("potensi", seed.potensi);
   if (await isEmpty("organisasi")) await insertRows("organisasi", seed.organisasi);
   if (await isEmpty("lokasi")) await insertRows("lokasi", seed.lokasi);
+
+  if (await isEmpty("penjual")) await insertRows("penjual", seed.penjual);
+  if (await isEmpty("produk")) {
+    const ids = new Map((await sql`select id, slug from penjual`).map((r) => [r.slug, r.id]));
+    const rows = seed.produk
+      .filter((p) => ids.has(p.penjual))
+      .map(({ penjual, ...rest }) => ({ ...rest, penjual_id: ids.get(penjual) }));
+    await insertRows("produk", rows);
+  }
 
   if (await isEmpty("users")) {
     const email = (process.env.ADMIN_EMAIL || "admin@margamulya.desa.id").toLowerCase();

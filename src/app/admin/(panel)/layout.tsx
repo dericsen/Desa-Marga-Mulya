@@ -10,12 +10,15 @@ export const dynamic = "force-dynamic";
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const session = await requireAdmin();
-  const [{ count: unread }] = await db()<{ count: number }[]>`select count(*)::int as count from pesan where dibaca = false`;
+  const [[{ count: unread }], [{ count: pesananBaru }]] = await Promise.all([
+    db()<{ count: number }[]>`select count(*)::int as count from pesan where dibaca = false`,
+    db()<{ count: number }[]>`select count(*)::int as count from pesanan where status = 'baru'`,
+  ]);
 
   const menu: { href: string; label: string; icon: IconName; badge?: number }[] = [
     { href: "/admin", label: "Dasbor", icon: "home" },
     { href: "/admin/pengaturan", label: "Pengaturan Situs", icon: "settings" },
-    ...RESOURCES.map((r) => ({ href: `/admin/${r.key}`, label: r.label, icon: r.icon, badge: r.key === "pesan" ? unread : undefined })),
+    ...RESOURCES.map((r) => ({ href: `/admin/${r.key}`, label: r.label, icon: r.icon, badge: r.key === "pesan" ? unread : r.key === "pesanan" ? pesananBaru : undefined })),
     { href: "/admin/akun", label: "Akun Admin", icon: "user" },
   ];
 

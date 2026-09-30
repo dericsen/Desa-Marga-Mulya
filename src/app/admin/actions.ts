@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { parseFields } from "@/lib/form-parse";
 import { slugify } from "@/lib/format";
 import { hashPassword, verifyPassword } from "@/lib/password";
+import { PESANAN_STATUS } from "@/lib/categories";
 import { getResource, SETTINGS_GROUPS } from "@/lib/resources";
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, signSession } from "@/lib/session";
 
@@ -82,11 +83,11 @@ export async function saveResource(key: string, id: number | null, _prev: FormSt
 
   const sql = db();
 
-  if (key === "berita") {
-    const base = slugify(String(data.slug || data.judul || "")) || `berita-${Date.now()}`;
+  if (resource.slugFrom && resource.fields.some((f) => f.name === "slug")) {
+    const base = slugify(String(data.slug || data[resource.slugFrom] || "")) || `${key}-${Date.now()}`;
     let slug = base;
     for (let n = 2; ; n++) {
-      const clash = await sql`select 1 from berita where slug = ${slug} and id <> ${id ?? 0}`;
+      const clash = await sql`select 1 from ${sql(resource.table)} where slug = ${slug} and id <> ${id ?? 0}`;
       if (!clash.length) break;
       slug = `${base}-${n}`;
     }
@@ -115,15 +116,44 @@ export async function deleteResource(key: string, id: number) {
   await requireAdmin();
   const resource = getResource(key);
   if (!resource) return;
-  await db()`delete from ${db()(resource.table)} where id = ${id}`;
+  let ok = true;
+  try {
+    await db()`delete from ${db()(resource.table)} where id = ${id}`;
+  } catch (err) {
+    // Biasanya pelanggaran foreign key (mis. penjual masih memiliki produk).
+    console.warn("[cms] gagal menghapus", err);
+    ok = false;
+  }
   revalidatePath("/", "layout");
-  redirect(`/admin/${key}?pesan=dihapus`);
+  redirect(`/admin/${key}?pesan=${ok ? "dihapus" : "gagal-hapus"}`);
 }
 
 export async function setPesanDibaca(id: number, dibaca: boolean) {
   await requireAdmin();
   await db()`update pesan set dibaca = ${dibaca}, updated_at = now() where id = ${id}`;
   revalidatePath("/admin", "layout");
+}
+
+export async function setPesananStatus(id: number, _prev: FormState, formData: FormData): Promise<FormState> {
+  await requireAdmin();
+  const status = String(formData.get("status") || "");
+  if (!PESANAN_STATUS.some((s) => s.key === status)) return { message: "Status tidak valid." };
+  const sql = db();
+  const rows = await sql<{ status: string; items: { produk_id: number; qty: number }[] }[]>`select status, items from pesanan where id = ${id}`;
+  const cur = rows[0];
+  if (!cur) return { message: "Pesanan tidak ditemukan." };
+  await sql.begin(async (tx) => {
+    // Pesanan dibatalkan: kembalikan stok. Dibuka kembali dari batal: kurangi stok lagi.
+    if (status === "dibatalkan" && cur.status !== "dibatalkan") {
+      for (const it of cur.items) await tx`update produk set stok = stok + ${it.qty} where id = ${it.produk_id} and stok is not null`;
+    } else if (cur.status === "dibatalkan" && status !== "dibatalkan") {
+      for (const it of cur.items) await tx`update produk set stok = greatest(stok - ${it.qty}, 0) where id = ${it.produk_id} and stok is not null`;
+    }
+    await tx`update pesanan set status = ${status}, updated_at = now() where id = ${id}`;
+  });
+  revalidatePath("/admin", "layout");
+  revalidatePath("/pasar");
+  return { ok: true, message: "Status pesanan diperbarui." };
 }
 
 /* ---------------------------- Pengaturan situs ---------------------------- */

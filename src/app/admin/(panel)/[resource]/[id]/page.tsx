@@ -6,7 +6,9 @@ import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { Icon } from "@/components/Icon";
 import { db } from "@/lib/db";
 import { formatDateTime, toDateInput, waLink } from "@/lib/format";
+import { withRelationOptions } from "@/lib/relations";
 import { getResource } from "@/lib/resources";
+import { PesananDetail } from "@/components/admin/PesananDetail";
 
 type Props = { params: Promise<{ resource: string; id: string }> };
 
@@ -27,6 +29,10 @@ export default async function EditResourcePage({ params }: Props) {
   if (!row) notFound();
 
   const remove = deleteResource.bind(null, key, id);
+
+  if (key === "pesanan") {
+    return <PesananDetail row={row} id={id} />;
+  }
 
   if (resource.readonly) {
     if (key === "pesan" && !row.dibaca) await sql`update pesan set dibaca = true where id = ${id}`;
@@ -85,7 +91,7 @@ export default async function EditResourcePage({ params }: Props) {
           </ConfirmButton>
         </form>
       </div>
-      <CmsForm action={saveResource.bind(null, key, id)} groups={[{ fields: resource.fields }]} initial={initial} cancelHref={`/admin/${key}`} />
+      <CmsForm action={saveResource.bind(null, key, id)} groups={[{ fields: await withRelationOptions(resource.fields) }]} initial={initial} cancelHref={`/admin/${key}`} />
     </div>
   );
 }

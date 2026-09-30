@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { db } from "./db";
-import type { Aparat, Berita, Galeri, Lokasi, Organisasi, Potensi, SiteSettings, Statistik } from "./types";
+import type { Aparat, Berita, Galeri, Lokasi, Organisasi, Penjual, Potensi, Produk, SiteSettings, Statistik } from "./types";
 
 /** Mengubah hasil query (RowList) menjadi array biasa agar aman dikirim ke komponen klien. */
 export function plain<T>(rows: readonly T[]): T[] {
@@ -97,3 +97,50 @@ export const getOrganisasi = cache(async () => plain(await db()<Organisasi[]>`se
 export const getLokasi = cache(async () =>
   plain(await db()<Lokasi[]>`select * from lokasi order by kategori, id`).map((l) => ({ ...l, lat: Number(l.lat), lng: Number(l.lng) }))
 );
+
+/* ---------------------------- Pasar Desa ---------------------------- */
+
+export type ProdukFilter = { q?: string; kategori?: string; penjual?: string; urut?: "populer" | "termurah" | "termahal" | "terbaru"; unggulan?: boolean; limit?: number };
+
+/** Produk yang tampil di Pasar Desa (hanya dari penjual aktif dan produk yang ditandai dijual). */
+export async function getProduk(f: ProdukFilter = {}): Promise<Produk[]> {
+  const sql = db();
+  const like = f.q ? `%${f.q.replace(/[%_\\]/g, (c) => `\\${c}`)}%` : null;
+  const order =
+    f.urut === "termurah" ? sql`p.harga asc, p.id` :
+    f.urut === "termahal" ? sql`p.harga desc, p.id` :
+    f.urut === "terbaru" ? sql`p.created_at desc, p.id desc` :
+    sql`(p.stok = 0) asc, p.unggulan desc, j.urutan, p.urutan, p.id`;
+  const rows = await sql<Produk[]>`
+    select p.*, j.nama as penjual_nama, j.slug as penjual_slug, j.alamat as penjual_alamat
+    from produk p join penjual j on j.id = p.penjual_id
+    where p.tersedia = true and j.aktif = true
+      ${f.kategori ? sql`and p.kategori = ${f.kategori}` : sql``}
+      ${f.penjual ? sql`and j.slug = ${f.penjual}` : sql``}
+      ${f.unggulan ? sql`and p.unggulan = true and (p.stok is null or p.stok > 0)` : sql``}
+      ${like ? sql`and (p.nama ilike ${like} or p.deskripsi ilike ${like} or j.nama ilike ${like})` : sql``}
+    order by ${order}
+    limit ${f.limit ?? 200}`;
+  return plain(rows).map((r) => ({ ...r, harga: Number(r.harga), stok: r.stok === null ? null : Number(r.stok) }));
+}
+
+export async function getProdukBySlug(slug: string): Promise<Produk | null> {
+  const rows = await db()<Produk[]>`
+    select p.*, j.nama as penjual_nama, j.slug as penjual_slug, j.alamat as penjual_alamat
+    from produk p join penjual j on j.id = p.penjual_id
+    where p.slug = ${slug} and p.tersedia = true and j.aktif = true`;
+  const r = rows[0];
+  return r ? { ...r, harga: Number(r.harga), stok: r.stok === null ? null : Number(r.stok) } : null;
+}
+
+export type PenjualRingkas = Penjual & { jumlah_produk: number; harga_min: number | null };
+
+export const getPenjual = cache(async (): Promise<PenjualRingkas[]> => {
+  const rows = await db()<PenjualRingkas[]>`
+    select j.*, count(p.id)::int as jumlah_produk, min(p.harga) as harga_min
+    from penjual j left join produk p on p.penjual_id = j.id and p.tersedia = true
+    where j.aktif = true
+    group by j.id
+    order by j.urutan, j.id`;
+  return plain(rows).map((r) => ({ ...r, harga_min: r.harga_min === null ? null : Number(r.harga_min) }));
+});

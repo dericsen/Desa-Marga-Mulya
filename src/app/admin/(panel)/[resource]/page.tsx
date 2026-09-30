@@ -4,13 +4,15 @@ import { deleteResource } from "@/app/admin/actions";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { Icon } from "@/components/Icon";
 import { db } from "@/lib/db";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDate, formatDateTime, formatRupiah } from "@/lib/format";
+import { relationLabels } from "@/lib/relations";
 import { getResource, optionLabel } from "@/lib/resources";
 
 const PESAN: Record<string, string> = {
   ditambahkan: "Data berhasil ditambahkan.",
   diperbarui: "Perubahan berhasil disimpan.",
   dihapus: "Data berhasil dihapus.",
+  "gagal-hapus": "Data tidak dapat dihapus karena masih dipakai data lain (mis. penjual yang masih punya produk). Hapus atau pindahkan data terkait terlebih dahulu.",
 };
 
 type Props = { params: Promise<{ resource: string }>; searchParams: Promise<{ q?: string; pesan?: string }> };
@@ -26,13 +28,16 @@ export default async function ResourceListPage({ params, searchParams }: Props) 
   const resource = getResource(key);
   if (!resource) notFound();
 
-  const searchCol = resource.columns.find((c) => !c.type)?.name ?? "id";
+  const searchCol = resource.searchColumn ?? resource.columns.find((c) => !c.type)?.name ?? "id";
   const sql = db();
   const keyword = q.trim().slice(0, 100);
   const rows = (await sql.unsafe(
     `select * from "${resource.table}" ${keyword ? `where "${searchCol}"::text ilike $1` : ""} order by ${resource.orderBy} limit 500`,
     keyword ? [`%${keyword}%`] : []
   )) as unknown as Record<string, unknown>[];
+
+  const relMaps = new Map<string, Map<string, string>>();
+  for (const c of resource.columns) if (c.type === "relation" && c.relation) relMaps.set(c.name, await relationLabels(c.relation));
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -56,12 +61,17 @@ export default async function ResourceListPage({ params, searchParams }: Props) 
       </div>
 
       {pesan && PESAN[pesan] ? (
-        <p role="status" className="mt-5 rounded-xl bg-brand-50 p-3 text-sm font-semibold text-brand-800 ring-1 ring-brand-200">{PESAN[pesan]}</p>
+        <p
+          role="status"
+          className={`mt-5 rounded-md border p-3 text-sm font-semibold ${pesan === "gagal-hapus" ? "border-red-200 bg-red-50 text-red-800" : "border-brand-200 bg-brand-50 text-brand-800"}`}
+        >
+          {PESAN[pesan]}
+        </p>
       ) : null}
 
       <form className="mt-5 flex max-w-md gap-2" role="search">
         <label htmlFor="q" className="sr-only">Cari</label>
-        <input id="q" name="q" defaultValue={keyword} placeholder={`Cari ${resource.columns.find((c) => !c.type)?.label.toLowerCase() ?? ""}…`} className="input" />
+        <input id="q" name="q" defaultValue={keyword} placeholder={`Cari ${(resource.columns.find((c) => c.name === searchCol) ?? resource.columns.find((c) => !c.type))?.label.toLowerCase() ?? ""}…`} className="input" />
         <button type="submit" className="btn-light">
           <Icon name="search" className="h-4 w-4" />
           <span className="sr-only">Cari</span>
@@ -85,10 +95,21 @@ export default async function ResourceListPage({ params, searchParams }: Props) 
               const id = Number(row.id);
               const remove = deleteResource.bind(null, key, id);
               return (
-                <tr key={id} className={`border-b border-stone-100 last:border-0 hover:bg-stone-50 ${key === "pesan" && !row.dibaca ? "font-semibold" : ""}`}>
+                <tr key={id} className={`border-b border-stone-100 last:border-0 hover:bg-stone-50 ${(key === "pesan" && !row.dibaca) || (key === "pesanan" && row.status === "baru") ? "font-semibold" : ""}`}>
                   {resource.columns.map((c) => (
                     <td key={c.name} className="px-4 py-3 align-middle text-stone-700">
-                      <Cell type={c.type} value={row[c.name]} label={c.type === "select" ? optionLabel(resource, c.name, row[c.name]) : undefined} />
+                      <Cell
+                        type={c.type}
+                        name={c.name}
+                        value={row[c.name]}
+                        label={
+                          c.type === "select"
+                            ? optionLabel(resource, c.name, row[c.name])
+                            : c.type === "relation"
+                              ? (relMaps.get(c.name)?.get(String(row[c.name])) ?? "–")
+                              : undefined
+                        }
+                      />
                     </td>
                   ))}
                   <td className="px-4 py-3">
@@ -121,7 +142,20 @@ export default async function ResourceListPage({ params, searchParams }: Props) 
   );
 }
 
-function Cell({ type, value, label }: { type?: string; value: unknown; label?: string }) {
+const STATUS_STYLE: Record<string, string> = {
+  baru: "bg-sun-50 text-sun-600 border-sun-400/50",
+  diproses: "bg-brand-50 text-brand-700 border-brand-200",
+  selesai: "bg-stone-100 text-stone-600 border-stone-200",
+  dibatalkan: "bg-red-50 text-red-700 border-red-200",
+};
+
+function Cell({ type, name, value, label }: { type?: string; name: string; value: unknown; label?: string }) {
+  if (name === "status" && typeof value === "string") {
+    return <span className={`rounded-sm border px-2 py-0.5 text-xs font-semibold ${STATUS_STYLE[value] ?? ""}`}>{label}</span>;
+  }
+  if (type === "rupiah") return <span className="tabular-nums">{formatRupiah(value as number)}</span>;
+  if (type === "number") return <span className="tabular-nums">{value === null || value === undefined ? "Selalu ada" : String(value)}</span>;
+  if (type === "relation") return <>{label}</>;
   if (type === "image") {
     return value ? <img src={String(value)} alt="" className="h-10 w-14 rounded-md object-cover" /> : <span className="block h-10 w-14 rounded-md bg-stone-100" />;
   }

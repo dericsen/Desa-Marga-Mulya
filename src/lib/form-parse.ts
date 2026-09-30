@@ -26,6 +26,16 @@ export function parseFields(fields: Field[], formData: FormData): ParseResult {
         data[f.name] = Number.isNaN(n) ? null : n;
         break;
       }
+      case "relation": {
+        const n = Number(str);
+        if (!str || !Number.isInteger(n) || n <= 0) {
+          data[f.name] = null;
+          if (f.required) errors[f.name] = `${f.label} wajib dipilih.`;
+        } else {
+          data[f.name] = n;
+        }
+        break;
+      }
       case "items": {
         let list: { label: string; nilai: string }[] = [];
         try {

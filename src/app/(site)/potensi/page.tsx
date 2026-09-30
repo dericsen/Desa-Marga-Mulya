@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { EmptyState, FilterTabs, PageHeader, PotensiCard } from "@/components/site/ui";
 import { POTENSI_TYPES } from "@/lib/categories";
 import { getPotensi } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Potensi Desa" };
+export const metadata: Metadata = { title: "Wisata & Budaya" };
 
 const DESKRIPSI: Record<string, string> = {
   wisata: "Tempat rekreasi dan eduwisata di dalam dan sekitar desa.",
@@ -15,9 +16,9 @@ const DESKRIPSI: Record<string, string> = {
 export default async function PotensiPage({ searchParams }: { searchParams: Promise<{ jenis?: string }> }) {
   const { jenis } = await searchParams;
   const potensi = await getPotensi();
-  const aktif = POTENSI_TYPES.find((t) => t.key === jenis)?.key ?? null;
-  // UMKM ditampilkan lebih dulu: paling berdampak langsung pada penghasilan warga.
-  const urutan = ["umkm", "wisata", "budaya"];
+  const aktif = POTENSI_TYPES.find((t) => t.key === jenis && t.key !== "umkm")?.key ?? null;
+  // Produk UMKM kini ada di Pasar Desa; halaman ini fokus pada wisata dan budaya.
+  const urutan = ["wisata", "budaya"];
   const groups = urutan
     .map((k) => POTENSI_TYPES.find((t) => t.key === k)!)
     .filter((t) => !aktif || t.key === aktif)
@@ -27,8 +28,9 @@ export default async function PotensiPage({ searchParams }: { searchParams: Prom
   return (
     <>
       <PageHeader
-        title="Potensi Desa"
-        description="Produk UMKM, tempat wisata, serta budaya dan kesenian Desa Marga Mulya."
+        title="Wisata & Budaya"
+        crumb="Potensi desa"
+        description="Tempat yang bisa dikunjungi serta kesenian dan tradisi yang dijaga warga Desa Marga Mulya."
       />
       <div className="container-desa pt-8">
         <FilterTabs
@@ -61,6 +63,13 @@ export default async function PotensiPage({ searchParams }: { searchParams: Prom
             </div>
           </section>
         ))}
+
+        <aside className="mt-16 flex flex-col gap-3 border-y border-line py-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="max-w-[60ch] text-ink">
+            <span className="font-semibold">Mencari oleh-oleh?</span> <span className="text-muted">Bandeng presto, kerupuk ikan, beras, dan anyaman bambu dijual langsung oleh warga di Pasar Desa.</span>
+          </p>
+          <Link href="/pasar" className="btn-primary shrink-0">Buka Pasar Desa</Link>
+        </aside>
       </div>
     </>
   );

@@ -1,3 +1,5 @@
+import { CartProvider } from "@/components/pasar/CartContext";
+import { CartDrawer } from "@/components/pasar/CartDrawer";
 import { ChatWidget } from "@/components/site/ChatWidget";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
@@ -9,7 +11,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const site = await getSite();
   const jamRingkas = site.jamLayanan.split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 2).join(" · ") || "Hubungi kami untuk jam layanan";
   return (
-    <>
+    <CartProvider>
       <a href="#konten" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:font-semibold">
         Lewati ke konten utama
       </a>
@@ -17,6 +19,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <main id="konten">{children}</main>
       <Footer site={site} />
       <ChatWidget namaDesa={site.namaDesa} />
-    </>
+      <CartDrawer />
+    </CartProvider>
   );
 }
