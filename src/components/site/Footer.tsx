@@ -22,6 +22,7 @@ export function Footer({ site }: { site: SiteSettings }) {
             Kecamatan {site.kecamatan}, Kabupaten {site.kabupaten}, {site.provinsi} {site.kodePos}
           </p>
           {site.alamat ? <p className="mt-5 max-w-[40ch] text-sm">{site.alamat}</p> : null}
+          {site.tagline ? <p className="mt-5 max-w-[40ch] text-sm text-white/70">{site.tagline}</p> : null}
         </div>
 
         <nav aria-label="Tautan halaman" className="md:col-span-3">
