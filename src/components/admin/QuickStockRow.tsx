@@ -20,7 +20,7 @@ type P = {
 
 const TONE: Record<string, string> = {
   live: "border-brand-200 bg-brand-50 text-brand-700",
-  wait: "border-sun-400/60 bg-sun-50 text-sun-600",
+  wait: "border-ink/40 bg-white text-ink",
   fix: "border-red-200 bg-red-50 text-red-700",
   off: "border-line-strong bg-paper text-muted",
 };

@@ -27,6 +27,14 @@ Semua konten publik diambil dari database dan dikelola melalui CMS. Tidak ada da
 - Pembayaran langsung ke penjual (tunai/transfer). Website tidak memakai payment gateway, sehingga tidak ada biaya atau izin tambahan bagi desa.
 - Admin mengelola Pelaku Usaha, Produk (harga, stok, foto, kategori), dan Pesanan (baru → diproses → selesai/dibatalkan) di CMS.
 
+**Portal Penjual**
+- Admin membuat akun login untuk tiap pelaku usaha di **CMS → Pelaku Usaha → Ubah → Akun login penjual**. Login bisa memakai nomor HP (mis. `0812…`) atau email.
+- Penjual masuk di `/admin` dan hanya melihat tokonya sendiri: ringkasan, produk, pesanan, dan profil toko. Tampilan dioptimalkan untuk HP, dengan menu di bagian bawah.
+- **Harga, stok, kemasan, dan status jual** langsung berlaku.
+- **Produk baru** masuk antrean tinjauan admin (**CMS → Produk Pasar Desa → Menunggu tinjauan**). Admin bisa menyetujuinya, atau meminta perbaikan dengan catatan untuk penjual.
+- Mengubah **nama, foto, kategori, atau deskripsi** produk yang sudah tayang membuat produk ditinjau ulang, sehingga isi yang belum dicek tidak tampil ke publik.
+- Semua hak akses diperiksa di server untuk setiap aksi. Penjual tidak bisa membuka menu admin atau data toko lain. Akun yang dinonaktifkan langsung kehilangan akses.
+
 **Asisten AI "Tanya Desa"**: tombol mengambang di semua halaman.
 - Menjawab hanya berdasarkan data di CMS. Memakai Google Gemini bila `GEMINI_API_KEY` diisi.
 - Jika tanpa kunci API (atau API sedang gagal), asisten beralih ke **mode pencarian data lokal**, jadi tetap bisa menjawab.
@@ -78,6 +86,7 @@ npm run dev                       # http://localhost:3000, CMS di /admin
    | `GEMINI_API_KEY` | disarankan | Dari [Google AI Studio](https://aistudio.google.com/apikey), gratis |
    | `GEMINI_MODEL` | tidak | Bawaan `gemini-flash-latest` |
    | `BLOB_READ_WRITE_TOKEN` | tidak | Otomatis terisi bila membuat *Storage → Blob* |
+   | `SELLER_DEMO_PASSWORD` | tidak | Bila diisi, dibuat akun penjual contoh (login `081200000001`, toko Bandeng Presto Mulya) untuk demo |
 
 4. **Deploy.** Perintah build (`npm run build`) otomatis menjalankan migrasi dan seed, lalu `next build`. Proses ini aman diulang: data yang sudah ada tidak akan ditimpa.
 5. Buka `https://<proyek>.vercel.app/admin`, masuk dengan `ADMIN_EMAIL`/`ADMIN_PASSWORD`, dan **ganti kata sandi** di menu Akun Admin.

@@ -14,19 +14,19 @@ export function Footer({ site }: { site: SiteSettings }) {
   ].filter((s) => s.href);
 
   return (
-    <footer className="mt-24 bg-brand-950 text-brand-100">
+    <footer className="band-dark mt-24 text-white/75">
       <div className="container-desa grid gap-10 py-14 md:grid-cols-12">
         <div className="md:col-span-5">
-          <p className="font-display text-xl font-semibold text-white">Pemerintah Desa {site.namaDesa}</p>
-          <p className="mt-1 text-sm text-brand-200">
+          <p className="font-display text-2xl font-semibold text-white">Pemerintah Desa {site.namaDesa}</p>
+          <p className="mt-1 text-sm text-white/55">
             Kecamatan {site.kecamatan}, Kabupaten {site.kabupaten}, {site.provinsi} {site.kodePos}
           </p>
           {site.alamat ? <p className="mt-5 max-w-[40ch] text-sm leading-relaxed">{site.alamat}</p> : null}
-          {site.tagline ? <p className="mt-5 text-sm text-brand-200 italic">{site.tagline}</p> : null}
+          {site.tagline ? <p className="mt-5 text-sm text-white/55 italic">{site.tagline}</p> : null}
         </div>
 
         <nav aria-label="Tautan halaman" className="md:col-span-3">
-          <h2 className="text-xs font-semibold tracking-[0.08em] text-brand-300 uppercase">Halaman</h2>
+          <h2 className="font-mono text-[0.6875rem] tracking-[0.14em] text-white/45 uppercase">Halaman</h2>
           <ul className="mt-4 space-y-2 text-sm">
             {NAV.map((n) => (
               <li key={n.href}>
@@ -40,23 +40,23 @@ export function Footer({ site }: { site: SiteSettings }) {
         </nav>
 
         <div className="md:col-span-4">
-          <h2 className="text-xs font-semibold tracking-[0.08em] text-brand-300 uppercase">Hubungi kami</h2>
+          <h2 className="font-mono text-[0.6875rem] tracking-[0.14em] text-white/45 uppercase">Hubungi kami</h2>
           <dl className="mt-4 space-y-3 text-sm">
             {site.telepon ? (
               <div>
-                <dt className="text-brand-300">Telepon</dt>
+                <dt className="text-white/45">Telepon</dt>
                 <dd><a href={`tel:${site.telepon.replace(/[^\d+]/g, "")}`} className="tabular-nums hover:text-white hover:underline">{site.telepon}</a></dd>
               </div>
             ) : null}
             {site.email ? (
               <div>
-                <dt className="text-brand-300">Email</dt>
+                <dt className="text-white/45">Email</dt>
                 <dd><a href={`mailto:${site.email}`} className="break-all hover:text-white hover:underline">{site.email}</a></dd>
               </div>
             ) : null}
             {wa ? (
               <div>
-                <dt className="text-brand-300">WhatsApp layanan</dt>
+                <dt className="text-white/45">WhatsApp layanan</dt>
                 <dd><a href={wa} target="_blank" rel="noopener noreferrer" className="hover:text-white hover:underline">Kirim pesan</a></dd>
               </div>
             ) : null}
@@ -64,7 +64,7 @@ export function Footer({ site }: { site: SiteSettings }) {
           {socials.length ? (
             <p className="mt-5 flex flex-wrap gap-x-4 gap-y-1 text-sm">
               {socials.map((s) => (
-                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="underline decoration-brand-500 underline-offset-4 hover:text-white">
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="underline decoration-white/30 underline-offset-4 hover:text-white">
                   {s.label}
                 </a>
               ))}
@@ -73,7 +73,7 @@ export function Footer({ site }: { site: SiteSettings }) {
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="container-desa flex flex-col gap-2 py-5 text-xs text-brand-300 sm:flex-row sm:justify-between">
+        <div className="container-desa flex flex-col gap-2 py-5 font-mono text-[0.6875rem] text-white/45 sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} Pemerintah Desa {site.namaDesa}. Peta © kontributor OpenStreetMap.</p>
           <Link href="/admin" className="hover:text-white hover:underline">Masuk pengelola</Link>
         </div>

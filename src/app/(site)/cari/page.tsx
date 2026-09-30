@@ -86,7 +86,7 @@ export default async function CariPage({ searchParams }: { searchParams: Promise
         <ul className="divide-y divide-line">
           {hasil.map((h, i) => (
             <li key={i} className="group relative py-5">
-              <p className="text-xs font-semibold text-brand-700">{h.jenis}</p>
+              <p className="eyebrow">{h.jenis}</p>
               <Link href={h.href} className="mt-1 block font-semibold text-ink after:absolute after:inset-0 group-hover:underline group-hover:underline-offset-4">
                 {h.judul}
               </Link>

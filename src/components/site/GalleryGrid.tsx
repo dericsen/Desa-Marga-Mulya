@@ -47,7 +47,7 @@ export function GalleryGrid({ items }: { items: Item[] }) {
               aria-pressed={album === a}
               onClick={() => setAlbum(a)}
               className={`-mb-px border-b-2 py-3 text-sm font-semibold transition-colors ${
-                album === a ? "border-brand-700 text-ink" : "border-transparent text-muted hover:border-line-strong hover:text-ink"
+                album === a ? "border-ink text-ink" : "border-transparent text-muted hover:border-line-strong hover:text-ink"
               }`}
             >
               {a ?? "Semua album"} <span className="font-normal text-muted tabular-nums">{n}</span>

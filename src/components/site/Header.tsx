@@ -6,10 +6,11 @@ import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { NAV } from "@/lib/nav";
 import { useCart } from "@/components/pasar/CartContext";
+import { OfficeStatus } from "./OfficeStatus";
 
-type Props = { namaDesa: string; wilayah: string; jamRingkas: string; telepon: string };
+type Props = { namaDesa: string; wilayah: string; jamRingkas: string; jamLayanan: string; telepon: string };
 
-export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
+export function Header({ namaDesa, wilayah, jamRingkas, jamLayanan, telepon }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const cart = useCart();
@@ -26,16 +27,16 @@ export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
-    <header className="sticky top-0 z-40 bg-paper/95 backdrop-blur-sm">
-      {/* Bilah layanan: informasi paling sering dicari warga */}
-      <div className="bg-brand-900 text-brand-50">
-        <div className="container-desa flex h-9 items-center justify-between gap-4 text-[0.8125rem]">
-          <p className="truncate">
-            <span className="font-semibold">Kantor desa</span>
-            <span className="text-brand-200"> · {jamRingkas}</span>
+    <header className="sticky top-0 z-40 bg-paper/90 backdrop-blur-md">
+      {/* Bilah layanan: status kantor desa saat ini — informasi yang paling sering dicari warga */}
+      <div className="bg-ink text-white/80">
+        <div className="container-desa flex h-9 items-center justify-between gap-4 font-mono text-[0.75rem] tracking-[-0.01em]">
+          <p className="flex min-w-0 items-center gap-3 truncate">
+            <span className="hidden text-white/45 sm:inline">KANTOR DESA</span>
+            <OfficeStatus jamLayanan={jamLayanan} fallback={jamRingkas} />
           </p>
           {telepon ? (
-            <a href={`tel:${telepon.replace(/[^\d+]/g, "")}`} className="hidden shrink-0 tabular-nums hover:underline sm:inline">
+            <a href={`tel:${telepon.replace(/[^\d+]/g, "")}`} className="hidden shrink-0 tabular-nums hover:text-white sm:inline">
               {telepon}
             </a>
           ) : null}
@@ -47,8 +48,8 @@ export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
           <Link href="/" className="flex min-w-0 items-center gap-3" aria-label={`Beranda Desa ${namaDesa}`}>
             <img src="/logo-desa.svg" alt="" width={34} height={34} className="h-[34px] w-[34px] shrink-0" />
             <span className="min-w-0 leading-tight">
-              <span className="font-display block truncate text-[1.125rem] font-semibold text-ink">Desa {namaDesa}</span>
-              <span className="block truncate text-xs text-muted">{wilayah}</span>
+              <span className="font-display block truncate text-[1.0625rem] font-semibold text-ink">Desa {namaDesa}</span>
+              <span className="block truncate font-mono text-[0.6875rem] tracking-[0.02em] text-muted uppercase">{wilayah}</span>
             </span>
           </Link>
 
@@ -60,7 +61,7 @@ export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
                     href={item.href}
                     aria-current={isActive(item.href) ? "page" : undefined}
                     className={`-mb-px flex items-center border-b-2 text-[0.9375rem] whitespace-nowrap transition-colors ${
-                      isActive(item.href) ? "border-brand-700 font-semibold text-ink" : "border-transparent text-muted hover:text-ink"
+                      isActive(item.href) ? "border-ink font-medium text-ink" : "border-transparent text-muted hover:border-line-strong hover:text-ink"
                     }`}
                   >
                     {item.label}
@@ -84,7 +85,7 @@ export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
               >
                 <Icon name="store" className="h-[18px] w-[18px]" />
                 <span className="hidden sm:inline">Keranjang</span>
-                <span className={`min-w-5 rounded-sm px-1 text-center text-xs tabular-nums ${cart.count ? "bg-brand-700 text-white" : "bg-line text-muted"}`}>{cart.count}</span>
+                <span className={`min-w-5 rounded-sm px-1 text-center font-mono text-xs tabular-nums ${cart.count ? "bg-sun-400 text-ink" : "bg-line text-muted"}`}>{cart.count}</span>
               </button>
             ) : null}
             <button
@@ -109,7 +110,7 @@ export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
                 <Link
                   href={item.href}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  className={`flex items-center justify-between py-4 text-lg ${isActive(item.href) ? "font-semibold text-brand-700" : "text-ink"}`}
+                  className={`flex items-center justify-between py-4 text-xl tracking-[-0.02em] ${isActive(item.href) ? "font-semibold text-ink" : "text-ink/80"}`}
                 >
                   {item.label}
                   <Icon name="arrow" className="h-4 w-4 text-muted" />

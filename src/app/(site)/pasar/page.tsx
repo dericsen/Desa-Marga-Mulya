@@ -62,7 +62,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
             ["Kirim ke WhatsApp penjual", "Bayar langsung ke penjual, tunai atau transfer."],
           ].map(([t, d], i) => (
             <li key={t} className="flex gap-3">
-              <span className="font-display text-xl leading-none font-semibold text-brand-600 tabular-nums">{i + 1}</span>
+              <span className="font-mono text-[0.75rem] leading-6 text-muted tabular-nums">{String(i + 1).padStart(2, "0")}</span>
               <span>
                 <span className="block font-semibold text-ink">{t}</span>
                 <span className="text-muted">{d}</span>
@@ -89,7 +89,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
                 key={u.key}
                 href={href(base, { urut: u.key === "populer" ? undefined : u.key })}
                 aria-current={urut === u.key ? "true" : undefined}
-                className={urut === u.key ? "font-semibold text-ink underline decoration-brand-700 decoration-2 underline-offset-[6px]" : "text-muted hover:text-ink"}
+                className={urut === u.key ? "font-semibold text-ink underline decoration-ink decoration-2 underline-offset-[6px]" : "text-muted hover:text-ink"}
               >
                 {u.label}
               </Link>

@@ -34,7 +34,7 @@ export default async function ProfilPage() {
             <ol className="mt-3 space-y-2 border-l border-line text-[0.9375rem]">
               {BAGIAN.map((b) => (
                 <li key={b.id}>
-                  <a href={`#${b.id}`} className="-ml-px block border-l-2 border-transparent pl-4 text-muted hover:border-brand-700 hover:text-ink">
+                  <a href={`#${b.id}`} className="-ml-px block border-l-2 border-transparent pl-4 text-muted hover:border-ink hover:text-ink">
                     {b.label}
                   </a>
                 </li>
@@ -76,7 +76,7 @@ export default async function ProfilPage() {
           <section id="visi-misi" className="scroll-mt-32">
             <h2 className="section-title">Visi dan misi</h2>
             {site.visi ? (
-              <p className="font-display mt-6 max-w-[40ch] border-l-2 border-sun-400 pl-5 text-[1.375rem] leading-snug text-ink">{site.visi}</p>
+              <p className="font-display mt-6 max-w-[40ch] border-l-2 border-ink pl-5 text-[1.375rem] leading-snug text-ink">{site.visi}</p>
             ) : null}
             {site.misi.length ? (
               <ol className="mt-8 max-w-[68ch] divide-y divide-line border-y border-line">
@@ -126,8 +126,8 @@ export default async function ProfilPage() {
                 <caption className="sr-only">Daftar aparat Desa {site.namaDesa}</caption>
                 <thead>
                   <tr className="border-b border-ink text-left">
-                    <th scope="col" className="pb-2 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Jabatan</th>
-                    <th scope="col" className="pb-2 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Nama</th>
+                    <th scope="col" className="pb-2 font-mono text-[0.6875rem] font-normal tracking-[0.12em] text-muted uppercase">Jabatan</th>
+                    <th scope="col" className="pb-2 font-mono text-[0.6875rem] font-normal tracking-[0.12em] text-muted uppercase">Nama</th>
                   </tr>
                 </thead>
                 <tbody>

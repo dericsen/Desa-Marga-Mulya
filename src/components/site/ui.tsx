@@ -4,22 +4,23 @@ import { BERITA_TYPES, POTENSI_TYPES } from "@/lib/categories";
 import { excerpt, formatDate, toDateInput, waLink } from "@/lib/format";
 import type { Berita, Potensi } from "@/lib/types";
 
-/** Kepala halaman dalam: remah roti, judul serif, dan deskripsi. Tanpa banner dekoratif. */
-export function PageHeader({ title, description, crumb }: { title: string; description?: string; crumb?: string }) {
+/** Kepala halaman dalam: bidang gelap bergrid, remah roti mono, judul besar. */
+export function PageHeader({ title, description, crumb, index }: { title: string; description?: string; crumb?: string; index?: string }) {
   return (
-    <header className="border-b border-line">
-      <div className="container-desa pt-8 pb-10 sm:pt-10 sm:pb-12">
-        <nav aria-label="Remah roti" className="meta">
-          <ol className="flex flex-wrap items-center gap-1.5">
+    <header className="band-dark">
+      <div className="container-desa pt-8 pb-12 sm:pt-10 sm:pb-16">
+        <nav aria-label="Remah roti" className="font-mono text-[0.75rem] text-white/55">
+          <ol className="flex flex-wrap items-center gap-2">
             <li>
-              <Link href="/" className="hover:text-ink hover:underline">Beranda</Link>
+              <Link href="/" className="hover:text-white">Beranda</Link>
             </li>
-            <li aria-hidden="true">/</li>
-            <li aria-current="page" className="text-ink">{crumb ?? title}</li>
+            <li aria-hidden="true" className="text-white/30">/</li>
+            <li aria-current="page" className="text-white">{crumb ?? title}</li>
           </ol>
         </nav>
-        <h1 className="font-display mt-5 max-w-[22ch] text-[2.25rem] leading-[1.1] font-semibold text-ink sm:text-[2.75rem]">{title}</h1>
-        {description ? <p className="mt-4 max-w-[62ch] text-lg leading-relaxed text-muted">{description}</p> : null}
+        {index ? <p className="mt-10 font-mono text-[0.75rem] text-sun-400">{index}</p> : <div className="mt-10" />}
+        <h1 className="font-display mt-3 max-w-[18ch] text-[2.5rem] leading-[1] font-semibold sm:text-[3.5rem]">{title}</h1>
+        {description ? <p className="mt-5 max-w-[60ch] text-[1.0625rem] leading-relaxed text-white/70">{description}</p> : null}
       </div>
     </header>
   );
@@ -30,21 +31,26 @@ export function SectionHeading({
   description,
   action,
   id,
+  index,
 }: {
   title: string;
   description?: string;
   action?: { href: string; label: string };
   id?: string;
+  /** Nomor bagian, mis. "02" — memberi ritme dan orientasi di halaman panjang. */
+  index?: string;
 }) {
   return (
-    <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mb-10 grid gap-4 border-t border-ink pt-4 sm:grid-cols-[1fr_auto] sm:items-end">
       <div className="max-w-[60ch]">
+        {index ? <p className="mb-4 font-mono text-[0.75rem] text-muted">{index}</p> : null}
         <h2 id={id} className="section-title">{title}</h2>
-        {description ? <p className="mt-2 leading-relaxed text-muted">{description}</p> : null}
+        {description ? <p className="mt-3 leading-relaxed text-muted">{description}</p> : null}
       </div>
       {action ? (
-        <Link href={action.href} className="link shrink-0 text-sm">
-          {action.label}
+        <Link href={action.href} className="group inline-flex shrink-0 items-center gap-2 text-sm font-medium text-ink">
+          <span className="border-b border-ink/30 pb-0.5 group-hover:border-ink">{action.label}</span>
+          <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
       ) : null}
     </div>
@@ -73,11 +79,11 @@ export function BeritaRow({ item }: { item: Berita }) {
       <Img src={item.gambar} alt="" className="aspect-[3/2] w-full rounded-md" />
       <div>
         <p className="meta">
-          <span className="font-semibold text-brand-700">{kategoriBerita(item.kategori)}</span>
+          <span className="text-ink">{kategoriBerita(item.kategori).toUpperCase()}</span>
           <span aria-hidden="true"> · </span>
           <time dateTime={toDateInput(item.tanggal)}>{formatDate(item.tanggal)}</time>
         </p>
-        <h3 className="font-display mt-1.5 text-xl leading-snug font-semibold text-ink">
+        <h3 className="font-display mt-1.5 text-[1.3125rem] leading-snug font-semibold text-ink">
           <Link href={`/berita/${item.slug}`} className="after:absolute after:inset-0 group-hover:underline group-hover:decoration-line-strong group-hover:underline-offset-4">
             {item.judul}
           </Link>
@@ -97,7 +103,7 @@ export function PotensiCard({ item, showType = false }: { item: Potensi; showTyp
       <div className="relative">
         <Img src={item.gambar} alt={item.nama} className="aspect-[4/3] w-full rounded-md" />
         {item.unggulan ? (
-          <span className="absolute top-2.5 left-2.5 rounded-sm bg-white px-2 py-0.5 text-xs font-semibold text-sun-600">Unggulan</span>
+          <span className="absolute top-2.5 left-2.5 rounded-sm bg-sun-400 px-1.5 py-0.5 font-mono text-[0.6875rem] font-medium text-ink uppercase">Unggulan</span>
         ) : null}
       </div>
       <div className="mt-4 flex flex-1 flex-col">
@@ -151,7 +157,7 @@ export function FilterTabs({ items, label }: { items: { href: string; label: str
               href={it.href}
               aria-current={it.active ? "page" : undefined}
               className={`-mb-px inline-block border-b-2 py-3 text-sm font-semibold transition-colors ${
-                it.active ? "border-brand-700 text-ink" : "border-transparent text-muted hover:border-line-strong hover:text-ink"
+                it.active ? "border-ink text-ink" : "border-transparent text-muted hover:border-line-strong hover:text-ink"
               }`}
             >
               {it.label}

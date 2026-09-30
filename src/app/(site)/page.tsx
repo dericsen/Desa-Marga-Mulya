@@ -2,12 +2,23 @@ import Link from "next/link";
 import { StatView } from "@/components/charts";
 import { ProductCard } from "@/components/pasar/ProductCard";
 import { Img, kategoriBerita, SectionHeading } from "@/components/site/ui";
+import { OfficeStatus } from "@/components/site/OfficeStatus";
 import { VillageMap } from "@/components/site/VillageMap";
 import { STAT_CATEGORIES } from "@/lib/categories";
 import { getBerita, getGaleri, getLokasi, getPotensi, getProduk, getSite, getStatistik } from "@/lib/data";
 import { excerpt, formatDate, toDateInput, waLink } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
+
+/** Koordinat kantor desa dalam format derajat-menit, mis. 6°02′S 106°31′E. */
+function koordinat(lat: number, lng: number): string {
+  const dm = (v: number) => {
+    const a = Math.abs(v);
+    const d = Math.floor(a);
+    return `${d}°${String(Math.round((a - d) * 60)).padStart(2, "0")}′`;
+  };
+  return `${dm(lat)}${lat < 0 ? "S" : "N"} ${dm(lng)}${lng < 0 ? "W" : "E"}`;
+}
 
 export default async function BerandaPage() {
   const [site, statistik, potensi, berita, galeri, lokasi, produkPilihan] = await Promise.all([
@@ -29,64 +40,75 @@ export default async function BerandaPage() {
 
   return (
     <>
-      {/* ===== Pembuka: identitas desa + layanan kantor ===== */}
-      <section className="container-desa grid gap-10 pt-12 pb-10 sm:pt-16 lg:grid-cols-12 lg:gap-12">
-        <div className="lg:col-span-7">
-          <p className="meta">
-            Kecamatan {site.kecamatan} · Kabupaten {site.kabupaten} · {site.provinsi} {site.kodePos}
-          </p>
-          <h1 className="font-display mt-4 text-[2.75rem] leading-[1.05] font-semibold text-ink sm:text-[3.5rem]">{site.heroJudul}</h1>
-          {site.heroDeskripsi ? <p className="mt-5 max-w-[52ch] text-lg leading-relaxed text-muted">{site.heroDeskripsi}</p> : null}
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <a href="#layanan" className="btn-primary px-5 py-3">Lihat layanan administrasi</a>
-            <Link href="/informasi" className="link text-sm">Buka data desa</Link>
+      {/* ===== Pembuka: identitas desa + status kantor ===== */}
+      <section className="band-dark">
+        <div className="container-desa grid gap-12 pt-14 pb-16 sm:pt-20 sm:pb-20 lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-7">
+            <p className="font-mono text-[0.75rem] text-white/55">
+              <span className="text-sun-400">{koordinat(site.lat, site.lng)}</span>
+              <span className="mx-2 text-white/25">/</span>
+              KEC. {site.kecamatan.toUpperCase()} · KAB. {site.kabupaten.toUpperCase()} · {site.provinsi.toUpperCase()} {site.kodePos}
+            </p>
+            <h1 className="font-display mt-6 max-w-[12ch] text-[3.25rem] leading-[0.95] font-semibold sm:text-[4.75rem]">{site.heroJudul}</h1>
+            {site.heroDeskripsi ? <p className="mt-6 max-w-[50ch] text-[1.0625rem] leading-relaxed text-white/70">{site.heroDeskripsi}</p> : null}
+            <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <a href="#layanan" className="btn-accent px-5 py-3">Lihat layanan administrasi</a>
+              <Link href="/pasar" className="group inline-flex items-center gap-2 text-sm font-medium text-white">
+                <span className="border-b border-white/30 pb-0.5 group-hover:border-white">Belanja di Pasar Desa</span>
+              </Link>
+            </div>
           </div>
-        </div>
 
-        <aside aria-labelledby="kantor-desa" className="border-t-2 border-ink pt-5 lg:col-span-5 lg:mt-2">
-          <h2 id="kantor-desa" className="text-sm font-semibold text-ink">Kantor Desa {site.namaDesa}</h2>
-          <dl className="mt-4 divide-y divide-line text-[0.9375rem]">
-            {site.jamLayanan ? (
-              <div className="grid grid-cols-[7.5rem_1fr] gap-3 py-3">
-                <dt className="text-muted">Jam layanan</dt>
-                <dd className="whitespace-pre-line text-ink">{site.jamLayanan}</dd>
-              </div>
-            ) : null}
-            {site.telepon ? (
-              <div className="grid grid-cols-[7.5rem_1fr] gap-3 py-3">
-                <dt className="text-muted">Telepon</dt>
-                <dd><a href={`tel:${site.telepon.replace(/[^\d+]/g, "")}`} className="text-ink tabular-nums hover:underline">{site.telepon}</a></dd>
-              </div>
-            ) : null}
-            {wa ? (
-              <div className="grid grid-cols-[7.5rem_1fr] gap-3 py-3">
-                <dt className="text-muted">WhatsApp</dt>
-                <dd><a href={wa} target="_blank" rel="noopener noreferrer" className="link">Tanya lewat WhatsApp</a></dd>
-              </div>
-            ) : null}
-            {site.alamat ? (
-              <div className="grid grid-cols-[7.5rem_1fr] gap-3 py-3">
-                <dt className="text-muted">Alamat</dt>
-                <dd className="text-ink">
-                  {site.alamat}
-                  <a href={`https://www.google.com/maps/dir/?api=1&destination=${site.lat},${site.lng}`} target="_blank" rel="noopener noreferrer" className="link mt-1 block text-sm">
-                    Petunjuk arah
-                  </a>
-                </dd>
-              </div>
-            ) : null}
-          </dl>
-        </aside>
+          <aside aria-labelledby="kantor-desa" className="self-start rounded-md border border-white/15 bg-white/[0.03] lg:col-span-5">
+            <div className="flex items-center justify-between gap-3 border-b border-white/15 px-5 py-3.5">
+              <h2 id="kantor-desa" className="text-sm font-medium">Kantor Desa {site.namaDesa}</h2>
+              <span className="font-mono text-[0.75rem] text-white/80">
+                <OfficeStatus jamLayanan={site.jamLayanan} tone="dark" />
+              </span>
+            </div>
+            <dl className="divide-y divide-white/10 px-5 text-[0.9375rem]">
+              {site.jamLayanan ? (
+                <div className="grid grid-cols-[6.5rem_1fr] gap-3 py-3.5">
+                  <dt className="font-mono text-[0.75rem] leading-6 text-white/45 uppercase">Jam</dt>
+                  <dd className="whitespace-pre-line text-white/90">{site.jamLayanan}</dd>
+                </div>
+              ) : null}
+              {site.telepon ? (
+                <div className="grid grid-cols-[6.5rem_1fr] gap-3 py-3.5">
+                  <dt className="font-mono text-[0.75rem] leading-6 text-white/45 uppercase">Telepon</dt>
+                  <dd><a href={`tel:${site.telepon.replace(/[^\d+]/g, "")}`} className="tabular-nums hover:text-sun-400">{site.telepon}</a></dd>
+                </div>
+              ) : null}
+              {wa ? (
+                <div className="grid grid-cols-[6.5rem_1fr] gap-3 py-3.5">
+                  <dt className="font-mono text-[0.75rem] leading-6 text-white/45 uppercase">WhatsApp</dt>
+                  <dd><a href={wa} target="_blank" rel="noopener noreferrer" className="text-sun-400 hover:underline">Tanya lewat WhatsApp</a></dd>
+                </div>
+              ) : null}
+              {site.alamat ? (
+                <div className="grid grid-cols-[6.5rem_1fr] gap-3 py-3.5">
+                  <dt className="font-mono text-[0.75rem] leading-6 text-white/45 uppercase">Alamat</dt>
+                  <dd className="text-white/90">
+                    {site.alamat}
+                    <a href={`https://www.google.com/maps/dir/?api=1&destination=${site.lat},${site.lng}`} target="_blank" rel="noopener noreferrer" className="mt-1 block text-sm text-sun-400 hover:underline">
+                      Petunjuk arah →
+                    </a>
+                  </dd>
+                </div>
+              ) : null}
+            </dl>
+          </aside>
+        </div>
       </section>
 
       {/* ===== Foto utama + angka kunci ===== */}
-      <section className="container-desa" aria-label="Sekilas desa">
+      <section className="container-desa pt-10" aria-label="Sekilas desa">
         <figure>
           <Img src={site.heroGambar} alt={site.heroKeterangan || `Pemandangan Desa ${site.namaDesa}`} className="aspect-[16/9] w-full rounded-md sm:aspect-[21/8]" />
-          {site.heroKeterangan ? <figcaption className="mt-2 text-xs text-muted">{site.heroKeterangan}</figcaption> : null}
+          {site.heroKeterangan ? <figcaption className="meta mt-2 text-[0.75rem]">↑ {site.heroKeterangan}</figcaption> : null}
         </figure>
         {site.angkaKunci.length ? (
-          <dl className="mt-8 grid grid-cols-2 border-y border-line lg:grid-cols-4">
+          <dl className="mt-10 grid grid-cols-2 border-y border-ink lg:grid-cols-4">
             {site.angkaKunci.map((a, i) => (
               <div
                 key={i}
@@ -97,8 +119,8 @@ export default async function BerandaPage() {
                   i >= 2 ? "border-t border-line lg:border-t-0" : "",
                 ].join(" ")}
               >
-                <dt className="text-sm text-muted">{a.label}</dt>
-                <dd className="mt-1 text-[1.75rem] leading-tight font-semibold text-ink tabular-nums">{a.nilai}</dd>
+                <dt className="eyebrow">{a.label}</dt>
+                <dd className="font-display mt-2 text-[2rem] leading-none font-semibold text-ink tabular-nums">{a.nilai}</dd>
               </div>
             ))}
           </dl>
@@ -108,12 +130,12 @@ export default async function BerandaPage() {
       {/* ===== Kabar desa: satu utama + daftar ===== */}
       {utama ? (
         <section className="container-desa section-lg" aria-labelledby="kabar">
-          <SectionHeading id="kabar" title="Kabar dan pengumuman" action={{ href: "/berita", label: "Semua berita" }} />
+          <SectionHeading id="kabar" index="01 — KABAR DESA" title="Kabar dan pengumuman" action={{ href: "/berita", label: "Semua berita" }} />
           <div className="grid gap-10 lg:grid-cols-12">
             <article className="group relative lg:col-span-7">
               <Img src={utama.gambar} alt="" className="aspect-[16/9] w-full rounded-md" />
               <p className="meta mt-5">
-                <span className="font-semibold text-brand-700">{kategoriBerita(utama.kategori)}</span>
+                <span className="text-ink">{kategoriBerita(utama.kategori).toUpperCase()}</span>
                 <span aria-hidden="true"> · </span>
                 <time dateTime={toDateInput(utama.tanggal)}>{formatDate(utama.tanggal)}</time>
               </p>
@@ -149,30 +171,36 @@ export default async function BerandaPage() {
 
       {/* ===== Layanan administrasi ===== */}
       {site.layanan.length ? (
-        <section id="layanan" className="scroll-mt-28 border-y border-line bg-white" aria-labelledby="judul-layanan">
-          <div className="container-desa section grid gap-10 lg:grid-cols-12">
+        <section id="layanan" className="band-dark scroll-mt-28" aria-labelledby="judul-layanan">
+          <div className="container-desa section-lg grid gap-10 lg:grid-cols-12">
             <div className="lg:col-span-4">
-              <h2 id="judul-layanan" className="section-title">Layanan administrasi</h2>
-              {site.catatanLayanan ? <p className="mt-3 leading-relaxed text-muted">{site.catatanLayanan}</p> : null}
-              <p className="mt-5 text-sm text-muted">
+              <p className="mb-4 font-mono text-[0.75rem] text-sun-400">02 — LAYANAN</p>
+              <h2 id="judul-layanan" className="section-title text-white">Layanan administrasi</h2>
+              {site.catatanLayanan ? <p className="mt-4 leading-relaxed text-white/70">{site.catatanLayanan}</p> : null}
+              <p className="mt-6 font-mono text-[0.75rem] text-white/80">
+                <OfficeStatus jamLayanan={site.jamLayanan} tone="dark" />
+              </p>
+              <p className="mt-6 text-sm text-white/60">
                 Ada pertanyaan sebelum datang?{" "}
-                <Link href="/kontak" className="link">Hubungi kantor desa</Link>
+                <Link href="/kontak" className="text-sun-400 hover:underline">Hubungi kantor desa</Link>
               </p>
             </div>
             <div className="overflow-x-auto lg:col-span-8">
               <table className="w-full min-w-[34rem] text-[0.9375rem]">
                 <caption className="sr-only">Daftar layanan administrasi dan persyaratannya</caption>
                 <thead>
-                  <tr className="border-b border-ink text-left">
-                    <th scope="col" className="w-[38%] pb-2 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Layanan</th>
-                    <th scope="col" className="pb-2 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Yang perlu dibawa</th>
+                  <tr className="border-b border-white/40 text-left">
+                    <th scope="col" className="w-[6%] pb-3 font-mono text-[0.6875rem] font-normal tracking-[0.12em] text-white/45 uppercase">No</th>
+                    <th scope="col" className="w-[36%] pb-3 font-mono text-[0.6875rem] font-normal tracking-[0.12em] text-white/45 uppercase">Layanan</th>
+                    <th scope="col" className="pb-3 font-mono text-[0.6875rem] font-normal tracking-[0.12em] text-white/45 uppercase">Yang perlu dibawa</th>
                   </tr>
                 </thead>
                 <tbody>
                   {site.layanan.map((l, i) => (
-                    <tr key={i} className="border-b border-line align-top last:border-0">
-                      <th scope="row" className="py-3 pr-6 text-left font-semibold text-ink">{l.label}</th>
-                      <td className="py-3 leading-relaxed text-ink/85">{l.nilai}</td>
+                    <tr key={i} className="border-b border-white/10 align-top transition-colors last:border-0 hover:bg-white/[0.03]">
+                      <td className="py-3.5 pr-3 font-mono text-[0.75rem] leading-6 text-sun-400 tabular-nums">{String(i + 1).padStart(2, "0")}</td>
+                      <th scope="row" className="py-3.5 pr-6 text-left font-medium text-white">{l.label}</th>
+                      <td className="py-3.5 leading-relaxed text-white/70">{l.nilai}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -185,7 +213,8 @@ export default async function BerandaPage() {
       {/* ===== Data desa ===== */}
       {dataUtama ? (
         <section className="container-desa section-lg grid gap-10 lg:grid-cols-12" aria-labelledby="judul-data">
-          <div className="lg:col-span-4">
+          <div className="border-t border-ink pt-4 lg:col-span-4">
+            <p className="mb-4 font-mono text-[0.75rem] text-muted">03 — DATA DESA</p>
             <h2 id="judul-data" className="section-title">Data desa</h2>
             <p className="mt-3 leading-relaxed text-muted">
               Angka kependudukan, pendidikan, kesehatan, pertanian, ekonomi, dan infrastruktur yang dicatat pemerintah desa{tahunData ? ` hingga ${tahunData}` : ""}.
@@ -193,16 +222,16 @@ export default async function BerandaPage() {
             <ul className="mt-6 divide-y divide-line border-y border-line text-[0.9375rem]">
               {kategoriData.map((c) => (
                 <li key={c.key}>
-                  <Link href={`/informasi?kategori=${c.key}`} className="flex items-center justify-between py-2.5 text-ink hover:text-brand-700">
-                    <span>{c.label}</span>
-                    <span className="text-sm text-muted tabular-nums">{c.jumlah} data</span>
+                  <Link href={`/informasi?kategori=${c.key}`} className="group flex items-center justify-between py-2.5 text-ink">
+                    <span className="group-hover:translate-x-0.5 transition-transform">{c.label}</span>
+                    <span className="font-mono text-[0.75rem] text-muted tabular-nums group-hover:text-ink">{String(c.jumlah).padStart(2, "0")} →</span>
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
-          <figure className="lg:col-span-7 lg:col-start-6">
-            <figcaption className="mb-6 flex items-baseline justify-between gap-4 border-b border-ink pb-3">
+          <figure className="border-t border-ink pt-4 lg:col-span-7 lg:col-start-6">
+            <figcaption className="mb-6 flex items-baseline justify-between gap-4 pb-3">
               <span className="font-semibold text-ink">{dataUtama.judul}</span>
               <span className="meta shrink-0">{[dataUtama.satuan, dataUtama.tahun].filter(Boolean).join(" · ")}</span>
             </figcaption>
@@ -214,11 +243,12 @@ export default async function BerandaPage() {
 
       {/* ===== Pasar Desa ===== */}
       {produkPilihan.length ? (
-        <section className="border-t border-line" aria-labelledby="judul-pasar">
+        <section aria-labelledby="judul-pasar">
           <div className="container-desa section-lg">
             <SectionHeading
               id="judul-pasar"
-              title="Pasar Desa"
+              index="04 — PASAR DESA"
+              title="Belanja langsung dari warga"
               description="Olahan ikan, beras, dan kerajinan dari warga. Pesanan diteruskan ke WhatsApp penjual, dan pembayaran langsung ke mereka."
               action={{ href: "/pasar", label: "Belanja di Pasar Desa" }}
             />
@@ -242,17 +272,14 @@ export default async function BerandaPage() {
       {/* ===== Galeri ===== */}
       {galeri.length ? (
         <section className="container-desa" aria-labelledby="judul-galeri">
-          <div className="mb-6 flex items-end justify-between gap-4 border-t border-line pt-10">
-            <h2 id="judul-galeri" className="section-title">Galeri</h2>
-            <Link href="/galeri" className="link text-sm">Lihat {galeri.length} foto</Link>
-          </div>
+          <SectionHeading id="judul-galeri" index="05 — GALERI" title="Galeri" action={{ href: "/galeri", label: `Lihat ${galeri.length} foto` }} />
           <ul className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-4">
             {galeri.slice(0, 4).map((g) => (
               <li key={g.id}>
                 <Link href="/galeri" className="group block">
                   <Img src={g.gambar} alt={g.judul} className="aspect-[4/3] w-full rounded-md transition-opacity group-hover:opacity-90" />
                   <p className="mt-2 text-sm leading-snug text-ink group-hover:underline">{g.judul}</p>
-                  <p className="text-xs text-muted">{g.album}</p>
+                  <p className="meta text-[0.6875rem] uppercase">{g.album}</p>
                 </Link>
               </li>
             ))}
@@ -262,7 +289,8 @@ export default async function BerandaPage() {
 
       {/* ===== Peta ===== */}
       <section className="container-desa section-lg grid gap-8 lg:grid-cols-12" aria-labelledby="judul-peta">
-        <div className="lg:col-span-4">
+        <div className="border-t border-ink pt-4 lg:col-span-4">
+          <p className="mb-4 font-mono text-[0.75rem] text-muted">06 — LOKASI</p>
           <h2 id="judul-peta" className="section-title">Lokasi di desa</h2>
           <p className="mt-3 leading-relaxed text-muted">
             Kantor desa, fasilitas kesehatan, sekolah, dan tempat usaha warga. Ketuk titik di peta untuk melihat keterangannya.

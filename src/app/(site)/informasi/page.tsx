@@ -21,7 +21,7 @@ export default async function InformasiPage({ searchParams }: { searchParams: Pr
       href={href}
       aria-current={active ? "page" : undefined}
       className={`flex items-baseline justify-between gap-3 border-l-2 py-1.5 pl-4 text-[0.9375rem] transition-colors ${
-        active ? "border-brand-700 font-semibold text-ink" : "-ml-px border-transparent text-muted hover:border-line-strong hover:text-ink"
+        active ? "border-ink font-semibold text-ink" : "-ml-px border-transparent text-muted hover:border-line-strong hover:text-ink"
       }`}
     >
       <span>{label}</span>
@@ -47,7 +47,7 @@ export default async function InformasiPage({ searchParams }: { searchParams: Pr
                   <Link
                     href={c.key ? `/informasi?kategori=${c.key}` : "/informasi"}
                     aria-current={active ? "page" : undefined}
-                    className={`-mb-px inline-block border-b-2 py-3 text-sm font-semibold ${active ? "border-brand-700 text-ink" : "border-transparent text-muted"}`}
+                    className={`-mb-px inline-block border-b-2 py-3 text-sm font-semibold ${active ? "border-ink text-ink" : "border-transparent text-muted"}`}
                   >
                     {c.label}
                   </Link>
@@ -69,7 +69,7 @@ export default async function InformasiPage({ searchParams }: { searchParams: Pr
         </nav>
 
         <div className="lg:col-span-9">
-          {site.catatanData ? <p className="mb-8 border-l-2 border-sun-400 pl-4 text-sm leading-relaxed text-muted lg:hidden">{site.catatanData}</p> : null}
+          {site.catatanData ? <p className="mb-8 border-l-2 border-ink pl-4 text-sm leading-relaxed text-muted lg:hidden">{site.catatanData}</p> : null}
 
           {tampil.length === 0 ? (
             <EmptyState title="Belum ada data desa" text="Data statistik akan tampil di sini setelah diisi oleh admin desa melalui CMS." />

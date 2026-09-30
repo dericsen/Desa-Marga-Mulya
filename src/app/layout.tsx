@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Public_Sans, Source_Serif_4 } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const sans = Public_Sans({ subsets: ["latin"], variable: "--font-public", display: "swap" });
-const serif = Source_Serif_4({ subsets: ["latin"], variable: "--font-source-serif", display: "swap" });
+const sans = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
 
 export const metadata: Metadata = {
   title: {
@@ -11,19 +11,19 @@ export const metadata: Metadata = {
     template: "%s · Desa Marga Mulya",
   },
   description:
-    "Website resmi Desa Marga Mulya, Kecamatan Mauk, Kabupaten Tangerang, Banten: layanan kantor desa, pengumuman, data desa, potensi wisata dan UMKM, serta kontak pemerintah desa.",
+    "Website resmi Desa Marga Mulya, Kecamatan Mauk, Kabupaten Tangerang, Banten: layanan kantor desa, pengumuman, data desa, Pasar Desa, wisata, dan kontak pemerintah desa.",
   icons: { icon: "/favicon.svg" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#152d23",
+  themeColor: "#0b1310",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${sans.variable} ${serif.variable}`}>
+    <html lang="id" className={`${sans.variable} ${mono.variable}`}>
       <body className="min-h-screen font-sans">{children}</body>
     </html>
   );

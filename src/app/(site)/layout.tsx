@@ -15,7 +15,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <a href="#konten" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:font-semibold">
         Lewati ke konten utama
       </a>
-      <Header namaDesa={site.namaDesa} wilayah={`Kec. ${site.kecamatan} · Kab. ${site.kabupaten}`} jamRingkas={jamRingkas} telepon={site.telepon} />
+      <Header namaDesa={site.namaDesa} wilayah={`Kec. ${site.kecamatan} · Kab. ${site.kabupaten}`} jamRingkas={jamRingkas} jamLayanan={site.jamLayanan} telepon={site.telepon} />
       <main id="konten">{children}</main>
       <Footer site={site} />
       <ChatWidget namaDesa={site.namaDesa} />
