@@ -204,7 +204,7 @@ function build(key, t) {
     heading(s, "Built and Live", `Live demo: ${DEMO_LABEL}`);
 
     s.addImage({ path: A("blob.png"), x: -0.35, y: 2.55, w: 2.3, h: 1.75 });
-    s.addImage({ path: A("blob.png"), x: 7.4, y: 2.25, w: 3.2, h: 2.4, flipH: true });
+    s.addImage({ path: A("blob.png"), x: 7.7, y: 2.1, w: 2.7, h: 2.1, flipH: true });
 
     // Laptop
     const lx = 0.9, ly = 1.5, lw = 4.6, lh = 2.72;
