@@ -15,13 +15,13 @@ export default async function ProfilTokoPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="font-display text-2xl font-semibold text-ink">Profil toko</h1>
+      <h1 className="font-display text-2xl font-bold text-ink">Profil toko</h1>
       <p className="mt-1 text-sm text-muted">Tampil di halaman toko Anda di Pasar Desa.</p>
 
       <dl className="mt-6 mb-6 divide-y divide-line border-y border-line text-sm">
         <div className="grid grid-cols-[9rem_1fr] gap-3 py-3">
           <dt className="text-muted">Nama usaha</dt>
-          <dd className="font-semibold text-ink">{String(row?.nama ?? "")}</dd>
+          <dd className="font-bold text-ink">{String(row?.nama ?? "")}</dd>
         </div>
         <div className="grid grid-cols-[9rem_1fr] gap-3 py-3">
           <dt className="text-muted">WhatsApp pesanan</dt>

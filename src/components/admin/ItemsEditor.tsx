@@ -24,7 +24,7 @@ export function ItemsEditor({ name, defaultValue }: { name: string; defaultValue
   return (
     <div className="rounded-xl border border-stone-200">
       <input type="hidden" name={name} value={JSON.stringify(rows)} />
-      <div className="grid grid-cols-[1fr_140px_92px] gap-2 border-b border-stone-200 bg-stone-50 px-3 py-2 text-xs font-bold text-stone-500 uppercase">
+      <div className="grid grid-cols-[1fr_140px_92px] gap-2 border-b border-stone-200 bg-stone-50 px-3 py-2 text-xs font-bold text-stone-500">
         <span>Label</span>
         <span>Nilai</span>
         <span className="sr-only">Aksi</span>

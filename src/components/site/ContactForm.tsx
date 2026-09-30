@@ -19,8 +19,8 @@ export function ContactForm() {
 
   if (state?.ok) {
     return (
-      <div className="rounded-[1.75rem] bg-sun-400 p-6 text-ink sm:p-9" role="status">
-        <h2 className="font-display text-xl font-semibold text-ink">Terima kasih! Pesan Anda sudah kami terima.</h2>
+      <div className="rounded-2xl bg-paper p-6 text-ink sm:p-9" role="status">
+        <h2 className="font-display text-xl font-bold text-ink">Terima kasih! Pesan Anda sudah kami terima.</h2>
         <p className="mt-2 leading-relaxed text-ink/80">
           Pesan akan dibaca oleh petugas kantor desa pada jam layanan. Balasan dikirim melalui email atau nomor telepon yang Anda cantumkan.
         </p>
@@ -32,8 +32,8 @@ export function ContactForm() {
   }
 
   return (
-    <form ref={formRef} action={action} className="rounded-[1.75rem] bg-white p-6 sm:p-9" noValidate>
-      <h2 className="font-display text-2xl font-semibold text-ink">Kirim Pesan & Aspirasi</h2>
+    <form ref={formRef} action={action} className="rounded-2xl bg-paper p-6 sm:p-9" noValidate>
+      <h2 className="font-display text-2xl font-bold text-ink">Kirim Pesan & Aspirasi</h2>
       <p className="mt-1.5 text-sm leading-relaxed text-muted">
         Pesan diterima langsung oleh admin desa. Isi email atau nomor telepon agar kami dapat membalas. Kolom bertanda * wajib diisi.
       </p>

@@ -14,8 +14,8 @@ export default async function AkunPage() {
   if (session.role === "penjual") {
     return (
       <div className="mx-auto max-w-lg">
-        <h1 className="font-display text-2xl font-semibold text-ink">Ganti kata sandi</h1>
-        <p className="mt-1 mb-6 text-sm text-muted">Login Anda: <span className="font-semibold text-ink tabular-nums">{session.email}</span>. Lupa kata sandi? Minta admin desa mengatur ulang.</p>
+        <h1 className="font-display text-2xl font-bold text-ink">Ganti kata sandi</h1>
+        <p className="mt-1 mb-6 text-sm text-muted">Login Anda: <span className="font-bold text-ink tabular-nums">{session.email}</span>. Lupa kata sandi? Minta admin desa mengatur ulang.</p>
         <AccountForms canAddAdmin={false} />
       </div>
     );
@@ -25,7 +25,7 @@ export default async function AkunPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="text-2xl font-extrabold text-stone-900">Akun Admin</h1>
+      <h1 className="text-2xl font-bold text-stone-900">Akun Admin</h1>
       <p className="mt-1 mb-6 text-stone-600">Ganti kata sandi dan kelola pengelola CMS.</p>
 
       <section className="card mb-6 p-5">
@@ -34,7 +34,7 @@ export default async function AkunPage() {
           {users.map((u) => (
             <li key={u.id} className="flex items-center justify-between gap-3 py-3 text-sm">
               <span>
-                <span className="block font-semibold text-stone-900">
+                <span className="block font-bold text-stone-900">
                   {u.nama} {u.id === session.uid ? <span className="ml-1 rounded-full bg-brand-50 px-2 py-0.5 text-xs text-brand-700">Anda</span> : null}
                 </span>
                 <span className="block text-stone-500">{u.email} · sejak {formatDateTime(u.created_at)}</span>

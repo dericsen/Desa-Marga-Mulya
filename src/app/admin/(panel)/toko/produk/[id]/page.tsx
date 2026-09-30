@@ -29,12 +29,12 @@ export default async function UbahProdukPenjualPage({ params }: { params: Promis
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/admin/toko/produk" className="text-sm font-semibold text-brand-700 hover:underline">← Produk saya</Link>
+      <Link href="/admin/toko/produk" className="text-sm font-bold text-brand-700 hover:underline">← Produk saya</Link>
       <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-ink">{String(row.nama)}</h1>
+          <h1 className="font-display text-2xl font-bold text-ink">{String(row.nama)}</h1>
           <p className="mt-1 text-sm text-muted">
-            Status: <span className="font-semibold text-ink">{st.label}</span>
+            Status: <span className="font-bold text-ink">{st.label}</span>
             {status === "menunggu" && row.diajukan_at ? ` · diajukan ${formatDateTime(row.diajukan_at as Date)}` : ""}
           </p>
         </div>
@@ -45,7 +45,7 @@ export default async function UbahProdukPenjualPage({ params }: { params: Promis
 
       {status === "ditolak" ? (
         <div role="alert" className="mt-5 border-l-2 border-red-600 bg-red-50 px-4 py-3 text-sm">
-          <p className="font-semibold text-red-800">Admin desa meminta perbaikan</p>
+          <p className="font-bold text-red-800">Admin desa meminta perbaikan</p>
           {row.catatan_tinjau ? <p className="mt-1 text-red-900">{String(row.catatan_tinjau)}</p> : null}
           <p className="mt-1 text-red-800">Perbaiki isian di bawah, lalu simpan untuk mengajukan ulang.</p>
         </div>
@@ -65,7 +65,7 @@ export default async function UbahProdukPenjualPage({ params }: { params: Promis
       />
 
       <form action={hapusProdukPenjual.bind(null, id)} className="mt-8 border-t border-line pt-5">
-        <ConfirmButton message="Hapus produk ini dari toko Anda? Riwayat pesanan tetap tersimpan." className="text-sm font-semibold text-red-700 hover:underline">
+        <ConfirmButton message="Hapus produk ini dari toko Anda? Riwayat pesanan tetap tersimpan." className="text-sm font-bold text-red-700 hover:underline">
           Hapus produk ini
         </ConfirmButton>
         <p className="mt-1 text-xs text-muted">Ingin berhenti menjual sementara? Cukup hilangkan centang “Tampilkan dan jual”.</p>

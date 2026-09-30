@@ -51,19 +51,36 @@ export function parseJamLayanan(teks: string): Jadwal | null {
 
 const fmt = (menit: number) => `${String(Math.floor(menit / 60)).padStart(2, "0")}.${String(menit % 60).padStart(2, "0")}`;
 
+export type StatusKantor = {
+  buka: boolean;
+  /** Kalimat utama, mis. "Kantor desa sedang buka." */
+  judul: string;
+  /** Rincian, mis. "Tutup pukul 15.00 WIB hari ini." */
+  rinci: string;
+  /** Versi ringkas untuk header, mis. "Buka sampai 15.00" */
+  ringkas: string;
+};
+
 /** Status saat ini berdasarkan waktu WIB. Hari libur nasional tidak diperhitungkan. */
-export function statusKantor(jadwal: Jadwal, now: Date): { buka: boolean; teks: string } {
+export function statusKantor(jadwal: Jadwal, now: Date): StatusKantor {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jakarta", weekday: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(now);
   const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(parts.find((p) => p.type === "weekday")!.value);
   const menit = Number(parts.find((p) => p.type === "hour")!.value) * 60 + Number(parts.find((p) => p.type === "minute")!.value);
 
   const hariIni = jadwal[wd];
-  if (hariIni && menit >= hariIni.buka && menit < hariIni.tutup) return { buka: true, teks: `Buka · tutup pukul ${fmt(hariIni.tutup)} WIB` };
-  if (hariIni && menit < hariIni.buka) return { buka: false, teks: `Tutup · buka hari ini pukul ${fmt(hariIni.buka)} WIB` };
+  if (hariIni && menit >= hariIni.buka && menit < hariIni.tutup) {
+    return { buka: true, judul: "Kantor desa sedang buka.", rinci: `Tutup pukul ${fmt(hariIni.tutup)} WIB hari ini.`, ringkas: `Buka sampai ${fmt(hariIni.tutup)}` };
+  }
+  if (hariIni && menit < hariIni.buka) {
+    return { buka: false, judul: "Kantor desa belum buka.", rinci: `Buka hari ini pukul ${fmt(hariIni.buka)} WIB.`, ringkas: `Buka pukul ${fmt(hariIni.buka)}` };
+  }
   for (let n = 1; n <= 7; n++) {
     const d = (wd + n) % 7;
     const j = jadwal[d];
-    if (j) return { buka: false, teks: `Tutup · buka ${n === 1 ? "besok" : NAMA_HARI[d]} pukul ${fmt(j.buka)} WIB` };
+    if (j) {
+      const kapan = n === 1 ? "besok" : `hari ${NAMA_HARI[d]}`;
+      return { buka: false, judul: "Kantor desa sedang tutup.", rinci: `Buka lagi ${kapan} pukul ${fmt(j.buka)} WIB.`, ringkas: `Tutup, buka ${n === 1 ? "besok" : NAMA_HARI[d]} ${fmt(j.buka)}` };
+    }
   }
-  return { buka: false, teks: "Tutup" };
+  return { buka: false, judul: "Kantor desa sedang tutup.", rinci: "Hubungi kantor desa untuk jam layanan.", ringkas: "Tutup" };
 }

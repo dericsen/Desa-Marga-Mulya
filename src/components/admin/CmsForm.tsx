@@ -61,7 +61,7 @@ export function CmsForm({
           </Link>
         ) : null}
         {state?.message ? (
-          <p role="status" className={`text-sm font-semibold ${state.ok ? "text-brand-700" : "text-red-600"}`}>
+          <p role="status" className={`text-sm font-bold ${state.ok ? "text-brand-700" : "text-red-600"}`}>
             {state.message}
           </p>
         ) : null}

@@ -1,46 +1,49 @@
 @import "tailwindcss";
 
 /*
-  Sistem visual Desa Marga Mulya — "civic tech"
-  - Netral (kertas & tinta) melakukan sebagian besar kerja visual; bidang gelap untuk penanda bagian utama.
-  - Satu aksen: lime, hanya untuk status aktif, tindakan utama di bidang gelap, dan sorotan data.
-  - Geist untuk judul & isi; Geist Mono untuk label teknis (kode, koordinat, tanggal, nomor bagian).
-  - Radius kecil, garis 1px alih-alih bayangan. Pola grid hanya di bidang gelap.
+  Sistem visual Desa Marga Mulya — Modern Minimalist
+  Palet inti (brief): Charcoal #36454f · Slate Gray #708090 · Light Gray #d3d3d3 · White #ffffff
+  Turunan untuk aksesibilitas: #5b6875 (teks sekunder kecil, 5,9:1 di atas putih) dan #f4f4f4 (permukaan kelompok).
+  Status tidak pernah hanya lewat warna: selalu disertai kata dan bentuk (isi vs garis).
+  Tipe: DejaVu Sans Bold untuk judul, DejaVu Sans untuk isi. Skala: 12 14 16 18 21 24 36 48 72.
 */
 @theme {
-  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+  --font-sans: var(--font-dejavu), Verdana, system-ui, sans-serif;
 
-  --color-paper: #f2f3ee;
-  --color-ink: #0b1310;
-  --color-muted: #59615c;
-  --color-line: #dde0d7;
-  --color-line-strong: #c4c9be;
+  --color-white: #ffffff;
+  --color-paper: #f4f4f4;
+  --color-ink: #36454f;
+  --color-muted: #5b6875;
+  --color-slate: #708090;
+  --color-line: #d3d3d3;
+  --color-line-strong: #b4bac0;
 
-  --color-brand-50: #e9f6ee;
-  --color-brand-100: #cdeada;
-  --color-brand-200: #9fd5b7;
-  --color-brand-300: #6bbc92;
-  --color-brand-400: #3f9f72;
-  --color-brand-500: #23845a;
-  --color-brand-600: #186b49;
-  --color-brand-700: #13573c;
-  --color-brand-800: #0f4531;
-  --color-brand-900: #0b3526;
-  --color-brand-950: #0b1310;
+  /* Skala abu-abu kebiruan — menggantikan warna brand lama agar komponen CMS tetap konsisten */
+  --color-brand-50: #f4f5f6;
+  --color-brand-100: #e8ebee;
+  --color-brand-200: #d3d3d3;
+  --color-brand-300: #aab4bd;
+  --color-brand-400: #8a96a1;
+  --color-brand-500: #708090;
+  --color-brand-600: #5b6875;
+  --color-brand-700: #36454f;
+  --color-brand-800: #2d3a42;
+  --color-brand-900: #253037;
+  --color-brand-950: #1e272d;
 
-  /* Aksen lime (nama "sun" dipertahankan agar kompatibel dengan komponen lama) */
-  --color-sun-50: #f4fbdc;
-  --color-sun-400: #c8f250;
-  --color-sun-500: #aad62f;
-  --color-sun-600: #55700c;
+  /* Nama "sun" dipertahankan untuk kompatibilitas; kini sorotan netral */
+  --color-sun-50: #f4f4f4;
+  --color-sun-400: #d3d3d3;
+  --color-sun-500: #c2c6ca;
+  --color-sun-600: #36454f;
 
-  --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 0.875rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
-  --radius-3xl: 1.75rem;
+  /* Radius berjenjang: kontrol 8, kartu 12, foto & panel 14–16 */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 0.875rem;
+  --radius-3xl: 1rem;
 }
 
 html {
@@ -49,85 +52,85 @@ html {
 }
 
 body {
-  @apply bg-paper text-ink antialiased;
-  font-feature-settings: "kern", "liga", "ss01";
+  @apply bg-white text-ink antialiased;
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
 ::selection {
-  background: var(--color-sun-400);
+  background: var(--color-line);
   color: var(--color-ink);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-brand-500);
+  outline: 2px solid var(--color-ink);
   outline-offset: 2px;
 }
 
 @utility container-desa {
-  @apply mx-auto w-full max-w-[74rem] px-5 sm:px-8;
+  @apply mx-auto w-full max-w-[72rem] px-5 sm:px-8;
 }
 
 /* ---------- Tipografi ---------- */
 @utility font-display {
-  font-family: var(--font-sans);
-  letter-spacing: -0.032em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 @utility section-title {
-  @apply font-display text-[1.75rem] leading-[1.1] font-semibold text-ink sm:text-[2.125rem];
+  @apply font-display text-[1.5rem] leading-[1.2] text-ink sm:text-[2.25rem];
 }
 @utility eyebrow {
-  @apply text-sm font-medium text-brand-600;
+  @apply text-sm text-muted;
 }
 @utility meta {
   @apply text-sm text-muted tabular-nums;
 }
 @utility link {
-  @apply font-medium text-ink underline decoration-ink/30 underline-offset-4 transition-colors hover:decoration-ink;
+  @apply text-ink underline decoration-slate/60 underline-offset-4 transition-colors hover:decoration-ink;
 }
 
-/* Panel gelap membulat — penanda bagian utama, "melayang" di atas latar. */
+/* Panel gelap: dipakai untuk layanan kantor desa dan kepala halaman */
 @utility band-dark {
   @apply bg-ink text-white;
 }
 @utility panel-dark {
-  @apply relative isolate overflow-hidden rounded-[1.75rem] bg-ink text-white sm:rounded-[2.25rem];
+  @apply relative isolate overflow-hidden rounded-2xl bg-ink text-white;
 }
 
 /* ---------- Kontrol ---------- */
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55;
+  @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-55;
 }
 @utility btn-primary {
-  @apply btn bg-ink text-white hover:bg-brand-900 active:bg-brand-800;
+  @apply btn bg-ink text-white hover:bg-brand-900 active:bg-brand-950;
 }
-/* Tombol utama di bidang gelap */
+/* Tombol utama di atas panel gelap */
 @utility btn-accent {
-  @apply btn bg-sun-400 text-ink hover:bg-sun-500 active:bg-sun-500;
+  @apply btn bg-white text-ink hover:bg-paper;
 }
 @utility btn-light {
-  @apply btn bg-white text-ink shadow-[0_1px_2px_rgb(11_19_16/0.06),0_0_0_1px_rgb(11_19_16/0.07)] hover:shadow-[0_4px_14px_-6px_rgb(11_19_16/0.25),0_0_0_1px_rgb(11_19_16/0.1)];
+  @apply btn border border-line-strong bg-white text-ink hover:border-ink;
 }
-/* Tombol garis di atas panel gelap */
 @utility btn-ghost {
-  @apply btn text-white ring-1 ring-white/25 hover:bg-white/10;
+  @apply btn text-white ring-1 ring-white/40 hover:bg-white/10;
 }
 @utility btn-danger {
   @apply btn bg-red-700 text-white hover:bg-red-800;
 }
 
 @utility input {
-  @apply w-full rounded-xl border border-line-strong bg-white px-3 py-2.5 text-[0.9375rem] text-ink placeholder:text-stone-400 transition-colors hover:border-stone-400 focus:border-ink focus:ring-2 focus:ring-sun-400/60 focus:outline-none aria-[invalid=true]:border-red-600;
+  @apply w-full rounded-md border border-line-strong bg-white px-3 py-2.5 text-base text-ink placeholder:text-slate transition-colors hover:border-slate focus:border-ink focus:ring-2 focus:ring-line focus:outline-none aria-[invalid=true]:border-red-700;
 }
 @utility label {
-  @apply mb-1.5 block text-sm font-semibold text-ink;
+  @apply mb-1.5 block text-sm font-bold text-ink;
 }
 
 /* ---------- Permukaan ---------- */
 @utility card {
-  @apply rounded-2xl bg-white shadow-[0_1px_2px_rgb(11_19_16/0.04),0_0_0_1px_rgb(11_19_16/0.05)];
+  @apply rounded-xl border border-line bg-white;
 }
 @utility card-hover {
-  @apply card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-20px_rgb(11_19_16/0.35),0_0_0_1px_rgb(11_19_16/0.06)];
+  @apply card transition-colors hover:border-slate;
 }
 @utility rule {
   @apply border-t border-line;
@@ -138,33 +141,33 @@ body {
   @apply py-12 sm:py-16;
 }
 @utility section-lg {
-  @apply py-16 sm:py-20;
+  @apply py-16 sm:py-24;
 }
 
 /* ---------- Konten Markdown ---------- */
 .prose-desa {
-  @apply space-y-5 text-[1.0625rem] leading-[1.75] text-ink/90;
+  @apply space-y-5 text-[1.0625rem] leading-[1.7] text-ink;
 }
 .prose-desa h2 {
-  @apply font-display pt-3 text-[1.375rem] leading-snug font-semibold text-ink;
+  @apply font-display pt-3 text-[1.3125rem] leading-snug text-ink;
 }
 .prose-desa h3 {
-  @apply pt-2 text-lg font-semibold text-ink;
+  @apply pt-2 text-lg font-bold text-ink;
 }
 .prose-desa ul {
-  @apply list-disc space-y-1.5 pl-6 marker:text-brand-400;
+  @apply list-disc space-y-1.5 pl-6 marker:text-slate;
 }
 .prose-desa ol {
-  @apply list-decimal space-y-1.5 pl-6 marker:text-muted;
+  @apply list-decimal space-y-1.5 pl-6 marker:text-slate;
 }
 .prose-desa a {
   @apply link;
 }
 .prose-desa blockquote {
-  @apply border-l-2 border-ink pl-4 text-muted;
+  @apply border-l-2 border-slate pl-4 text-muted;
 }
 .prose-desa strong {
-  @apply font-semibold text-ink;
+  @apply font-bold text-ink;
 }
 
 .leaflet-container {

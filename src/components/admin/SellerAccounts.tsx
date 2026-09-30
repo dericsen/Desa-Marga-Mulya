@@ -15,7 +15,7 @@ export function SellerAccounts({ penjualId, penjualNama, akun }: { penjualId: nu
 
   return (
     <section aria-labelledby="judul-akun-penjual" className="card mb-6 p-5 sm:p-6">
-      <h2 id="judul-akun-penjual" className="font-semibold text-ink">Akun login penjual</h2>
+      <h2 id="judul-akun-penjual" className="font-bold text-ink">Akun login penjual</h2>
       <p className="mt-1 text-sm text-muted">
         Penjual yang punya akun dapat menambah produk (ditinjau admin), mengubah harga & stok, dan mengelola pesanan tokonya sendiri di <span className="font-mono text-xs">/admin</span>.
       </p>
@@ -61,15 +61,15 @@ function AkunRow({ a }: { a: Akun }) {
     <li className="py-3 text-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span>
-          <span className="font-semibold text-ink">{a.nama}</span> <span className="text-muted tabular-nums">· {a.email}</span>
-          {!a.aktif ? <span className="ml-2 rounded-sm border border-red-200 bg-red-50 px-1.5 py-0.5 text-xs font-semibold text-red-700">Nonaktif</span> : null}
+          <span className="font-bold text-ink">{a.nama}</span> <span className="text-muted tabular-nums">· {a.email}</span>
+          {!a.aktif ? <span className="ml-2 rounded-sm border border-red-200 bg-red-50 px-1.5 py-0.5 text-xs font-bold text-red-700">Nonaktif</span> : null}
         </span>
         <span className="flex gap-3">
           <form action={aturAkunPenjual.bind(null, a.id, !a.aktif)}>
-            <button type="submit" className="text-sm font-semibold text-brand-700 hover:underline">{a.aktif ? "Nonaktifkan" : "Aktifkan"}</button>
+            <button type="submit" className="text-sm font-bold text-brand-700 hover:underline">{a.aktif ? "Nonaktifkan" : "Aktifkan"}</button>
           </form>
           <form action={hapusAkunPenjual.bind(null, a.id)}>
-            <ConfirmButton message={`Hapus akun ${a.nama}? Produk dan pesanan toko tetap ada.`} className="text-sm font-semibold text-red-700 hover:underline">Hapus</ConfirmButton>
+            <ConfirmButton message={`Hapus akun ${a.nama}? Produk dan pesanan toko tetap ada.`} className="text-sm font-bold text-red-700 hover:underline">Hapus</ConfirmButton>
           </form>
         </span>
       </div>

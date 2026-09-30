@@ -7,7 +7,7 @@ export function LoginForm() {
   const [state, action, pending] = useActionState<FormState, FormData>(login, null);
   return (
     <form action={action} className="card space-y-4 p-6">
-      <h1 className="font-display text-xl font-semibold text-ink">Masuk</h1>
+      <h1 className="font-display text-xl font-bold text-ink">Masuk</h1>
       <p className="-mt-2 text-sm text-muted">Untuk admin desa dan penjual Pasar Desa.</p>
       <div>
         <label htmlFor="email" className="label">Email atau nomor HP</label>

@@ -21,7 +21,7 @@ export function AddToCart({ product, tersedia, variant = "compact" }: Props) {
 
   if (habis) {
     return (
-      <p className="text-sm font-semibold text-muted" aria-live="polite">
+      <p className="text-sm font-bold text-muted" aria-live="polite">
         Stok habis
       </p>
     );
@@ -53,7 +53,7 @@ export function AddToCart({ product, tersedia, variant = "compact" }: Props) {
           <button type="button" className="px-3 py-2 text-lg leading-none text-ink disabled:text-stone-300" onClick={() => setQty((q) => Math.max(1, q - 1))} disabled={qty <= 1} aria-label="Kurangi jumlah">
             −
           </button>
-          <span className="w-10 text-center font-semibold tabular-nums" aria-live="polite">{qty}</span>
+          <span className="w-10 text-center font-bold tabular-nums" aria-live="polite">{qty}</span>
           <button type="button" className="px-3 py-2 text-lg leading-none text-ink disabled:text-stone-300" onClick={() => setQty((q) => Math.min(maxQty, q + 1))} disabled={qty >= maxQty} aria-label="Tambah jumlah">
             +
           </button>

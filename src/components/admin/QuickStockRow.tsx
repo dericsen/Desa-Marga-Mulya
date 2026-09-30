@@ -36,24 +36,24 @@ export function QuickStockRow({ p }: { p: P }) {
         {p.gambar ? <img src={p.gambar} alt="" className="aspect-square w-14 rounded-md object-cover sm:w-16" /> : <div className="aspect-square w-14 rounded-md bg-line/60 sm:w-16" />}
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <Link href={`/admin/toko/produk/${p.id}`} className="font-semibold text-ink hover:underline">{p.nama}</Link>
-            <span className={`rounded-sm border px-1.5 py-0.5 text-xs font-semibold ${TONE[st.tone]}`}>{st.label}</span>
+            <Link href={`/admin/toko/produk/${p.id}`} className="font-bold text-ink hover:underline">{p.nama}</Link>
+            <span className={`rounded-sm border px-1.5 py-0.5 text-xs font-bold ${TONE[st.tone]}`}>{st.label}</span>
           </div>
           {p.satuan ? <p className="text-sm text-muted">{p.satuan}</p> : null}
           {p.status_tinjau === "ditolak" && p.catatan_tinjau ? (
             <p className="mt-1.5 border-l-2 border-red-600 pl-2 text-sm text-red-800">
-              Catatan admin: {p.catatan_tinjau} <Link href={`/admin/toko/produk/${p.id}`} className="font-semibold underline">Perbaiki</Link>
+              Catatan admin: {p.catatan_tinjau} <Link href={`/admin/toko/produk/${p.id}`} className="font-bold underline">Perbaiki</Link>
             </p>
           ) : null}
           {p.status_tinjau === "menunggu" ? <p className="mt-1 text-xs text-muted">Produk tampil di Pasar Desa setelah disetujui admin desa.</p> : null}
 
           <form action={action} className="mt-3 flex flex-wrap items-end gap-3">
             <div>
-              <label htmlFor={`harga-${p.id}`} className="block text-xs font-semibold text-muted">Harga (Rp)</label>
+              <label htmlFor={`harga-${p.id}`} className="block text-xs font-bold text-muted">Harga (Rp)</label>
               <input id={`harga-${p.id}`} name="harga" inputMode="numeric" defaultValue={p.harga} className="input mt-1 w-32 py-2 tabular-nums" aria-invalid={Boolean(state?.errors?.harga)} />
             </div>
             <div>
-              <label htmlFor={`stok-${p.id}`} className="block text-xs font-semibold text-muted">Stok</label>
+              <label htmlFor={`stok-${p.id}`} className="block text-xs font-bold text-muted">Stok</label>
               <input id={`stok-${p.id}`} name="stok" inputMode="numeric" defaultValue={p.stok ?? ""} placeholder="∞" className="input mt-1 w-20 py-2 tabular-nums" aria-invalid={Boolean(state?.errors?.stok)} />
             </div>
             <label className="flex items-center gap-2 pb-2 text-sm text-ink">

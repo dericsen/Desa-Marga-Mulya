@@ -25,20 +25,20 @@ export function ProductCard({ p, detailHref }: { p: Produk; detailHref: string }
   const menipis = p.stok !== null && p.stok > 0 && p.stok <= 5;
   return (
     <article className="flex flex-col">
-      <Link href={detailHref} scroll={false} className="group relative block overflow-hidden rounded-3xl">
-        <Img src={p.gambar} alt={p.nama} className={`aspect-square w-full rounded-3xl ${habis ? "opacity-55 grayscale" : ""} transition-transform duration-500 group-hover:scale-[1.02]`} />
-        {habis ? <span className="absolute top-3 left-3 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-muted">Habis</span> : null}
-        {menipis ? <span className="absolute top-3 left-3 rounded-full bg-sun-400 px-2.5 py-1 text-xs font-medium text-ink">Sisa {p.stok}</span> : null}
+      <Link href={detailHref} scroll={false} className="group relative block">
+        <Img src={p.gambar} alt={p.nama} className={`aspect-square w-full rounded-xl ${habis ? "opacity-50 grayscale" : ""}`} />
+        {habis ? <span className="absolute top-3 left-3 rounded-md border border-line bg-white px-2 py-1 text-xs font-bold text-muted">Habis</span> : null}
+        {menipis ? <span className="absolute top-3 left-3 rounded-md bg-ink px-2 py-1 text-xs font-bold text-white">Sisa {p.stok}</span> : null}
       </Link>
       <div className="mt-3 flex flex-1 flex-col">
         <p className="text-xs text-muted">{p.penjual_nama}</p>
-        <h3 className="mt-0.5 leading-snug font-semibold text-ink">
+        <h3 className="mt-0.5 leading-snug font-bold text-ink">
           <Link href={detailHref} scroll={false} className="hover:underline hover:underline-offset-4">
             {p.nama}
           </Link>
         </h3>
         <p className="mt-1 text-sm text-muted">{p.satuan}</p>
-        <p className="mt-2 text-[1.0625rem] font-semibold text-ink tabular-nums">{formatRupiah(p.harga)}</p>
+        <p className="mt-2 text-lg font-bold text-ink tabular-nums">{formatRupiah(p.harga)}</p>
         <div className="mt-3">
           <AddToCart product={toCartProduct(p)} tersedia={!habis} />
         </div>

@@ -9,14 +9,14 @@ function Input({ name, label, type = "text", error, autoComplete }: { name: stri
     <div>
       <label htmlFor={id} className="label">{label}</label>
       <input id={id} name={name} type={type} className="input" autoComplete={autoComplete} required aria-invalid={Boolean(error)} />
-      {error ? <p className="mt-1 text-sm font-semibold text-red-600">{error}</p> : null}
+      {error ? <p className="mt-1 text-sm font-bold text-red-600">{error}</p> : null}
     </div>
   );
 }
 
 function Status({ state }: { state: FormState }) {
   if (!state?.message) return null;
-  return <p role="status" className={`text-sm font-semibold ${state.ok ? "text-brand-700" : "text-red-600"}`}>{state.message}</p>;
+  return <p role="status" className={`text-sm font-bold ${state.ok ? "text-brand-700" : "text-red-600"}`}>{state.message}</p>;
 }
 
 export function AccountForms({ canAddAdmin = true }: { canAddAdmin?: boolean }) {
