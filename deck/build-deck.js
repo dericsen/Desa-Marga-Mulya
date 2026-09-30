@@ -59,9 +59,9 @@ function logoSlot(slide, dark) {
   text(s, "Desa Marga Mulya", { x: 0.5, y: 1.35, w: 9, h: 1.0, fontSize: 54, bold: true, color: W });
   text(s, "Village services, data, and local trade in one website.", { x: 0.5, y: 2.35, w: 8, h: 0.45, fontSize: 18, color: L });
 
-  s.addShape(pres.shapes.LINE, { x: 0.5, y: 3.55, w: 9, h: 0, line: { color: S, width: 0.75 } });
+  s.addShape(pres.shapes.LINE, { x: 0.5, y: 3.3, w: 9, h: 0, line: { color: S, width: 0.75 } });
   const items = [["10", "public pages"], ["42", "village data tables"], ["16", "local products"], ["3", "user roles"]];
-  items.forEach(([v, l], i) => stat(s, 0.5 + i * 2.25, 3.8, 2, v, l, { dark: true, size: 36, lsize: 12 }));
+  items.forEach(([v, l], i) => stat(s, 0.5 + i * 2.25, 3.55, 2, v, l, { dark: true, size: 36, lsize: 12 }));
   sources(s, "Mauk, Tangerang Regency, Banten", true);
   s.addNotes(
     "Good morning. We built the official website for Desa Marga Mulya in Mauk, Tangerang. It brings village services, open data, and a local marketplace together, and every piece of content is managed through a CMS."
@@ -141,16 +141,16 @@ function logoSlot(slide, dark) {
   s.addChart(pres.charts.DOUGHNUT, [{ name: "MSMEs", labels: ["Digital (27M)", "Not yet (38M)"], values: [27, 38] }], {
     x: 6.75, y: 1.2, w: 2.8, h: 3.4,
     holeSize: 62,
-    chartColors: [C, L],
+    chartColors: [C, S],
     showTitle: true, title: "MSMEs online (millions)", titleFontFace: FONT, titleFontSize: 12, titleColor: C,
     showLegend: true, legendPos: "b", legendFontFace: FONT, legendFontSize: 10, legendColor: M,
-    showPercent: true, dataLabelColor: C, dataLabelFontSize: 11, dataLabelFontFace: FONT,
+    showPercent: true, dataLabelColor: W, dataLabelFontSize: 12, dataLabelFontFace: FONT,
   });
 
   s.addShape(pres.shapes.RECTANGLE, { x: 3.75, y: 4.7, w: 5.8, h: 0.42, fill: { color: P }, line: { color: P } });
   text(s, "MSMEs generate ~61% of GDP and ~97% of jobs.", { x: 3.9, y: 4.7, w: 5.6, h: 0.42, fontSize: 11, color: C, valign: "middle" });
 
-  sources(s, "Sources: APJII Internet Survey 2025 & 2024; Kemenkeu via ITEJ (MSME GDP, jobs); Statista (65M MSMEs, 2023); GoodStats (27M digital MSMEs, 2023). Search check by team, Sep 2026.");
+  sources(s, "Sources: APJII 2024–2025; Kemenkeu via ITEJ; Statista 2023; GoodStats 2023; team web search, Sep 2026.");
   s.addNotes(
     "Connectivity is not the barrier: 80 percent of Indonesians are online and 74 percent of rural residents too. But rural areas generate only 30 percent of internet usage, and when we searched for Desa Marga Mulya we found no official website. For local businesses the gap is similar: MSMEs carry most of the economy, yet about 58 percent are still offline."
   );
@@ -204,10 +204,10 @@ function logoSlot(slide, dark) {
     ["seller.png", "Seller portal"],
   ];
   phones.forEach(([f, cap], i) => {
-    const x = 5.65 + i * 1.65;
-    s.addImage({ path: A(f), x, y: 1.15, w: 1.42, h: 3.06, sizing: { type: "cover", w: 1.42, h: 3.06 } });
-    s.addShape(pres.shapes.RECTANGLE, { x, y: 1.15, w: 1.42, h: 3.06, fill: { type: "none" }, line: { color: L, width: 0.75 } });
-    text(s, cap, { x, y: 4.25, w: 1.6, h: 0.25, fontSize: 9, color: M });
+    const x = 5.7 + i * 2.0;
+    s.addImage({ path: A(f), x, y: 1.15, w: 1.8, h: 3.06, sizing: { type: "cover", w: 1.8, h: 3.06 } });
+    s.addShape(pres.shapes.RECTANGLE, { x, y: 1.15, w: 1.8, h: 3.06, fill: { type: "none" }, line: { color: L, width: 0.75 } });
+    text(s, cap, { x, y: 4.25, w: 1.8, h: 0.25, fontSize: 9, color: M });
   });
 
   const st = [["10", "public pages"], ["42", "data tables, CSV export"], ["109", "automated checks passing"], ["AI", "Tanya Desa assistant"]];
