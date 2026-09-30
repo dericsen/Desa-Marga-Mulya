@@ -219,7 +219,7 @@ export default async function BerandaPage() {
           <div className="container-desa section-lg">
             <SectionHeading
               id="judul-potensi"
-              title="Produk warga &amp; tempat wisata"
+              title="Produk warga & tempat wisata"
               description="Beli langsung dari pembuatnya. Setiap pesanan lewat WhatsApp masuk ke pelaku usaha, bukan perantara."
               action={{ href: "/potensi", label: "Semua potensi desa" }}
             />
