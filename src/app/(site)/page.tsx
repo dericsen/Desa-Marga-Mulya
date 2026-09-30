@@ -15,7 +15,17 @@ export const dynamic = "force-dynamic";
 /** Angka kunci: bagian angka besar, satuan kecil (mis. "7.842" + "jiwa"). Teks tanpa pola tetap utuh. */
 function AngkaKunci({ nilai }: { nilai: string }) {
   const m = nilai.match(/^([\d.,]+)\s+([^\d]+)$/);
-  if (!m) return <span className="block text-[1.375rem] leading-tight sm:text-[1.5rem]">{nilai}</span>;
+  if (!m) {
+    // mis. "6 RW / 24 RT" → dua baris rapi
+    const parts = nilai.split(/\s*\/\s*/);
+    return (
+      <span className="block text-[1.375rem] leading-tight sm:text-[1.5rem]">
+        {parts.map((p, i) => (
+          <span key={i} className="block whitespace-nowrap">{p}</span>
+        ))}
+      </span>
+    );
+  }
   return (
     <>
       <span className="block text-[1.875rem] sm:text-[2.125rem]">{m[1]}</span>
