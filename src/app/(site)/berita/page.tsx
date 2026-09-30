@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Icon } from "@/components/Icon";
-import { BeritaCard, EmptyState, PageHeader, SectionHeading } from "@/components/site/ui";
+import { BeritaRow, EmptyState, FilterTabs, PageHeader } from "@/components/site/ui";
 import { BERITA_TYPES } from "@/lib/categories";
 import { getBerita, getOrganisasi } from "@/lib/data";
 
@@ -15,68 +13,59 @@ export default async function BeritaPage({ searchParams }: { searchParams: Promi
 
   return (
     <>
-      <PageHeader eyebrow="Kabar Desa" title="Berita & Kegiatan" description="Informasi terbaru, kegiatan warga, pengumuman, serta organisasi kemasyarakatan Desa Marga Mulya." />
+      <PageHeader title="Berita & Kegiatan" description="Pengumuman pemerintah desa, kegiatan warga, dan lembaga kemasyarakatan Desa Marga Mulya." />
 
-      <div className="container-desa mt-10">
-        <nav aria-label="Kategori berita">
-          <ul className="flex flex-wrap gap-2">
-            {[{ key: "", label: "Semua" }, ...BERITA_TYPES].map((b) => {
-              const isActive = (aktif ?? "") === b.key;
-              return (
-                <li key={b.key || "semua"}>
-                  <Link
-                    href={b.key ? `/berita?kategori=${b.key}` : "/berita"}
-                    aria-current={isActive ? "page" : undefined}
-                    className={`inline-flex rounded-full px-4 py-2 text-sm font-semibold ring-1 ${isActive ? "bg-brand-700 text-white ring-brand-700" : "bg-white text-stone-700 ring-stone-200"}`}
-                  >
-                    {b.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-
-        <div className="mt-8">
+      <div className="container-desa grid gap-14 pt-8 lg:grid-cols-12">
+        <div className="lg:col-span-8">
+          <FilterTabs
+            label="Kategori berita"
+            items={[{ key: "", label: "Semua" }, ...BERITA_TYPES].map((b) => ({
+              href: b.key ? `/berita?kategori=${b.key}` : "/berita",
+              label: b.label,
+              active: (aktif ?? "") === b.key,
+            }))}
+          />
           {berita.length ? (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="divide-y divide-line">
               {berita.map((b) => (
-                <BeritaCard key={b.id} item={b} />
+                <BeritaRow key={b.id} item={b} />
               ))}
             </div>
           ) : (
-            <EmptyState text="Belum ada berita pada kategori ini." />
+            <div className="mt-8">
+              <EmptyState title="Belum ada tulisan di kategori ini" text="Coba kategori lain, atau kembali lagi nanti." action={{ href: "/berita", label: "Lihat semua berita" }} />
+            </div>
           )}
         </div>
-      </div>
 
-      {organisasi.length ? (
-        <section className="container-desa mt-20" id="organisasi" aria-label="Organisasi dan kegiatan rutin">
-          <SectionHeading eyebrow="Organisasi & Kegiatan Rutin" title="Lembaga Kemasyarakatan Desa" description="Organisasi yang menggerakkan pembangunan dan kegiatan rutin warga Marga Mulya." />
-          <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {organisasi.map((o) => (
-              <li key={o.id} className="card flex flex-col p-5">
-                <h3 className="font-bold text-stone-900">{o.nama}</h3>
-                {o.deskripsi ? <p className="mt-2 flex-1 text-sm text-stone-600">{o.deskripsi}</p> : <div className="flex-1" />}
-                <dl className="mt-4 space-y-1.5 border-t border-stone-100 pt-3 text-sm">
-                  {o.jadwal ? (
-                    <div className="flex gap-2 text-brand-800">
-                      <dt><Icon name="clock" className="mt-0.5 h-4 w-4" /><span className="sr-only">Kegiatan rutin</span></dt>
-                      <dd className="font-semibold">{o.jadwal}</dd>
-                    </div>
-                  ) : null}
-                  {o.anggota ? (
-                    <div className="flex gap-2 text-stone-500">
-                      <dt><Icon name="users" className="mt-0.5 h-4 w-4" /><span className="sr-only">Anggota</span></dt>
-                      <dd>{o.anggota} anggota{o.ketua ? ` · ${o.ketua}` : ""}</dd>
-                    </div>
-                  ) : null}
-                </dl>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+        {organisasi.length ? (
+          <aside id="organisasi" className="scroll-mt-32 lg:col-span-4" aria-labelledby="judul-organisasi">
+            <div className="border-t-2 border-ink pt-5 lg:sticky lg:top-32">
+              <h2 id="judul-organisasi" className="font-display text-xl font-semibold text-ink">Lembaga kemasyarakatan desa</h2>
+              <p className="mt-1 text-sm text-muted">Organisasi warga dan jadwal kegiatan rutinnya.</p>
+              <ul className="mt-5 divide-y divide-line">
+                {organisasi.map((o) => (
+                  <li key={o.id} className="py-4">
+                    <details className="group">
+                      <summary className="flex cursor-pointer list-none items-start justify-between gap-3 [&::-webkit-details-marker]:hidden">
+                        <span>
+                          <span className="block font-semibold text-ink">{o.nama}</span>
+                          {o.jadwal ? <span className="mt-0.5 block text-sm text-muted">{o.jadwal}</span> : null}
+                        </span>
+                        <span className="mt-0.5 text-muted transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+                      </summary>
+                      <div className="mt-2 text-sm leading-relaxed text-muted">
+                        {o.deskripsi ? <p>{o.deskripsi}</p> : null}
+                        {o.anggota ? <p className="mt-1 tabular-nums">{o.anggota} anggota{o.ketua ? ` · ${o.ketua}` : ""}</p> : null}
+                      </div>
+                    </details>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </aside>
+        ) : null}
+      </div>
     </>
   );
 }

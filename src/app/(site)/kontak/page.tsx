@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Icon } from "@/components/Icon";
 import { ContactForm } from "@/components/site/ContactForm";
 import { PageHeader } from "@/components/site/ui";
 import { VillageMap } from "@/components/site/VillageMap";
@@ -14,62 +13,41 @@ export default async function KontakPage() {
   const wa = waLink(site.whatsapp, `Halo Pemerintah Desa ${site.namaDesa}, saya ingin bertanya.`);
   const kantor = lokasi.filter((l) => l.kategori === "pemerintahan");
 
+  const baris: { label: string; isi: React.ReactNode }[] = [];
+  if (site.alamat) baris.push({ label: "Alamat", isi: site.alamat });
+  if (site.jamLayanan) baris.push({ label: "Jam layanan", isi: <span className="whitespace-pre-line">{site.jamLayanan}</span> });
+  if (site.telepon) baris.push({ label: "Telepon", isi: <a className="tabular-nums hover:underline" href={`tel:${site.telepon.replace(/[^\d+]/g, "")}`}>{site.telepon}</a> });
+  if (site.email) baris.push({ label: "Email", isi: <a className="break-all hover:underline" href={`mailto:${site.email}`}>{site.email}</a> });
+  if (wa) baris.push({ label: "WhatsApp", isi: <a className="link" href={wa} target="_blank" rel="noopener noreferrer">Kirim pesan WhatsApp</a> });
+
   return (
     <>
-      <PageHeader eyebrow="Kontak" title="Hubungi Kantor Desa" description="Layanan informasi, administrasi, pengaduan, dan aspirasi warga Desa Marga Mulya." />
-      <div className="container-desa mt-10 grid gap-8 lg:grid-cols-[1fr_1.1fr]">
-        <div className="space-y-5">
-          <ul className="grid gap-4 sm:grid-cols-2">
-            {site.alamat ? (
-              <InfoCard icon="pin" title="Alamat">
-                {site.alamat}
-              </InfoCard>
-            ) : null}
-            {site.jamLayanan ? (
-              <InfoCard icon="clock" title="Jam Layanan">
-                <span className="whitespace-pre-line">{site.jamLayanan}</span>
-              </InfoCard>
-            ) : null}
-            {site.telepon ? (
-              <InfoCard icon="phone" title="Telepon">
-                <a className="font-semibold text-brand-700 hover:underline" href={`tel:${site.telepon.replace(/[^\d+]/g, "")}`}>{site.telepon}</a>
-              </InfoCard>
-            ) : null}
-            {site.email ? (
-              <InfoCard icon="mail" title="Email">
-                <a className="font-semibold break-all text-brand-700 hover:underline" href={`mailto:${site.email}`}>{site.email}</a>
-              </InfoCard>
-            ) : null}
-          </ul>
-          {wa ? (
-            <a href={wa} target="_blank" rel="noopener noreferrer" className="btn w-full bg-[#1f9d55] py-3.5 text-base text-white hover:bg-[#178246]">
-              <Icon name="whatsapp" /> Chat WhatsApp Layanan Desa
+      <PageHeader
+        title="Kontak"
+        description="Datang langsung ke kantor desa pada jam layanan, hubungi lewat telepon atau WhatsApp, atau kirim pesan tertulis melalui formulir di halaman ini."
+      />
+      <div className="container-desa grid gap-12 pt-10 lg:grid-cols-12">
+        <div className="lg:col-span-5">
+          <h2 className="text-sm font-semibold text-ink">Kantor Desa {site.namaDesa}</h2>
+          <dl className="mt-3 divide-y divide-line border-y border-line text-[0.9375rem]">
+            {baris.map((b) => (
+              <div key={b.label} className="grid grid-cols-[7rem_1fr] gap-3 py-3">
+                <dt className="text-muted">{b.label}</dt>
+                <dd className="text-ink">{b.isi}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="mt-8">
+            <VillageMap center={[site.lat, site.lng]} lokasi={kantor.length ? kantor : lokasi} zoom={16} height="300px" showFilter={false} />
+            <a href={`https://www.google.com/maps/dir/?api=1&destination=${site.lat},${site.lng}`} target="_blank" rel="noopener noreferrer" className="link mt-3 inline-block text-sm">
+              Buka petunjuk arah di Google Maps
             </a>
-          ) : null}
-          <VillageMap center={[site.lat, site.lng]} lokasi={kantor.length ? kantor : lokasi} zoom={16} height="320px" showFilter={false} />
-          <a
-            href={`https://www.google.com/maps/dir/?api=1&destination=${site.lat},${site.lng}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-light w-full"
-          >
-            <Icon name="map" className="h-4 w-4" /> Petunjuk Arah ke Kantor Desa
-          </a>
+          </div>
         </div>
-        <ContactForm />
+        <div className="lg:col-span-7">
+          <ContactForm />
+        </div>
       </div>
     </>
-  );
-}
-
-function InfoCard({ icon, title, children }: { icon: "pin" | "clock" | "phone" | "mail"; title: string; children: React.ReactNode }) {
-  return (
-    <li className="card p-5">
-      <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-700">
-        <Icon name={icon} />
-      </span>
-      <h2 className="mt-3 text-sm font-bold tracking-wide text-stone-500 uppercase">{title}</h2>
-      <div className="mt-1 text-sm text-stone-800">{children}</div>
-    </li>
   );
 }

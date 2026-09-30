@@ -30,10 +30,10 @@ export const BERITA_TYPES = [
 ];
 
 export const LOKASI_TYPES = [
-  { key: "pemerintahan", label: "Pemerintahan", color: "#0f766e" },
-  { key: "kesehatan", label: "Kesehatan", color: "#dc2626" },
-  { key: "pendidikan", label: "Pendidikan", color: "#2563eb" },
-  { key: "wisata", label: "Wisata", color: "#0891b2" },
-  { key: "umkm", label: "UMKM", color: "#d97706" },
-  { key: "umum", label: "Fasilitas Umum", color: "#6b7280" },
+  { key: "pemerintahan", label: "Pemerintahan", color: "#152d23" },
+  { key: "kesehatan", label: "Kesehatan", color: "#b23b2e" },
+  { key: "pendidikan", label: "Pendidikan", color: "#3b5f8a" },
+  { key: "wisata", label: "Wisata", color: "#3b7055" },
+  { key: "umkm", label: "UMKM", color: "#b27a22" },
+  { key: "umum", label: "Fasilitas umum", color: "#6f746f" },
 ];

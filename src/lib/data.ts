@@ -17,6 +17,7 @@ export const DEFAULT_SITE: SiteSettings = {
   heroJudul: "Selamat Datang di Desa Marga Mulya",
   heroDeskripsi: "",
   heroGambar: "/img/hero-desa.svg",
+  heroKeterangan: "",
   namaKepalaDesa: "",
   fotoKepalaDesa: "",
   sambutan: "",
@@ -40,6 +41,8 @@ export const DEFAULT_SITE: SiteSettings = {
   facebook: "",
   youtube: "",
   catatanData: "",
+  layanan: [],
+  catatanLayanan: "",
 };
 
 export const getSite = cache(async (): Promise<SiteSettings> => {
@@ -48,6 +51,7 @@ export const getSite = cache(async (): Promise<SiteSettings> => {
   const site = { ...DEFAULT_SITE, ...value };
   site.misi = Array.isArray(site.misi) ? site.misi : [];
   site.angkaKunci = Array.isArray(site.angkaKunci) ? site.angkaKunci : [];
+  site.layanan = Array.isArray(site.layanan) ? site.layanan : [];
   site.lat = Number(site.lat) || DEFAULT_SITE.lat;
   site.lng = Number(site.lng) || DEFAULT_SITE.lng;
   return site;

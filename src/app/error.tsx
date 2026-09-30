@@ -2,15 +2,14 @@
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <main className="grid min-h-[70vh] place-items-center px-4 text-center">
-      <div className="max-w-md">
-        <h1 className="text-2xl font-bold text-stone-900">Terjadi kendala</h1>
-        <p className="mt-2 text-stone-600">
-          Maaf, halaman belum dapat ditampilkan. Pastikan koneksi database sudah dikonfigurasi, lalu coba lagi.
-        </p>
-        {error.digest ? <p className="mt-2 text-xs text-stone-400">Kode: {error.digest}</p> : null}
-        <button type="button" onClick={reset} className="btn-primary mt-6">Coba Lagi</button>
-      </div>
+    <main className="container-desa max-w-[40rem] py-24">
+      <p className="meta">Terjadi gangguan</p>
+      <h1 className="font-display mt-3 text-[2.25rem] leading-tight font-semibold text-ink">Halaman belum bisa dimuat</h1>
+      <p className="mt-3 leading-relaxed text-muted">
+        Server desa sedang tidak dapat mengambil data. Tunggu sebentar lalu muat ulang. Jika berlanjut, hubungi kantor desa.
+      </p>
+      {error.digest ? <p className="mt-3 text-xs text-muted tabular-nums">Kode kejadian: {error.digest}</p> : null}
+      <button type="button" onClick={reset} className="btn-primary mt-8">Muat ulang</button>
     </main>
   );
 }

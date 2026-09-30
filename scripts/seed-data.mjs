@@ -15,10 +15,11 @@ export const site = {
   provinsi: "Banten",
   kodePos: "15530",
   tagline: "Desa pesisir yang agraris, guyub, dan berdaya",
-  heroJudul: "Selamat Datang di Desa Marga Mulya",
+  heroJudul: "Desa Marga Mulya",
   heroDeskripsi:
-    "Desa di pesisir utara Kabupaten Tangerang dengan hamparan sawah, tambak bandeng, dan masyarakat yang guyub. Temukan informasi desa, data pembangunan, potensi lokal, dan kegiatan warga di sini.",
+    "Desa pesisir di utara Kabupaten Tangerang. Sebagian besar dari 7.842 warganya hidup dari sawah, tambak bandeng, dan laut. Di sini Anda dapat mengurus layanan desa, membaca pengumuman, dan melihat data desa terbaru.",
   heroGambar: "/img/hero-desa.svg",
+  heroKeterangan: "Persawahan di utara desa menjelang musim panen. Ganti dengan foto asli desa melalui CMS.",
   namaKepalaDesa: "Ahmad Suryadi",
   fotoKepalaDesa: "",
   sambutan:
@@ -55,6 +56,16 @@ export const site = {
   instagram: "",
   facebook: "",
   youtube: "",
+  layanan: [
+    { label: "Surat pengantar KTP-el", nilai: "Kartu Keluarga asli dan fotokopi, surat pengantar RT/RW" },
+    { label: "Surat pengantar Kartu Keluarga", nilai: "KK lama, KTP-el, buku nikah atau akta cerai bila ada perubahan status" },
+    { label: "Surat keterangan domisili", nilai: "KTP-el, KK, surat pengantar RT/RW" },
+    { label: "Surat keterangan usaha (SKU)", nilai: "KTP-el, KK, foto tempat usaha, surat pengantar RT/RW" },
+    { label: "Surat keterangan tidak mampu (SKTM)", nilai: "KTP-el, KK, surat pengantar RT/RW, keterangan keperluan" },
+    { label: "Surat keterangan kelahiran", nilai: "Surat keterangan lahir dari bidan/rumah sakit, KK, KTP-el kedua orang tua" },
+    { label: "Surat keterangan kematian", nilai: "KK, KTP-el almarhum, KTP-el pelapor, surat keterangan dari RT/RW" },
+  ],
+  catatanLayanan: "Bawa dokumen asli beserta satu lembar fotokopi. Seluruh layanan administrasi di kantor desa tidak dipungut biaya.",
   catatanData:
     "Data statistik pada halaman ini disusun mengikuti struktur Data EcoQuest IIT Challenge 2026 dan berfungsi sebagai data contoh. Pemerintah desa dapat memperbarui seluruh angka melalui CMS sesuai data resmi terbaru.",
 };

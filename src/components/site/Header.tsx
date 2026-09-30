@@ -6,85 +6,98 @@ import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { NAV } from "@/lib/nav";
 
+type Props = { namaDesa: string; wilayah: string; jamRingkas: string; telepon: string };
 
-export function Header({ namaDesa, wilayah }: { namaDesa: string; wilayah: string }) {
+export function Header({ namaDesa, wilayah, jamRingkas, telepon }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
-    <header
-      className={`sticky top-0 z-40 border-b transition ${
-        scrolled ? "border-stone-200 bg-white/95 shadow-sm backdrop-blur" : "border-transparent bg-white"
-      }`}
-    >
-      <div className="container-desa flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="flex min-w-0 items-center gap-3" aria-label={`Beranda Desa ${namaDesa}`}>
-          <img src="/logo-desa.svg" alt="" width={40} height={40} className="h-10 w-10 shrink-0" />
-          <span className="min-w-0 leading-tight">
-            <span className="block truncate text-base font-extrabold text-brand-900">Desa {namaDesa}</span>
-            <span className="block truncate text-xs text-stone-500">{wilayah}</span>
-          </span>
-        </Link>
+    <header className="sticky top-0 z-40 bg-paper/95 backdrop-blur-sm">
+      {/* Bilah layanan: informasi paling sering dicari warga */}
+      <div className="bg-brand-900 text-brand-50">
+        <div className="container-desa flex h-9 items-center justify-between gap-4 text-[0.8125rem]">
+          <p className="truncate">
+            <span className="font-semibold">Kantor desa</span>
+            <span className="text-brand-200"> · {jamRingkas}</span>
+          </p>
+          {telepon ? (
+            <a href={`tel:${telepon.replace(/[^\d+]/g, "")}`} className="hidden shrink-0 tabular-nums hover:underline sm:inline">
+              {telepon}
+            </a>
+          ) : null}
+        </div>
+      </div>
 
-        <nav aria-label="Navigasi utama" className="hidden lg:block">
-          <ul className="flex items-center gap-1">
-            {NAV.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  aria-current={isActive(item.href) ? "page" : undefined}
-                  className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
-                    isActive(item.href) ? "bg-brand-50 text-brand-800" : "text-stone-600 hover:bg-stone-100 hover:text-stone-900"
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="flex items-center gap-1">
-          <Link href="/cari" className="rounded-lg p-2 text-stone-600 hover:bg-stone-100" aria-label="Cari informasi">
-            <Icon name="search" />
+      <div className="border-b border-line">
+        <div className="container-desa flex h-16 items-center justify-between gap-6">
+          <Link href="/" className="flex min-w-0 items-center gap-3" aria-label={`Beranda Desa ${namaDesa}`}>
+            <img src="/logo-desa.svg" alt="" width={34} height={34} className="h-[34px] w-[34px] shrink-0" />
+            <span className="min-w-0 leading-tight">
+              <span className="font-display block truncate text-[1.125rem] font-semibold text-ink">Desa {namaDesa}</span>
+              <span className="block truncate text-xs text-muted">{wilayah}</span>
+            </span>
           </Link>
-          <button
-            type="button"
-            className="rounded-lg p-2 text-stone-700 hover:bg-stone-100 lg:hidden"
-            aria-expanded={open}
-            aria-controls="menu-mobile"
-            aria-label={open ? "Tutup menu" : "Buka menu"}
-            onClick={() => setOpen((v) => !v)}
-          >
-            <Icon name={open ? "close" : "menu"} className="h-6 w-6" />
-          </button>
+
+          <nav aria-label="Navigasi utama" className="hidden h-full lg:block">
+            <ul className="flex h-full items-stretch gap-6">
+              {NAV.map((item) => (
+                <li key={item.href} className="flex">
+                  <Link
+                    href={item.href}
+                    aria-current={isActive(item.href) ? "page" : undefined}
+                    className={`-mb-px flex items-center border-b-2 text-[0.9375rem] transition-colors ${
+                      isActive(item.href) ? "border-brand-700 font-semibold text-ink" : "border-transparent text-muted hover:text-ink"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="flex items-center gap-1">
+            <Link href="/cari" className="flex items-center gap-2 rounded-md px-2.5 py-2 text-sm text-muted hover:bg-line/50 hover:text-ink" aria-label="Cari informasi">
+              <Icon name="search" className="h-[18px] w-[18px]" />
+              <span className="hidden xl:inline">Cari</span>
+            </Link>
+            <button
+              type="button"
+              className="rounded-md p-2 text-ink hover:bg-line/50 lg:hidden"
+              aria-expanded={open}
+              aria-controls="menu-mobile"
+              aria-label={open ? "Tutup menu" : "Buka menu"}
+              onClick={() => setOpen((v) => !v)}
+            >
+              <Icon name={open ? "close" : "menu"} className="h-6 w-6" />
+            </button>
+          </div>
         </div>
       </div>
 
       {open ? (
-        <nav id="menu-mobile" aria-label="Navigasi seluler" className="border-t border-stone-200 bg-white lg:hidden">
-          <ul className="container-desa grid gap-1 py-3">
+        <nav id="menu-mobile" aria-label="Navigasi seluler" className="h-[calc(100dvh-100px)] overflow-y-auto border-b border-line bg-paper lg:hidden">
+          <ul className="container-desa divide-y divide-line py-2">
             {NAV.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   aria-current={isActive(item.href) ? "page" : undefined}
-                  className={`block rounded-lg px-3 py-3 text-base font-semibold ${
-                    isActive(item.href) ? "bg-brand-50 text-brand-800" : "text-stone-700 hover:bg-stone-100"
-                  }`}
+                  className={`flex items-center justify-between py-4 text-lg ${isActive(item.href) ? "font-semibold text-brand-700" : "text-ink"}`}
                 >
                   {item.label}
+                  <Icon name="arrow" className="h-4 w-4 text-muted" />
                 </Link>
               </li>
             ))}

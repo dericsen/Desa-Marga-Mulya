@@ -30,6 +30,13 @@ async function buildKnowledge(): Promise<Knowledge> {
     `Alamat: ${site.alamat}. Telepon: ${site.telepon}. Email: ${site.email}. WhatsApp: ${site.whatsapp}. Jam layanan: ${site.jamLayanan.replace(/\n/g, "; ")}. Warga dapat mengirim pesan dan aspirasi melalui formulir di halaman Kontak.`,
     "/kontak"
   );
+  if (site.layanan.length) {
+    add(
+      "Layanan administrasi kantor desa dan persyaratannya",
+      `${site.layanan.map((l) => `${l.label}: bawa ${l.nilai}`).join(". ")}. ${site.catatanLayanan}`,
+      "/#layanan"
+    );
+  }
   add("Visi dan misi desa", `Visi: ${site.visi}. Misi: ${site.misi.map((m, i) => `${i + 1}) ${m}`).join(" ")}`, "/profil");
   add("Sejarah desa", excerpt(site.sejarah, 900), "/profil");
   if (site.namaKepalaDesa) add("Kepala desa", `Kepala Desa ${site.namaDesa} adalah ${site.namaKepalaDesa}. Sambutan: ${site.sambutan}`, "/profil");

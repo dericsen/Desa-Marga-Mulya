@@ -80,27 +80,23 @@ export function VillageMap({ center, lokasi, zoom = 15, height = "420px", showFi
   return (
     <div>
       {showFilter && tersedia.length > 0 ? (
-        <div className="mb-3 flex flex-wrap gap-2" role="group" aria-label="Filter kategori lokasi">
-          {tersedia.map((t) => (
-            <button
-              key={t.key}
-              type="button"
-              aria-pressed={aktif.includes(t.key)}
-              onClick={() => toggle(t.key)}
-              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 transition ${
-                aktif.includes(t.key) ? "bg-white text-stone-800 ring-stone-300" : "bg-stone-100 text-stone-400 ring-stone-200"
-              }`}
-            >
-              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: t.color }} aria-hidden="true" />
-              {t.label}
-            </button>
-          ))}
-        </div>
+        <fieldset className="mb-3">
+          <legend className="sr-only">Tampilkan kategori lokasi</legend>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {tersedia.map((t) => (
+              <label key={t.key} className="inline-flex cursor-pointer items-center gap-2 text-sm text-ink select-none">
+                <input type="checkbox" checked={aktif.includes(t.key)} onChange={() => toggle(t.key)} className="h-4 w-4 accent-brand-700" />
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: t.color }} aria-hidden="true" />
+                {t.label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
       ) : null}
-      <div ref={ref} style={{ height }} className="w-full overflow-hidden rounded-2xl bg-stone-200 ring-1 ring-stone-200" role="region" aria-label="Peta interaktif desa" />
+      <div ref={ref} style={{ height }} className="w-full overflow-hidden rounded-md border border-line bg-line/40" role="region" aria-label="Peta interaktif desa" />
       {lokasi.length > 0 ? (
-        <details className="mt-3 text-sm text-stone-600">
-          <summary className="cursor-pointer font-semibold text-brand-700">Daftar lokasi ({lokasi.length})</summary>
+        <details className="mt-3 text-sm text-muted">
+          <summary className="cursor-pointer font-semibold text-brand-700 hover:underline">Daftar lokasi ({lokasi.length})</summary>
           <ul className="mt-2 grid gap-1 sm:grid-cols-2">
             {lokasi.map((l) => (
               <li key={l.id}>

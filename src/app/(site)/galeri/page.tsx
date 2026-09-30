@@ -20,8 +20,10 @@ export default async function GaleriPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Galeri" title="Galeri Desa" description="Dokumentasi alam, kegiatan warga, budaya, dan potensi Desa Marga Mulya." />
-      <div className="container-desa mt-10">{items.length ? <GalleryGrid items={items} /> : <EmptyState text="Belum ada foto di galeri." />}</div>
+      <PageHeader title="Galeri" description="Dokumentasi alam, kegiatan warga, pemerintahan, dan budaya Desa Marga Mulya. Pilih foto untuk melihat versi besarnya." />
+      <div className="container-desa pt-8">
+        {items.length ? <GalleryGrid items={items} /> : <EmptyState title="Galeri masih kosong" text="Foto kegiatan desa akan tampil di sini setelah diunggah oleh admin." />}
+      </div>
     </>
   );
 }

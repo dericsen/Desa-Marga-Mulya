@@ -6,19 +6,19 @@ import { Icon } from "@/components/Icon";
 type Msg = { role: "user" | "assistant"; content: string };
 
 const SARAN = [
-  "Berapa jumlah penduduk desa?",
+  "Jam berapa kantor desa buka?",
   "Apa saja produk UMKM di desa ini?",
-  "Bagaimana cara mengurus surat domisili?",
-  "Wisata apa yang bisa dikunjungi?",
+  "Syarat membuat surat domisili?",
+  "Berapa jumlah penduduk desa?",
 ];
 
 function renderText(text: string) {
   return text.split("\n").map((line, i) => {
     const parts = line.split(/(\*\*[^*]+\*\*)/g).map((p, j) =>
-      /^\*\*[^*]+\*\*$/.test(p) ? <strong key={j}>{p.slice(2, -2)}</strong> : <span key={j}>{p}</span>
+      /^\*\*[^*]+\*\*$/.test(p) ? <strong key={j} className="font-semibold">{p.slice(2, -2)}</strong> : <span key={j}>{p}</span>
     );
     return (
-      <span key={i} className="block min-h-[0.5em]">
+      <span key={i} className="block min-h-[0.6em]">
         {parts}
       </span>
     );
@@ -32,7 +32,7 @@ export function ChatWidget({ namaDesa }: { namaDesa: string }) {
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "assistant",
-      content: `Halo! Saya **Tanya Desa**, asisten virtual Desa ${namaDesa}. Silakan tanyakan informasi tentang profil desa, data kependudukan, layanan, potensi wisata, atau UMKM.`,
+      content: `Saya menjawab pertanyaan seputar Desa ${namaDesa} berdasarkan data di website ini: layanan kantor desa, data penduduk, potensi, dan kegiatan warga.`,
     },
   ]);
   const listRef = useRef<HTMLDivElement>(null);
@@ -65,7 +65,7 @@ export function ChatWidget({ namaDesa }: { namaDesa: string }) {
       const data = (await res.json()) as { reply?: string; error?: string };
       setMessages((m) => [...m, { role: "assistant", content: data.reply || data.error || "Maaf, terjadi kesalahan." }]);
     } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "Maaf, koneksi sedang bermasalah. Silakan coba lagi." }]);
+      setMessages((m) => [...m, { role: "assistant", content: "Koneksi terputus. Periksa internet Anda lalu coba lagi." }]);
     } finally {
       setLoading(false);
     }
@@ -78,40 +78,42 @@ export function ChatWidget({ namaDesa }: { namaDesa: string }) {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        aria-controls="tanya-desa"
-        className="fixed right-4 bottom-4 z-50 inline-flex items-center gap-2 rounded-full bg-brand-700 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-brand-900/30 transition hover:bg-brand-800 sm:right-6 sm:bottom-6"
-      >
-        <Icon name={open ? "close" : "sparkles"} />
-        <span>{open ? "Tutup" : "Tanya Desa"}</span>
-      </button>
+      {!open ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-expanded={false}
+          aria-controls="tanya-desa"
+          className="fixed right-4 bottom-4 z-50 inline-flex items-center gap-2 rounded-md bg-brand-800 px-4 py-3 text-sm font-semibold text-white shadow-[0_4px_14px_-4px_rgb(12_27_21/0.45)] transition-colors hover:bg-brand-900 sm:right-6 sm:bottom-6"
+        >
+          <Icon name="chat" className="h-[18px] w-[18px]" />
+          Tanya Desa
+        </button>
+      ) : null}
 
       {open ? (
         <section
           id="tanya-desa"
           role="dialog"
-          aria-label="Asisten AI Tanya Desa"
-          className="fixed inset-x-3 bottom-20 z-50 flex max-h-[75vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-stone-200 sm:inset-x-auto sm:right-6 sm:bottom-24 sm:w-[400px]"
+          aria-label="Asisten Tanya Desa"
+          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col border-t border-line-strong bg-white shadow-[0_-8px_30px_-12px_rgb(12_27_21/0.3)] sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-h-[70vh] sm:w-[23rem] sm:rounded-md sm:border"
         >
-          <header className="flex items-center gap-3 bg-gradient-to-r from-brand-800 to-brand-600 px-4 py-3 text-white">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-white/15">
-              <Icon name="sparkles" />
-            </span>
+          <header className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
             <div>
-              <p className="font-bold">Tanya Desa</p>
-              <p className="text-xs text-brand-100">Asisten AI berbasis data resmi website desa</p>
+              <p className="font-semibold text-ink">Tanya Desa</p>
+              <p className="text-xs text-muted">Asisten AI · menjawab dari data website desa</p>
             </div>
+            <button type="button" onClick={() => setOpen(false)} className="-mr-1 rounded-md p-1.5 text-muted hover:bg-paper hover:text-ink" aria-label="Tutup asisten">
+              <Icon name="close" className="h-5 w-5" />
+            </button>
           </header>
 
-          <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto bg-stone-50 p-4" aria-live="polite">
+          <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto bg-paper/60 px-4 py-4" aria-live="polite">
             {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div key={i} data-role={m.role} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                    m.role === "user" ? "rounded-br-sm bg-brand-700 text-white" : "rounded-bl-sm bg-white text-stone-800 ring-1 ring-stone-200"
+                  className={`max-w-[88%] rounded-md px-3 py-2 text-[0.9375rem] leading-relaxed ${
+                    m.role === "user" ? "bg-brand-700 text-white" : "border border-line bg-white text-ink"
                   }`}
                 >
                   {renderText(m.content)}
@@ -119,22 +121,25 @@ export function ChatWidget({ namaDesa }: { namaDesa: string }) {
               </div>
             ))}
             {loading ? (
-              <div className="flex justify-start">
-                <div className="rounded-2xl rounded-bl-sm bg-white px-4 py-3 text-sm text-stone-500 ring-1 ring-stone-200">Sedang mencari jawaban…</div>
-              </div>
+              <p className="text-sm text-muted" data-loading="true">Mencari di data desa…</p>
             ) : null}
             {messages.length <= 1 ? (
-              <div className="flex flex-wrap gap-2 pt-1">
-                {SARAN.map((s) => (
-                  <button key={s} type="button" onClick={() => send(s)} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-brand-800 ring-1 ring-brand-200 hover:bg-brand-50">
-                    {s}
-                  </button>
-                ))}
+              <div className="pt-1">
+                <p className="mb-2 text-xs font-semibold text-muted">Contoh pertanyaan</p>
+                <ul className="space-y-1.5">
+                  {SARAN.map((s) => (
+                    <li key={s}>
+                      <button type="button" onClick={() => send(s)} className="w-full rounded-md border border-line bg-white px-3 py-2 text-left text-sm text-ink hover:border-brand-400">
+                        {s}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ) : null}
           </div>
 
-          <form onSubmit={onSubmit} className="flex gap-2 border-t border-stone-200 bg-white p-3">
+          <form onSubmit={onSubmit} className="flex gap-2 border-t border-line p-3">
             <label htmlFor="tanya-input" className="sr-only">Tulis pertanyaan</label>
             <input
               id="tanya-input"
@@ -142,15 +147,15 @@ export function ChatWidget({ namaDesa }: { namaDesa: string }) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               maxLength={500}
-              placeholder="Tulis pertanyaan Anda…"
-              className="input"
+              placeholder="Tulis pertanyaan"
+              className="input py-2"
               autoComplete="off"
             />
             <button type="submit" className="btn-primary px-3" disabled={loading || !input.trim()} aria-label="Kirim pertanyaan">
-              <Icon name="send" />
+              <Icon name="send" className="h-4 w-4" />
             </button>
           </form>
-          <p className="bg-white px-4 pb-3 text-[11px] text-stone-400">Jawaban AI dapat keliru. Untuk keperluan resmi, hubungi kantor desa.</p>
+          <p className="px-4 pb-3 text-[0.6875rem] leading-snug text-muted">Jawaban dapat keliru. Untuk urusan resmi, konfirmasi ke kantor desa.</p>
         </section>
       ) : null}
     </>

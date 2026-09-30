@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Icon } from "@/components/Icon";
 import { Markdown } from "@/components/Markdown";
-import { BeritaCard, Img } from "@/components/site/ui";
-import { BERITA_TYPES } from "@/lib/categories";
+import { Img, kategoriBerita } from "@/components/site/ui";
 import { getBerita, getBeritaBySlug } from "@/lib/data";
 import { excerpt, formatDate, toDateInput } from "@/lib/format";
 
@@ -24,37 +22,52 @@ export default async function BeritaDetailPage({ params }: Props) {
   const item = await getBeritaBySlug(slug);
   if (!item) notFound();
   const lainnya = (await getBerita({ limit: 4 })).filter((b) => b.id !== item.id).slice(0, 3);
-  const kategori = BERITA_TYPES.find((b) => b.key === item.kategori)?.label ?? item.kategori;
 
   return (
     <article>
-      <header className="bg-brand-900 text-white">
-        <div className="container-desa max-w-4xl py-12">
-          <Link href="/berita" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-200 hover:text-white">
-            <Icon name="arrow" className="h-4 w-4 rotate-180" /> Kembali ke Berita
-          </Link>
-          <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
-            <span className="rounded-full bg-white/15 px-3 py-1 font-bold">{kategori}</span>
-            <time dateTime={toDateInput(item.tanggal)} className="text-brand-100">{formatDate(item.tanggal, true)}</time>
-          </div>
-          <h1 className="mt-4 text-3xl leading-tight font-extrabold sm:text-4xl">{item.judul}</h1>
-          {item.ringkasan ? <p className="mt-4 text-lg text-brand-50/90">{item.ringkasan}</p> : null}
-        </div>
+      <header className="container-desa max-w-[48rem] pt-8 sm:pt-10">
+        <nav aria-label="Remah roti" className="meta">
+          <ol className="flex flex-wrap items-center gap-1.5">
+            <li><Link href="/" className="hover:text-ink hover:underline">Beranda</Link></li>
+            <li aria-hidden="true">/</li>
+            <li><Link href="/berita" className="hover:text-ink hover:underline">Berita & Kegiatan</Link></li>
+          </ol>
+        </nav>
+        <p className="meta mt-8">
+          <span className="font-semibold text-brand-700">{kategoriBerita(item.kategori)}</span>
+          <span aria-hidden="true"> · </span>
+          <time dateTime={toDateInput(item.tanggal)}>{formatDate(item.tanggal, true)}</time>
+        </p>
+        <h1 className="font-display mt-3 text-[2.125rem] leading-[1.15] font-semibold text-ink sm:text-[2.625rem]">{item.judul}</h1>
+        {item.ringkasan ? <p className="mt-5 text-xl leading-relaxed text-muted">{item.ringkasan}</p> : null}
       </header>
 
-      <div className="container-desa max-w-4xl">
-        {item.gambar ? <Img src={item.gambar} alt={item.judul} className="mt-8 aspect-[16/8] w-full rounded-3xl shadow-sm" /> : null}
-        <Markdown text={item.konten} className="mt-8 text-lg" />
+      {item.gambar ? (
+        <div className="container-desa mt-10 max-w-[60rem]">
+          <Img src={item.gambar} alt={item.judul} className="aspect-[16/9] w-full rounded-md" />
+        </div>
+      ) : null}
+
+      <div className="container-desa mt-10 max-w-[48rem]">
+        <Markdown text={item.konten} />
+        <p className="mt-12 border-t border-line pt-5 text-sm text-muted">
+          Ada koreksi atau pertanyaan tentang tulisan ini? <Link href="/kontak" className="link">Hubungi pemerintah desa</Link>.
+        </p>
       </div>
 
       {lainnya.length ? (
-        <section className="container-desa mt-16" aria-labelledby="berita-lain">
-          <h2 id="berita-lain" className="section-title mb-6">Berita Lainnya</h2>
-          <div className="grid gap-5 md:grid-cols-3">
+        <section className="container-desa mt-20 max-w-[60rem]" aria-labelledby="berita-lain">
+          <h2 id="berita-lain" className="font-display border-b border-ink pb-3 text-xl font-semibold text-ink">Tulisan lainnya</h2>
+          <ul className="divide-y divide-line">
             {lainnya.map((b) => (
-              <BeritaCard key={b.id} item={b} />
+              <li key={b.id} className="group relative py-4">
+                <p className="meta text-xs">{formatDate(b.tanggal)} · {kategoriBerita(b.kategori)}</p>
+                <Link href={`/berita/${b.slug}`} className="mt-1 block font-semibold text-ink after:absolute after:inset-0 group-hover:underline group-hover:underline-offset-4">
+                  {b.judul}
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       ) : null}
     </article>

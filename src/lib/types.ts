@@ -10,6 +10,7 @@ export type SiteSettings = {
   heroJudul: string;
   heroDeskripsi: string;
   heroGambar: string;
+  heroKeterangan: string;
   namaKepalaDesa: string;
   fotoKepalaDesa: string;
   sambutan: string;
@@ -33,6 +34,8 @@ export type SiteSettings = {
   facebook: string;
   youtube: string;
   catatanData: string;
+  layanan: KeyValue[];
+  catatanLayanan: string;
 };
 
 export type StatItem = { label: string; nilai: number };

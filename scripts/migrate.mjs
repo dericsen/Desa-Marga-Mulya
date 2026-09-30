@@ -161,6 +161,9 @@ async function main() {
   if (siteCount === 0) {
     await sql`insert into settings (key, value) values ('site', ${sql.json(seed.site)})`;
     console.log("[migrate] settings: pengaturan situs ditambahkan.");
+  } else {
+    // Tambahkan kunci pengaturan baru tanpa menimpa isian yang sudah diubah admin.
+    await sql`update settings set value = ${sql.json(seed.site)}::jsonb || value where key = 'site'`;
   }
 
   if (await isEmpty("statistik")) await insertRows("statistik", seed.statistik, ["items"]);

@@ -17,7 +17,7 @@ const check = (cond, msg) => {
 };
 
 const PAGES = [
-  ["beranda", "/", "Selamat Datang di Desa Marga Mulya"],
+  ["beranda", "/", "Layanan administrasi"],
   ["profil", "/profil", "Struktur Aparat Desa"],
   ["informasi", "/informasi", "Mata Pencaharian Pokok"],
   ["informasi-kesehatan", "/informasi?kategori=kesehatan", "Status Gizi Balita"],
@@ -85,7 +85,7 @@ console.log("\n== Interaksi pengunjung ==");
   await page.waitForFunction(
     () => {
       const el = document.querySelector("#tanya-desa");
-      return !!el && el.querySelectorAll("[class*='rounded-bl-sm']").length >= 2 && !el.textContent.includes("Sedang mencari jawaban");
+      return !!el && el.querySelectorAll("[data-role='assistant']").length >= 2 && !el.querySelector("[data-loading]");
     },
     null,
     { timeout: 30000 }
@@ -171,6 +171,7 @@ console.log("\n== CMS ==");
   await page.screenshot({ path: `${OUT}/cms-pengaturan.png` });
   await page.goto(BASE + "/", { waitUntil: "networkidle" });
   check((await page.getByText("Tagline Uji CI").count()) > 0, "pengaturan situs tampil di website publik");
+  check((await page.getByText("Surat keterangan domisili").count()) > 0, "daftar layanan dari CMS tampil di beranda");
 
   // Pesan masuk
   await page.goto(BASE + "/admin/pesan", { waitUntil: "networkidle" });

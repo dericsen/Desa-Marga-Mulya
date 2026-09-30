@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { Icon } from "@/components/Icon";
 import { waLink } from "@/lib/format";
-import type { SiteSettings } from "@/lib/types";
 import { NAV } from "@/lib/nav";
+import type { SiteSettings } from "@/lib/types";
 
 export function Footer({ site }: { site: SiteSettings }) {
   const wa = waLink(site.whatsapp);
@@ -13,84 +12,68 @@ export function Footer({ site }: { site: SiteSettings }) {
   ].filter((s) => s.href);
 
   return (
-    <footer className="mt-20 bg-brand-950 text-brand-50">
-      <div className="container-desa grid gap-10 py-14 md:grid-cols-3">
-        <div>
-          <div className="flex items-center gap-3">
-            <img src="/logo-desa.svg" alt="" width={44} height={44} className="h-11 w-11" />
-            <div>
-              <p className="text-lg font-extrabold">Desa {site.namaDesa}</p>
-              <p className="text-sm text-brand-200">
-                Kec. {site.kecamatan}, Kab. {site.kabupaten}, {site.provinsi}
-              </p>
-            </div>
-          </div>
-          {site.tagline ? <p className="mt-4 text-sm text-brand-100/80">{site.tagline}</p> : null}
+    <footer className="mt-24 bg-brand-950 text-brand-100">
+      <div className="container-desa grid gap-10 py-14 md:grid-cols-12">
+        <div className="md:col-span-5">
+          <p className="font-display text-xl font-semibold text-white">Pemerintah Desa {site.namaDesa}</p>
+          <p className="mt-1 text-sm text-brand-200">
+            Kecamatan {site.kecamatan}, Kabupaten {site.kabupaten}, {site.provinsi} {site.kodePos}
+          </p>
+          {site.alamat ? <p className="mt-5 max-w-[40ch] text-sm leading-relaxed">{site.alamat}</p> : null}
+          {site.tagline ? <p className="mt-5 text-sm text-brand-200 italic">{site.tagline}</p> : null}
         </div>
 
-        <div>
-          <h2 className="text-sm font-bold tracking-wider text-brand-300 uppercase">Jelajahi</h2>
-          <ul className="mt-4 grid grid-cols-2 gap-2 text-sm">
+        <nav aria-label="Tautan halaman" className="md:col-span-3">
+          <h2 className="text-xs font-semibold tracking-[0.08em] text-brand-300 uppercase">Halaman</h2>
+          <ul className="mt-4 space-y-2 text-sm">
             {NAV.map((n) => (
               <li key={n.href}>
-                <Link href={n.href} className="text-brand-50/90 hover:text-white hover:underline">
-                  {n.label}
-                </Link>
+                <Link href={n.href} className="hover:text-white hover:underline">{n.label}</Link>
               </li>
             ))}
             <li>
-              <Link href="/cari" className="text-brand-50/90 hover:text-white hover:underline">
-                Pencarian
-              </Link>
+              <Link href="/cari" className="hover:text-white hover:underline">Pencarian</Link>
             </li>
           </ul>
-        </div>
+        </nav>
 
-        <div>
-          <h2 className="text-sm font-bold tracking-wider text-brand-300 uppercase">Kantor Desa</h2>
-          <ul className="mt-4 space-y-3 text-sm text-brand-50/90">
-            {site.alamat ? (
-              <li className="flex gap-3">
-                <Icon name="pin" className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" />
-                <span>{site.alamat}</span>
-              </li>
-            ) : null}
+        <div className="md:col-span-4">
+          <h2 className="text-xs font-semibold tracking-[0.08em] text-brand-300 uppercase">Hubungi kami</h2>
+          <dl className="mt-4 space-y-3 text-sm">
             {site.telepon ? (
-              <li className="flex gap-3">
-                <Icon name="phone" className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" />
-                <a href={`tel:${site.telepon.replace(/[^\d+]/g, "")}`} className="hover:underline">{site.telepon}</a>
-              </li>
+              <div>
+                <dt className="text-brand-300">Telepon</dt>
+                <dd><a href={`tel:${site.telepon.replace(/[^\d+]/g, "")}`} className="tabular-nums hover:text-white hover:underline">{site.telepon}</a></dd>
+              </div>
             ) : null}
             {site.email ? (
-              <li className="flex gap-3">
-                <Icon name="mail" className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" />
-                <a href={`mailto:${site.email}`} className="hover:underline">{site.email}</a>
-              </li>
+              <div>
+                <dt className="text-brand-300">Email</dt>
+                <dd><a href={`mailto:${site.email}`} className="break-all hover:text-white hover:underline">{site.email}</a></dd>
+              </div>
             ) : null}
             {wa ? (
-              <li className="flex gap-3">
-                <Icon name="whatsapp" className="mt-0.5 h-4 w-4 shrink-0 text-brand-300" />
-                <a href={wa} target="_blank" rel="noopener noreferrer" className="hover:underline">WhatsApp Layanan Desa</a>
-              </li>
+              <div>
+                <dt className="text-brand-300">WhatsApp layanan</dt>
+                <dd><a href={wa} target="_blank" rel="noopener noreferrer" className="hover:text-white hover:underline">Kirim pesan</a></dd>
+              </div>
             ) : null}
-          </ul>
+          </dl>
           {socials.length ? (
-            <ul className="mt-4 flex flex-wrap gap-2">
+            <p className="mt-5 flex flex-wrap gap-x-4 gap-y-1 text-sm">
               {socials.map((s) => (
-                <li key={s.label}>
-                  <a href={s.href} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold hover:bg-white/20">
-                    {s.label}
-                  </a>
-                </li>
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="underline decoration-brand-500 underline-offset-4 hover:text-white">
+                  {s.label}
+                </a>
               ))}
-            </ul>
+            </p>
           ) : null}
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="container-desa flex flex-col gap-2 py-5 text-xs text-brand-200/80 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} Pemerintah Desa {site.namaDesa}. Seluruh konten dikelola melalui CMS desa.</p>
-          <Link href="/admin" className="hover:text-white hover:underline">Masuk Admin</Link>
+        <div className="container-desa flex flex-col gap-2 py-5 text-xs text-brand-300 sm:flex-row sm:justify-between">
+          <p>© {new Date().getFullYear()} Pemerintah Desa {site.namaDesa}. Peta © kontributor OpenStreetMap.</p>
+          <Link href="/admin" className="hover:text-white hover:underline">Masuk pengelola</Link>
         </div>
       </div>
     </footer>

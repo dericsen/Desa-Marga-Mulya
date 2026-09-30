@@ -269,7 +269,8 @@ export const SETTINGS_GROUPS: { title: string; description: string; fields: Fiel
     fields: [
       { name: "heroJudul", label: "Judul Utama", type: "text", wide: true },
       { name: "heroDeskripsi", label: "Deskripsi Singkat", type: "textarea", wide: true },
-      { name: "heroGambar", label: "Gambar Latar", type: "image", wide: true },
+      { name: "heroGambar", label: "Foto Utama", type: "image", wide: true },
+      { name: "heroKeterangan", label: "Keterangan Foto Utama", type: "text", wide: true, placeholder: "mis. Persawahan RW 04 menjelang panen" },
       { name: "angkaKunci", label: "Angka Kunci (tampil di Beranda)", type: "items", wide: true, help: "Contoh: label \"Jumlah Penduduk\", nilai \"7.842 jiwa\"." },
     ],
   },
@@ -294,6 +295,14 @@ export const SETTINGS_GROUPS: { title: string; description: string; fields: Fiel
       { name: "batasSelatan", label: "Batas Selatan", type: "text" },
       { name: "batasTimur", label: "Batas Timur", type: "text" },
       { name: "batasBarat", label: "Batas Barat", type: "text" },
+    ],
+  },
+  {
+    title: "Layanan Administrasi",
+    description: "Daftar layanan kantor desa beserta persyaratannya. Tampil di Beranda dan dipakai asisten Tanya Desa.",
+    fields: [
+      { name: "layanan", label: "Layanan", type: "items", wide: true, help: "Kolom label: nama layanan. Kolom nilai: persyaratan yang perlu dibawa." },
+      { name: "catatanLayanan", label: "Catatan Umum Layanan", type: "textarea", wide: true, placeholder: "mis. Semua layanan tidak dipungut biaya." },
     ],
   },
   {

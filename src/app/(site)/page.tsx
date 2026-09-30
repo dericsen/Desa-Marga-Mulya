@@ -1,239 +1,273 @@
 import Link from "next/link";
-import { Icon } from "@/components/Icon";
 import { StatView } from "@/components/charts";
-import { Section } from "@/components/site/Section";
-import { BeritaCard, Img, PotensiCard, SectionHeading } from "@/components/site/ui";
+import { Img, kategoriBerita, PotensiCard, SectionHeading } from "@/components/site/ui";
 import { VillageMap } from "@/components/site/VillageMap";
-import type { IconName } from "@/lib/categories";
+import { STAT_CATEGORIES } from "@/lib/categories";
 import { getBerita, getGaleri, getLokasi, getPotensi, getSite, getStatistik } from "@/lib/data";
+import { excerpt, formatDate, toDateInput, waLink } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-
-const AKSES: { href: string; label: string; desc: string; icon: IconName }[] = [
-  { href: "/profil", label: "Profil Desa", desc: "Sejarah, visi-misi, aparat", icon: "landmark" },
-  { href: "/informasi", label: "Data Desa", desc: "Statistik & grafik interaktif", icon: "chart" },
-  { href: "/potensi", label: "Wisata & UMKM", desc: "Produk lokal dan destinasi", icon: "store" },
-  { href: "/berita", label: "Berita & Kegiatan", desc: "Kabar terbaru warga", icon: "news" },
-  { href: "/galeri", label: "Galeri", desc: "Dokumentasi desa", icon: "camera" },
-  { href: "/kontak", label: "Layanan & Aspirasi", desc: "Hubungi kantor desa", icon: "mail" },
-];
 
 export default async function BerandaPage() {
   const [site, statistik, potensi, berita, galeri, lokasi] = await Promise.all([
     getSite(),
     getStatistik(),
     getPotensi(),
-    getBerita({ limit: 3 }),
+    getBerita({ limit: 5 }),
     getGaleri(),
     getLokasi(),
   ]);
 
-  const unggulan = potensi.filter((p) => p.unggulan).slice(0, 3);
-  const utama = statistik.find((s) => /mata pencaharian/i.test(s.judul)) ?? statistik[0];
-  const pendukung = statistik.filter((s) => s.id !== utama?.id && (s.tipe_grafik === "donut" || s.tipe_grafik === "tabel")).slice(0, 3);
+  const wa = waLink(site.whatsapp, `Halo Pemerintah Desa ${site.namaDesa}, saya ingin bertanya tentang layanan desa.`);
+  const [utama, ...lainnya] = berita;
+  const dataUtama = statistik.find((s) => /mata pencaharian/i.test(s.judul)) ?? statistik.find((s) => s.tipe_grafik === "bar");
+  const kategoriData = STAT_CATEGORIES.map((c) => ({ ...c, jumlah: statistik.filter((s) => s.kategori === c.key).length })).filter((c) => c.jumlah > 0);
+  const tahunData = Math.max(0, ...statistik.map((s) => s.tahun ?? 0));
+  const pilihanPotensi = [
+    ...potensi.filter((p) => p.unggulan && p.tipe === "umkm").slice(0, 2),
+    ...potensi.filter((p) => p.unggulan && p.tipe !== "umkm").slice(0, 1),
+  ];
 
   return (
     <>
-      {/* ===== Hero ===== */}
-      <section className="relative isolate overflow-hidden bg-brand-950">
-        <Img src={site.heroGambar} alt="" className="absolute inset-0 -z-10 h-full w-full opacity-80" />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-tr from-brand-950 via-brand-950/85 to-transparent" aria-hidden="true" />
-        <div className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-stone-50 to-transparent" aria-hidden="true" />
-        <div className="container-desa pt-24 pb-32 sm:pt-28 sm:pb-40 lg:pt-32">
-          <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-brand-50 ring-1 ring-white/20 backdrop-blur">
-            <Icon name="pin" className="h-3.5 w-3.5" />
-            Kec. {site.kecamatan}, Kab. {site.kabupaten}, {site.provinsi}
+      {/* ===== Pembuka: identitas desa + layanan kantor ===== */}
+      <section className="container-desa grid gap-10 pt-12 pb-10 sm:pt-16 lg:grid-cols-12 lg:gap-12">
+        <div className="lg:col-span-7">
+          <p className="meta">
+            Kecamatan {site.kecamatan} · Kabupaten {site.kabupaten} · {site.provinsi} {site.kodePos}
           </p>
-          <h1 className="mt-6 max-w-3xl text-4xl leading-[1.05] font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            {site.heroJudul}
-          </h1>
-          {site.heroDeskripsi ? <p className="mt-6 max-w-xl text-lg leading-relaxed text-brand-50/90">{site.heroDeskripsi}</p> : null}
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Link href="/profil" className="btn bg-sun-400 px-5 py-3 text-stone-900 shadow-lg shadow-sun-500/20 hover:bg-sun-500">
-              Kenali Desa Kami <Icon name="arrow" className="h-4 w-4" />
-            </Link>
-            <Link href="/informasi" className="btn bg-white/10 px-5 py-3 text-white ring-1 ring-white/30 backdrop-blur hover:bg-white/20">
-              <Icon name="chart" className="h-4 w-4" /> Lihat Data Desa
-            </Link>
+          <h1 className="font-display mt-4 text-[2.75rem] leading-[1.05] font-semibold text-ink sm:text-[3.5rem]">{site.heroJudul}</h1>
+          {site.heroDeskripsi ? <p className="mt-5 max-w-[52ch] text-lg leading-relaxed text-muted">{site.heroDeskripsi}</p> : null}
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <a href="#layanan" className="btn-primary px-5 py-3">Lihat layanan administrasi</a>
+            <Link href="/informasi" className="link text-sm">Buka data desa</Link>
           </div>
         </div>
+
+        <aside aria-labelledby="kantor-desa" className="border-t-2 border-ink pt-5 lg:col-span-5 lg:mt-2">
+          <h2 id="kantor-desa" className="text-sm font-semibold text-ink">Kantor Desa {site.namaDesa}</h2>
+          <dl className="mt-4 divide-y divide-line text-[0.9375rem]">
+            {site.jamLayanan ? (
+              <div className="grid grid-cols-[7.5rem_1fr] gap-3 py-3">
+                <dt className="text-muted">Jam layanan</dt>
+                <dd className="whitespace-pre-line text-ink">{site.jamLayanan}</dd>
+              </div>
+            ) : null}
+            {site.telepon ? (
+              <div className="grid grid-cols-[7.5rem_1fr] gap-3 py-3">
+                <dt className="text-muted">Telepon</dt>
+                <dd><a href={`tel:${site.telepon.replace(/[^\d+]/g, "")}`} className="text-ink tabular-nums hover:underline">{site.telepon}</a></dd>
+              </div>
+            ) : null}
+            {wa ? (
+              <div className="grid grid-cols-[7.5rem_1fr] gap-3 py-3">
+                <dt className="text-muted">WhatsApp</dt>
+                <dd><a href={wa} target="_blank" rel="noopener noreferrer" className="link">Tanya lewat WhatsApp</a></dd>
+              </div>
+            ) : null}
+            {site.alamat ? (
+              <div className="grid grid-cols-[7.5rem_1fr] gap-3 py-3">
+                <dt className="text-muted">Alamat</dt>
+                <dd className="text-ink">
+                  {site.alamat}
+                  <a href={`https://www.google.com/maps/dir/?api=1&destination=${site.lat},${site.lng}`} target="_blank" rel="noopener noreferrer" className="link mt-1 block text-sm">
+                    Petunjuk arah
+                  </a>
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+        </aside>
       </section>
 
-      {/* ===== Angka kunci (menimpa hero) ===== */}
-      {site.angkaKunci.length ? (
-        <div className="container-desa relative z-10 -mt-24 sm:-mt-28">
-          <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-3xl bg-stone-200/70 shadow-xl shadow-brand-950/10 ring-1 ring-stone-200/70 lg:grid-cols-4">
+      {/* ===== Foto utama + angka kunci ===== */}
+      <section className="container-desa" aria-label="Sekilas desa">
+        <figure>
+          <Img src={site.heroGambar} alt={site.heroKeterangan || `Pemandangan Desa ${site.namaDesa}`} className="aspect-[16/9] w-full rounded-md sm:aspect-[21/8]" />
+          {site.heroKeterangan ? <figcaption className="mt-2 text-xs text-muted">{site.heroKeterangan}</figcaption> : null}
+        </figure>
+        {site.angkaKunci.length ? (
+          <dl className="mt-8 grid grid-cols-2 border-y border-line lg:grid-cols-4">
             {site.angkaKunci.map((a, i) => (
-              <li key={i} className="bg-white p-6">
-                <p className="text-3xl font-extrabold tracking-tight text-brand-800 sm:text-4xl">{a.nilai}</p>
-                <p className="mt-1.5 text-sm font-medium text-stone-500">{a.label}</p>
-              </li>
+              <div
+                key={i}
+                className={[
+                  "py-5 pr-4",
+                  i % 2 === 1 ? "border-l border-line pl-5 lg:pl-6" : "",
+                  i % 2 === 0 && i > 0 ? "lg:border-l lg:border-line lg:pl-6" : "",
+                  i >= 2 ? "border-t border-line lg:border-t-0" : "",
+                ].join(" ")}
+              >
+                <dt className="text-sm text-muted">{a.label}</dt>
+                <dd className="mt-1 text-[1.75rem] leading-tight font-semibold text-ink tabular-nums">{a.nilai}</dd>
+              </div>
             ))}
-          </ul>
-        </div>
+          </dl>
+        ) : null}
+      </section>
+
+      {/* ===== Kabar desa: satu utama + daftar ===== */}
+      {utama ? (
+        <section className="container-desa section-lg" aria-labelledby="kabar">
+          <SectionHeading id="kabar" title="Kabar dan pengumuman" action={{ href: "/berita", label: "Semua berita" }} />
+          <div className="grid gap-10 lg:grid-cols-12">
+            <article className="group relative lg:col-span-7">
+              <Img src={utama.gambar} alt="" className="aspect-[16/9] w-full rounded-md" />
+              <p className="meta mt-5">
+                <span className="font-semibold text-brand-700">{kategoriBerita(utama.kategori)}</span>
+                <span aria-hidden="true"> · </span>
+                <time dateTime={toDateInput(utama.tanggal)}>{formatDate(utama.tanggal)}</time>
+              </p>
+              <h3 className="font-display mt-2 text-[1.75rem] leading-tight font-semibold text-ink">
+                <Link href={`/berita/${utama.slug}`} className="after:absolute after:inset-0 group-hover:underline group-hover:decoration-line-strong group-hover:underline-offset-4">
+                  {utama.judul}
+                </Link>
+              </h3>
+              <p className="mt-3 max-w-[60ch] leading-relaxed text-muted">{utama.ringkasan || excerpt(utama.konten)}</p>
+            </article>
+
+            {lainnya.length ? (
+              <ol className="divide-y divide-line border-t border-line lg:col-span-5 lg:border-t-0">
+                {lainnya.map((b) => (
+                  <li key={b.id} className="group relative py-5 first:pt-5 lg:first:pt-0">
+                    <p className="meta">
+                      <time dateTime={toDateInput(b.tanggal)}>{formatDate(b.tanggal)}</time>
+                      <span aria-hidden="true"> · </span>
+                      {kategoriBerita(b.kategori)}
+                    </p>
+                    <h3 className="mt-1 text-[1.0625rem] leading-snug font-semibold text-ink">
+                      <Link href={`/berita/${b.slug}`} className="after:absolute after:inset-0 group-hover:underline group-hover:underline-offset-4">
+                        {b.judul}
+                      </Link>
+                    </h3>
+                  </li>
+                ))}
+              </ol>
+            ) : null}
+          </div>
+        </section>
       ) : null}
 
-      {/* ===== Sambutan + akses cepat ===== */}
-      <Section size="band-lg">
-        <div className="grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-start">
-          {site.sambutan ? (
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
-              <div className="mx-auto w-36 shrink-0 sm:mx-0">
-                {site.fotoKepalaDesa ? (
-                  <img src={site.fotoKepalaDesa} alt={`Foto ${site.namaKepalaDesa}`} className="aspect-[4/5] w-full rounded-2xl object-cover shadow-md ring-1 ring-stone-200" />
-                ) : (
-                  <div className="grid aspect-[4/5] w-full place-items-center rounded-2xl bg-gradient-to-br from-brand-100 to-brand-200 text-brand-600 ring-1 ring-brand-200" aria-hidden="true">
-                    <Icon name="user" className="h-16 w-16" />
-                  </div>
-                )}
-              </div>
-              <div>
-                <p className="flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-brand-600 uppercase">
-                  <span className="h-px w-6 bg-brand-400" aria-hidden="true" /> Sambutan Kepala Desa
-                </p>
-                <blockquote className="mt-4 text-lg leading-relaxed text-stone-700">
-                  <span className="mr-1 text-3xl leading-none font-serif text-brand-300 align-top">“</span>
-                  {site.sambutan}”
-                </blockquote>
-                {site.namaKepalaDesa ? (
-                  <p className="mt-4 font-bold text-stone-900">
-                    {site.namaKepalaDesa}
-                    <span className="block text-sm font-normal text-stone-500">Kepala Desa {site.namaDesa}</span>
-                  </p>
-                ) : null}
-              </div>
+      {/* ===== Layanan administrasi ===== */}
+      {site.layanan.length ? (
+        <section id="layanan" className="scroll-mt-28 border-y border-line bg-white" aria-labelledby="judul-layanan">
+          <div className="container-desa section grid gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-4">
+              <h2 id="judul-layanan" className="section-title">Layanan administrasi</h2>
+              {site.catatanLayanan ? <p className="mt-3 leading-relaxed text-muted">{site.catatanLayanan}</p> : null}
+              <p className="mt-5 text-sm text-muted">
+                Ada pertanyaan sebelum datang?{" "}
+                <Link href="/kontak" className="link">Hubungi kantor desa</Link>
+              </p>
             </div>
-          ) : null}
+            <div className="overflow-x-auto lg:col-span-8">
+              <table className="w-full min-w-[34rem] text-[0.9375rem]">
+                <caption className="sr-only">Daftar layanan administrasi dan persyaratannya</caption>
+                <thead>
+                  <tr className="border-b border-ink text-left">
+                    <th scope="col" className="w-[38%] pb-2 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Layanan</th>
+                    <th scope="col" className="pb-2 text-xs font-semibold tracking-[0.06em] text-muted uppercase">Yang perlu dibawa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {site.layanan.map((l, i) => (
+                    <tr key={i} className="border-b border-line align-top last:border-0">
+                      <th scope="row" className="py-3 pr-6 text-left font-semibold text-ink">{l.label}</th>
+                      <td className="py-3 leading-relaxed text-ink/85">{l.nilai}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
-          <nav aria-label="Akses cepat" className="lg:pt-2">
-            <p className="mb-4 flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-brand-600 uppercase">
-              <span className="h-px w-6 bg-brand-400" aria-hidden="true" /> Jelajahi Desa
+      {/* ===== Data desa ===== */}
+      {dataUtama ? (
+        <section className="container-desa section-lg grid gap-10 lg:grid-cols-12" aria-labelledby="judul-data">
+          <div className="lg:col-span-4">
+            <h2 id="judul-data" className="section-title">Data desa</h2>
+            <p className="mt-3 leading-relaxed text-muted">
+              Angka kependudukan, pendidikan, kesehatan, pertanian, ekonomi, dan infrastruktur yang dicatat pemerintah desa{tahunData ? ` hingga ${tahunData}` : ""}.
             </p>
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {AKSES.map((a) => (
-                <li key={a.href}>
-                  <Link href={a.href} className="card-hover flex h-full flex-col gap-3 p-4">
-                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-700">
-                      <Icon name={a.icon} className="h-[18px] w-[18px]" />
-                    </span>
-                    <span>
-                      <span className="block text-sm font-bold text-stone-900">{a.label}</span>
-                      <span className="mt-0.5 block text-xs leading-snug text-stone-500">{a.desc}</span>
-                    </span>
+            <ul className="mt-6 divide-y divide-line border-y border-line text-[0.9375rem]">
+              {kategoriData.map((c) => (
+                <li key={c.key}>
+                  <Link href={`/informasi?kategori=${c.key}`} className="flex items-center justify-between py-2.5 text-ink hover:text-brand-700">
+                    <span>{c.label}</span>
+                    <span className="text-sm text-muted tabular-nums">{c.jumlah} data</span>
                   </Link>
                 </li>
               ))}
             </ul>
-          </nav>
-        </div>
-      </Section>
+          </div>
+          <figure className="lg:col-span-7 lg:col-start-6">
+            <figcaption className="mb-6 flex items-baseline justify-between gap-4 border-b border-ink pb-3">
+              <span className="font-semibold text-ink">{dataUtama.judul}</span>
+              <span className="meta shrink-0">{[dataUtama.satuan, dataUtama.tahun].filter(Boolean).join(" · ")}</span>
+            </figcaption>
+            <StatView stat={dataUtama} />
+            {dataUtama.deskripsi ? <p className="mt-5 text-sm text-muted">{dataUtama.deskripsi}</p> : null}
+          </figure>
+        </section>
+      ) : null}
 
-      {/* ===== Sorotan data: satu cerita utama + pendukung ===== */}
-      {utama ? (
-        <Section tone="surface">
-          <SectionHeading
-            eyebrow="Data Desa"
-            title="Sekilas Data Marga Mulya"
-            description="Seluruh data dikelola langsung oleh pemerintah desa melalui CMS dan diperbarui berkala — bukan angka statis."
-            action={{ href: "/informasi", label: "Lihat semua data" }}
-          />
-          <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-            <article className="rounded-2xl bg-gradient-to-br from-brand-800 to-brand-600 p-7 text-white shadow-lg shadow-brand-900/20 sm:p-8">
-              <p className="text-xs font-bold tracking-widest text-brand-200 uppercase">{utama.tahun ? `Tahun ${utama.tahun}` : "Sorotan"}</p>
-              <h3 className="mt-1 text-xl font-bold">{utama.judul}</h3>
-              <div className="mt-6 rounded-xl bg-white/95 p-5 text-stone-800">
-                <StatView stat={utama} />
-              </div>
-              {utama.deskripsi ? <p className="mt-4 text-sm text-brand-50/85">{utama.deskripsi}</p> : null}
-            </article>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-              {pendukung.map((s) => (
-                <article key={s.id} className="card flex flex-col p-5">
-                  <h3 className="text-sm font-bold text-stone-900">{s.judul}</h3>
-                  <div className="mt-3 flex-1">
-                    <StatView stat={s} />
-                  </div>
-                </article>
+      {/* ===== Potensi & produk ===== */}
+      {pilihanPotensi.length ? (
+        <section className="border-t border-line" aria-labelledby="judul-potensi">
+          <div className="container-desa section-lg">
+            <SectionHeading
+              id="judul-potensi"
+              title="Produk warga dan tempat untuk dikunjungi"
+              description="Beli langsung dari pembuatnya. Setiap pesanan lewat WhatsApp masuk ke pelaku usaha, bukan perantara."
+              action={{ href: "/potensi", label: "Semua potensi desa" }}
+            />
+            <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+              {pilihanPotensi.map((p) => (
+                <PotensiCard key={p.id} item={p} showType />
               ))}
             </div>
           </div>
-        </Section>
-      ) : null}
-
-      {/* ===== Potensi ===== */}
-      {unggulan.length ? (
-        <Section tone="brand-soft">
-          <SectionHeading
-            eyebrow="Potensi Desa"
-            title="Wisata, Budaya & Produk Unggulan"
-            description="Dukung ekonomi warga dengan mengunjungi destinasi dan membeli produk lokal Marga Mulya."
-            action={{ href: "/potensi", label: "Semua potensi" }}
-          />
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {unggulan.map((p) => (
-              <PotensiCard key={p.id} item={p} />
-            ))}
-          </div>
-        </Section>
-      ) : null}
-
-      {/* ===== Berita ===== */}
-      {berita.length ? (
-        <Section>
-          <SectionHeading eyebrow="Kabar Desa" title="Berita & Kegiatan Terbaru" action={{ href: "/berita", label: "Semua berita" }} />
-          <div className="grid gap-6 md:grid-cols-3">
-            {berita.map((b) => (
-              <BeritaCard key={b.id} item={b} />
-            ))}
-          </div>
-        </Section>
+        </section>
       ) : null}
 
       {/* ===== Galeri ===== */}
       {galeri.length ? (
-        <Section tone="surface">
-          <SectionHeading eyebrow="Galeri" title="Potret Desa" action={{ href: "/galeri", label: "Buka galeri" }} />
-          {/* Grid mosaik: tile utama menempati 2×2, tinggi baris tetap agar rapi di semua ukuran */}
-          <ul className="grid auto-rows-[150px] grid-cols-2 gap-3 sm:auto-rows-[180px] sm:gap-4 md:grid-cols-4">
-            {galeri.slice(0, 6).map((g, i) => (
-              <li key={g.id} className={i === 0 ? "col-span-2 row-span-2" : ""}>
-                <Link href="/galeri" className="group relative block h-full w-full overflow-hidden rounded-2xl ring-1 ring-stone-200/70">
-                  <Img src={g.gambar} alt={g.judul} className="absolute inset-0 h-full w-full transition duration-500 group-hover:scale-105" />
-                  <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent" aria-hidden="true" />
-                  <span className="absolute inset-x-0 bottom-0 p-3 text-sm font-semibold text-white">{g.judul}</span>
+        <section className="container-desa" aria-labelledby="judul-galeri">
+          <div className="mb-6 flex items-end justify-between gap-4 border-t border-line pt-10">
+            <h2 id="judul-galeri" className="section-title">Galeri</h2>
+            <Link href="/galeri" className="link text-sm">Lihat {galeri.length} foto</Link>
+          </div>
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-4">
+            {galeri.slice(0, 4).map((g) => (
+              <li key={g.id}>
+                <Link href="/galeri" className="group block">
+                  <Img src={g.gambar} alt={g.judul} className="aspect-[4/3] w-full rounded-md transition-opacity group-hover:opacity-90" />
+                  <p className="mt-2 text-sm leading-snug text-ink group-hover:underline">{g.judul}</p>
+                  <p className="text-xs text-muted">{g.album}</p>
                 </Link>
               </li>
             ))}
           </ul>
-        </Section>
+        </section>
       ) : null}
 
-      {/* ===== Peta & kontak ===== */}
-      <Section size="band-lg">
-        <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-          <div>
-            <SectionHeading eyebrow="Peta Desa" title="Lokasi Penting di Marga Mulya" />
-            <VillageMap center={[site.lat, site.lng]} lokasi={lokasi} height="420px" />
-          </div>
-          <aside className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-brand-900 p-8 text-white">
-            <svg className="absolute -right-8 -bottom-8 h-48 w-48 text-white/5" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
-              <circle cx="50" cy="50" r="50" />
-            </svg>
-            <div className="relative">
-              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-sun-400">
-                <Icon name="chat" className="h-6 w-6" />
-              </span>
-              <h2 className="mt-5 text-2xl font-extrabold">Punya pertanyaan atau aspirasi?</h2>
-              <p className="mt-3 text-brand-50/85">
-                Sampaikan langsung kepada pemerintah desa melalui formulir kontak, atau tanyakan ke asisten AI <strong className="font-bold text-white">Tanya Desa</strong> di pojok kanan bawah.
-              </p>
-            </div>
-            <Link href="/kontak" className="btn relative mt-8 bg-white text-brand-800 hover:bg-brand-50">
-              Hubungi Kantor Desa <Icon name="arrow" className="h-4 w-4" />
-            </Link>
-          </aside>
+      {/* ===== Peta ===== */}
+      <section className="container-desa section-lg grid gap-8 lg:grid-cols-12" aria-labelledby="judul-peta">
+        <div className="lg:col-span-4">
+          <h2 id="judul-peta" className="section-title">Lokasi di desa</h2>
+          <p className="mt-3 leading-relaxed text-muted">
+            Kantor desa, fasilitas kesehatan, sekolah, dan tempat usaha warga. Ketuk titik di peta untuk melihat keterangannya.
+          </p>
+          <p className="mt-5 text-sm">
+            <Link href="/kontak" className="link">Kirim pertanyaan atau aspirasi</Link>
+          </p>
         </div>
-      </Section>
+        <div className="lg:col-span-8">
+          <VillageMap center={[site.lat, site.lng]} lokasi={lokasi} height="400px" />
+        </div>
+      </section>
     </>
   );
 }
