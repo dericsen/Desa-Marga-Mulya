@@ -25,10 +25,10 @@ export function ProductCard({ p, detailHref }: { p: Produk; detailHref: string }
   const menipis = p.stok !== null && p.stok > 0 && p.stok <= 5;
   return (
     <article className="flex flex-col">
-      <Link href={detailHref} scroll={false} className="group relative block">
-        <Img src={p.gambar} alt={p.nama} className={`aspect-square w-full rounded-md ${habis ? "opacity-55 grayscale" : ""} transition-opacity group-hover:opacity-90`} />
-        {habis ? <span className="absolute top-2.5 left-2.5 rounded-sm bg-white px-2 py-0.5 text-xs font-semibold text-muted">Habis</span> : null}
-        {menipis ? <span className="absolute top-2.5 left-2.5 rounded-sm bg-white px-2 py-0.5 text-xs font-semibold text-sun-600">Sisa {p.stok}</span> : null}
+      <Link href={detailHref} scroll={false} className="group relative block overflow-hidden rounded-3xl">
+        <Img src={p.gambar} alt={p.nama} className={`aspect-square w-full rounded-3xl ${habis ? "opacity-55 grayscale" : ""} transition-transform duration-500 group-hover:scale-[1.02]`} />
+        {habis ? <span className="absolute top-3 left-3 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-muted">Habis</span> : null}
+        {menipis ? <span className="absolute top-3 left-3 rounded-full bg-sun-400 px-2.5 py-1 text-xs font-medium text-ink">Sisa {p.stok}</span> : null}
       </Link>
       <div className="mt-3 flex flex-1 flex-col">
         <p className="text-xs text-muted">{p.penjual_nama}</p>

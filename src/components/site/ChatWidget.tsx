@@ -84,11 +84,11 @@ export function ChatWidget({ namaDesa }: { namaDesa: string }) {
           onClick={() => setOpen(true)}
           aria-expanded={false}
           aria-controls="tanya-desa"
-          className="fixed right-4 bottom-4 z-50 inline-flex items-center gap-2.5 rounded-md bg-ink px-4 py-3 text-sm font-medium text-white ring-1 ring-white/10 transition-colors hover:bg-brand-900 sm:right-6 sm:bottom-6"
+          className="fixed right-4 bottom-4 z-50 inline-flex items-center gap-2.5 rounded-full bg-ink shadow-[0_10px_30px_-10px_rgb(11_19_16/0.6)] px-4 py-3 text-sm font-medium text-white ring-1 ring-white/10 transition-colors hover:bg-brand-900 sm:right-6 sm:bottom-6"
         >
           <span className="h-1.5 w-1.5 rounded-full bg-sun-400" aria-hidden="true" />
           Tanya Desa
-          <span className="font-mono text-[0.6875rem] text-white/45">AI</span>
+          <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[0.6875rem] text-white/70">AI</span>
         </button>
       ) : null}
 
@@ -97,12 +97,12 @@ export function ChatWidget({ namaDesa }: { namaDesa: string }) {
           id="tanya-desa"
           role="dialog"
           aria-label="Asisten Tanya Desa"
-          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col border-t border-line-strong bg-white shadow-[0_-8px_30px_-12px_rgb(12_27_21/0.3)] sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-h-[70vh] sm:w-[23rem] sm:rounded-md sm:border"
+          className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col border-t border-line-strong bg-white shadow-[0_-8px_30px_-12px_rgb(12_27_21/0.3)] sm:inset-x-auto sm:right-6 sm:bottom-6 sm:max-h-[70vh] sm:w-[23rem] sm:rounded-3xl sm:border-0 sm:shadow-[0_30px_60px_-20px_rgb(11_19_16/0.45)] rounded-t-3xl"
         >
           <header className="flex items-start justify-between gap-3 bg-ink px-4 py-3 text-white">
             <div>
               <p className="font-semibold">Tanya Desa</p>
-              <p className="font-mono text-[0.6875rem] text-white/55">ASISTEN AI · SUMBER: DATA DESA</p>
+              <p className="text-xs text-white/55">Asisten AI · menjawab dari data desa</p>
             </div>
             <button type="button" onClick={() => setOpen(false)} className="-mr-1 rounded-md p-1.5 text-white/60 hover:bg-white/10 hover:text-white" aria-label="Tutup asisten">
               <Icon name="close" className="h-5 w-5" />
@@ -113,7 +113,7 @@ export function ChatWidget({ namaDesa }: { namaDesa: string }) {
             {messages.map((m, i) => (
               <div key={i} data-role={m.role} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[88%] rounded-md px-3 py-2 text-[0.9375rem] leading-relaxed ${
+                  className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-[0.9375rem] leading-relaxed ${
                     m.role === "user" ? "bg-ink text-white" : "border border-line bg-white text-ink"
                   }`}
                 >
@@ -130,7 +130,7 @@ export function ChatWidget({ namaDesa }: { namaDesa: string }) {
                 <ul className="space-y-1.5">
                   {SARAN.map((s) => (
                     <li key={s}>
-                      <button type="button" onClick={() => send(s)} className="w-full rounded-md border border-line bg-white px-3 py-2 text-left text-sm text-ink hover:border-ink">
+                      <button type="button" onClick={() => send(s)} className="w-full rounded-2xl border border-line bg-white px-3.5 py-2.5 text-left text-sm text-ink hover:border-ink">
                         {s}
                       </button>
                     </li>

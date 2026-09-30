@@ -38,19 +38,19 @@ export function GalleryGrid({ items }: { items: Item[] }) {
 
   return (
     <>
-      <div className="-mx-5 overflow-x-auto border-b border-line px-5 sm:mx-0 sm:px-0" role="group" aria-label="Filter album">
-        <div className="flex min-w-max gap-6">
+      <div className="-mx-5 overflow-x-auto px-5 pb-1 sm:mx-0 sm:px-0" role="group" aria-label="Filter album">
+        <div className="flex min-w-max gap-2">
           {[[null, items.length] as const, ...albums].map(([a, n]) => (
             <button
               key={a ?? "semua"}
               type="button"
               aria-pressed={album === a}
               onClick={() => setAlbum(a)}
-              className={`-mb-px border-b-2 py-3 text-sm font-semibold transition-colors ${
-                album === a ? "border-ink text-ink" : "border-transparent text-muted hover:border-line-strong hover:text-ink"
+              className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                album === a ? "bg-ink font-medium text-white" : "bg-white text-muted shadow-[0_0_0_1px_rgb(11_19_16/0.06)] hover:text-ink"
               }`}
             >
-              {a ?? "Semua album"} <span className="font-normal text-muted tabular-nums">{n}</span>
+              {a ?? "Semua album"} <span className="font-normal opacity-60 tabular-nums">{n}</span>
             </button>
           ))}
         </div>
@@ -59,8 +59,8 @@ export function GalleryGrid({ items }: { items: Item[] }) {
       <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
         {shown.map((g, i) => (
           <li key={g.id}>
-            <button type="button" onClick={() => setIndex(i)} className="group block w-full text-left" aria-label={`Perbesar foto: ${g.judul}`}>
-              <img src={g.gambar} alt={g.judul} loading="lazy" className="aspect-[4/3] w-full rounded-md object-cover transition-opacity group-hover:opacity-90" />
+            <button type="button" onClick={() => setIndex(i)} className="group block w-full overflow-hidden text-left" aria-label={`Perbesar foto: ${g.judul}`}>
+              <img src={g.gambar} alt={g.judul} loading="lazy" className="aspect-[4/3] w-full rounded-3xl object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
               <span className="mt-2 block text-sm leading-snug text-ink group-hover:underline">{g.judul}</span>
               <span className="block text-xs text-muted">
                 {g.album}

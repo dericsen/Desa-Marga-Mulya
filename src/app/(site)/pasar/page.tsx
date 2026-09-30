@@ -54,15 +54,15 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
       />
 
       {/* Cara belanja: tiga langkah, ringkas */}
-      <div className="border-b border-line bg-white">
-        <ol className="container-desa grid gap-4 py-5 text-sm sm:grid-cols-3 sm:gap-8">
+      <div className="container-desa pt-4">
+        <ol className="grid gap-5 rounded-[1.75rem] bg-white p-6 text-sm sm:grid-cols-3 sm:gap-8">
           {[
             ["Pilih produk", "Masukkan ke keranjang. Boleh dari beberapa penjual sekaligus."],
             ["Isi nama dan nomor HP", "Pilih ambil sendiri atau diantar di dalam desa."],
             ["Kirim ke WhatsApp penjual", "Bayar langsung ke penjual, tunai atau transfer."],
           ].map(([t, d], i) => (
             <li key={t} className="flex gap-3">
-              <span className="font-mono text-[0.75rem] leading-6 text-muted tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-sun-400 text-xs font-semibold text-ink tabular-nums">{i + 1}</span>
               <span>
                 <span className="block font-semibold text-ink">{t}</span>
                 <span className="text-muted">{d}</span>
@@ -89,7 +89,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
                 key={u.key}
                 href={href(base, { urut: u.key === "populer" ? undefined : u.key })}
                 aria-current={urut === u.key ? "true" : undefined}
-                className={urut === u.key ? "font-semibold text-ink underline decoration-ink decoration-2 underline-offset-[6px]" : "text-muted hover:text-ink"}
+                className={`rounded-full px-3 py-1 ${urut === u.key ? "bg-white font-medium text-ink shadow-[0_0_0_1px_rgb(11_19_16/0.08)]" : "text-muted hover:text-ink"}`}
               >
                 {u.label}
               </Link>
@@ -108,8 +108,8 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
         </div>
 
         {penjualAktif ? (
-          <section className="mt-8 grid gap-5 border-b border-line pb-8 sm:grid-cols-[6rem_1fr]" aria-label={`Tentang ${penjualAktif.nama}`}>
-            <Img src={penjualAktif.foto} alt="" className="aspect-square w-24 rounded-md" />
+          <section className="mt-8 grid gap-5 rounded-[1.75rem] bg-white p-6 sm:grid-cols-[6rem_1fr]" aria-label={`Tentang ${penjualAktif.nama}`}>
+            <Img src={penjualAktif.foto} alt="" className="aspect-square w-24 rounded-2xl" />
             <div>
               <h2 className="font-display text-2xl font-semibold text-ink">{penjualAktif.nama}</h2>
               <p className="meta mt-1">{[penjualAktif.pemilik, penjualAktif.alamat].filter(Boolean).join(" · ")}</p>
@@ -151,20 +151,20 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
         {/* Direktori pelaku usaha */}
         {penjual.length && !penjualAktif ? (
           <section className="mt-20" aria-labelledby="judul-penjual">
-            <div className="mb-2 flex items-end justify-between gap-4 border-b border-ink pb-3">
+            <div className="mb-4 flex items-end justify-between gap-4">
               <h2 id="judul-penjual" className="section-title">Pelaku usaha</h2>
               <p className="text-sm text-muted tabular-nums">{penjual.length} usaha warga</p>
             </div>
-            <ul className="divide-y divide-line">
+            <ul className="grid gap-3 sm:grid-cols-2">
               {penjual.map((j) => (
                 <li key={j.id}>
-                  <Link href={href({}, { penjual: j.slug })} className="group grid grid-cols-[3rem_1fr] items-center gap-4 py-4 sm:grid-cols-[3rem_1fr_auto]">
-                    <Img src={j.foto} alt="" className="aspect-square w-12 rounded-md" />
+                  <Link href={href({}, { penjual: j.slug })} className="card-hover group grid grid-cols-[3.5rem_1fr] items-center gap-4 p-4">
+                    <Img src={j.foto} alt="" className="aspect-square w-14 rounded-2xl" />
                     <span>
-                      <span className="block font-semibold text-ink group-hover:underline group-hover:underline-offset-4">{j.nama}</span>
+                      <span className="block font-semibold text-ink">{j.nama}</span>
                       <span className="block text-sm text-muted">{[j.pemilik, j.alamat].filter(Boolean).join(" · ")}</span>
                     </span>
-                    <span className="col-start-2 text-sm text-muted tabular-nums sm:col-start-auto sm:text-right">
+                    <span className="col-start-2 text-sm text-muted tabular-nums">
                       {j.jumlah_produk} produk{j.harga_min !== null ? ` · mulai ${formatRupiah(j.harga_min)}` : ""}
                     </span>
                   </Link>
@@ -182,7 +182,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
       {detail ? (
         <ProductDialog closeHref={href(base, {})} title={detail.nama}>
           <div className="grid md:grid-cols-2">
-            <Img src={detail.gambar} alt={detail.nama} className="aspect-square w-full md:aspect-auto md:h-full md:min-h-[26rem] md:rounded-l-md" />
+            <Img src={detail.gambar} alt={detail.nama} className="aspect-square w-full md:aspect-auto md:h-full md:min-h-[26rem]" />
             <div className="flex flex-col p-6 sm:p-8">
               <Link href={href({}, { penjual: detail.penjual_slug })} className="text-sm text-muted hover:text-ink hover:underline">
                 {detail.penjual_nama}
@@ -194,7 +194,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
               <div className="mt-6">
                 <AddToCart product={toCartProduct(detail)} tersedia={detail.stok !== 0} variant="full" />
               </div>
-              <dl className="mt-6 space-y-2 border-t border-line pt-4 text-sm">
+              <dl className="mt-6 space-y-2 rounded-2xl bg-white p-4 text-sm">
                 {detail.penjual_alamat ? (
                   <div className="flex gap-3">
                     <dt className="w-24 shrink-0 text-muted">Lokasi</dt>
@@ -211,7 +211,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
                 </div>
               </dl>
               {lainDariPenjual.length ? (
-                <div className="mt-6 border-t border-line pt-4">
+                <div className="mt-6">
                   <p className="text-sm font-semibold text-ink">Produk lain dari {detail.penjual_nama}</p>
                   <ul className="mt-2 space-y-1.5 text-sm">
                     {lainDariPenjual.map((p) => (

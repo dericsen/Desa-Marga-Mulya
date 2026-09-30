@@ -44,23 +44,23 @@ export default async function BeritaDetailPage({ params }: Props) {
 
       {item.gambar ? (
         <div className="container-desa mt-10 max-w-[60rem]">
-          <Img src={item.gambar} alt={item.judul} className="aspect-[16/9] w-full rounded-md" />
+          <Img src={item.gambar} alt={item.judul} className="aspect-[16/9] w-full rounded-[1.75rem]" />
         </div>
       ) : null}
 
       <div className="container-desa mt-10 max-w-[48rem]">
         <Markdown text={item.konten} />
-        <p className="mt-12 border-t border-line pt-5 text-sm text-muted">
+        <p className="mt-12 rounded-2xl bg-white p-5 text-sm text-muted">
           Ada koreksi atau pertanyaan tentang tulisan ini? <Link href="/kontak" className="link">Hubungi pemerintah desa</Link>.
         </p>
       </div>
 
       {lainnya.length ? (
         <section className="container-desa mt-20 max-w-[60rem]" aria-labelledby="berita-lain">
-          <h2 id="berita-lain" className="font-display border-b border-ink pb-3 text-xl font-semibold text-ink">Tulisan lainnya</h2>
-          <ul className="divide-y divide-line">
+          <h2 id="berita-lain" className="font-display pb-3 text-xl font-semibold text-ink">Tulisan lainnya</h2>
+          <ul className="space-y-2">
             {lainnya.map((b) => (
-              <li key={b.id} className="group relative py-4">
+              <li key={b.id} className="card-hover group relative p-5">
                 <p className="meta text-xs">{formatDate(b.tanggal)} · {kategoriBerita(b.kategori)}</p>
                 <Link href={`/berita/${b.slug}`} className="mt-1 block font-semibold text-ink after:absolute after:inset-0 group-hover:underline group-hover:underline-offset-4">
                   {b.judul}

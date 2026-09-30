@@ -19,13 +19,13 @@ export function BarChart({ stat }: { stat: Statistik }) {
               <span className="shrink-0 tabular-nums">
                 <span className="font-semibold text-ink">{formatNumber(item.nilai)}</span>
                 {total > 0 && stat.items.length > 2 ? (
-                  <span className="ml-2 inline-block w-12 text-right font-mono text-[0.6875rem] text-muted">{formatNumber(Math.round((item.nilai / total) * 1000) / 10)}%</span>
+                  <span className="ml-2 inline-block w-12 text-right text-xs text-muted">{formatNumber(Math.round((item.nilai / total) * 1000) / 10)}%</span>
                 ) : null}
               </span>
             </div>
-            <div className="relative h-2 bg-line/70" aria-hidden="true">
+            <div className="relative h-2 overflow-hidden rounded-full bg-paper" aria-hidden="true">
               <div
-                className={isMax ? "h-full bg-ink" : "h-full bg-brand-300"}
+                className={`h-full rounded-full ${isMax ? "bg-ink" : "bg-brand-300"}`}
                 style={{ width: `${Math.max((item.nilai / max) * 100, item.nilai > 0 ? 1.5 : 0)}%` }}
               />
             </div>
@@ -58,17 +58,17 @@ export function DonutChart({ stat }: { stat: Statistik }) {
         <div className="absolute inset-0 grid place-items-center text-center">
           <div>
             <p className="font-display text-xl font-semibold text-ink tabular-nums">{formatNumber(total)}</p>
-            <p className="font-mono text-[0.6875rem] text-muted uppercase">{stat.satuan || "total"}</p>
+            <p className="text-xs text-muted">{stat.satuan || "total"}</p>
           </div>
         </div>
       </div>
       <ul className="w-full divide-y divide-line text-[0.9375rem]">
         {stat.items.map((item, i) => (
           <li key={`${item.label}-${i}`} className="flex items-center gap-3 py-1.5">
-            <span className="h-2.5 w-2.5 shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} aria-hidden="true" />
+            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} aria-hidden="true" />
             <span className="flex-1 text-ink/85">{item.label}</span>
             <span className="font-semibold text-ink tabular-nums">{formatNumber(item.nilai)}</span>
-            <span className="w-12 text-right font-mono text-[0.6875rem] text-muted tabular-nums">{total ? `${formatNumber(Math.round((item.nilai / total) * 1000) / 10)}%` : "–"}</span>
+            <span className="w-12 text-right text-xs text-muted tabular-nums">{total ? `${formatNumber(Math.round((item.nilai / total) * 1000) / 10)}%` : "–"}</span>
           </li>
         ))}
       </ul>
@@ -82,8 +82,8 @@ export function StatTable({ stat }: { stat: Statistik }) {
       <caption className="sr-only">{stat.judul}</caption>
       <thead>
         <tr className="border-b border-line-strong text-left">
-          <th scope="col" className="pb-2 font-mono text-[0.6875rem] font-normal tracking-[0.12em] text-muted uppercase">Uraian</th>
-          <th scope="col" className="pb-2 text-right font-mono text-[0.6875rem] font-normal tracking-[0.12em] text-muted uppercase">Jumlah</th>
+          <th scope="col" className="pb-2 text-xs font-medium text-muted">Uraian</th>
+          <th scope="col" className="pb-2 text-right text-xs font-medium text-muted">Jumlah</th>
         </tr>
       </thead>
       <tbody>

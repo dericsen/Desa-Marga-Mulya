@@ -29,12 +29,12 @@ export default async function ProfilPage() {
 
       <div className="container-desa grid gap-12 pt-12 lg:grid-cols-12">
         <nav aria-label="Isi halaman" className="lg:col-span-3">
-          <div className="lg:sticky lg:top-32">
+          <div className="lg:sticky lg:top-24">
             <p className="eyebrow">Di halaman ini</p>
-            <ol className="mt-3 space-y-2 border-l border-line text-[0.9375rem]">
+            <ol className="mt-3 space-y-0.5 text-[0.9375rem]">
               {BAGIAN.map((b) => (
                 <li key={b.id}>
-                  <a href={`#${b.id}`} className="-ml-px block border-l-2 border-transparent pl-4 text-muted hover:border-ink hover:text-ink">
+                  <a href={`#${b.id}`} className="block rounded-xl px-3.5 py-2 text-muted hover:bg-white hover:text-ink">
                     {b.label}
                   </a>
                 </li>
@@ -49,9 +49,9 @@ export default async function ProfilPage() {
               <h2 className="section-title">Sambutan kepala desa</h2>
               <div className="mt-6 grid gap-6 sm:grid-cols-[9rem_1fr]">
                 {site.fotoKepalaDesa ? (
-                  <img src={site.fotoKepalaDesa} alt={`Foto ${site.namaKepalaDesa}`} className="aspect-[4/5] w-36 rounded-md object-cover" />
+                  <img src={site.fotoKepalaDesa} alt={`Foto ${site.namaKepalaDesa}`} className="aspect-[4/5] w-36 rounded-3xl object-cover" />
                 ) : (
-                  <div className="grid aspect-[4/5] w-36 place-items-center rounded-md bg-line/60 text-center text-xs text-muted">Foto belum diunggah</div>
+                  <div className="grid aspect-[4/5] w-36 place-items-center rounded-3xl bg-white text-center text-xs text-muted">Foto belum diunggah</div>
                 )}
                 <div>
                   <blockquote className="font-display text-xl leading-relaxed text-ink">{site.sambutan}</blockquote>
@@ -76,10 +76,10 @@ export default async function ProfilPage() {
           <section id="visi-misi" className="scroll-mt-32">
             <h2 className="section-title">Visi dan misi</h2>
             {site.visi ? (
-              <p className="font-display mt-6 max-w-[40ch] border-l-2 border-ink pl-5 text-[1.375rem] leading-snug text-ink">{site.visi}</p>
+              <p className="font-display mt-6 max-w-[44ch] rounded-[1.75rem] bg-sun-400 p-7 text-[1.375rem] leading-snug text-ink">{site.visi}</p>
             ) : null}
             {site.misi.length ? (
-              <ol className="mt-8 max-w-[68ch] divide-y divide-line border-y border-line">
+              <ol className="mt-4 max-w-[68ch] divide-y divide-line rounded-[1.75rem] bg-white px-6">
                 {site.misi.map((m, i) => (
                   <li key={i} className="grid grid-cols-[2.5rem_1fr] gap-2 py-3.5 leading-relaxed">
                     <span className="font-semibold text-muted tabular-nums">{String(i + 1).padStart(2, "0")}</span>
@@ -93,7 +93,7 @@ export default async function ProfilPage() {
           <section id="wilayah" className="scroll-mt-32">
             <h2 className="section-title">Wilayah</h2>
             <div className="mt-6 grid gap-8 xl:grid-cols-[18rem_1fr]">
-              <dl className="divide-y divide-line border-y border-line text-[0.9375rem]">
+              <dl className="divide-y divide-line self-start rounded-3xl bg-white px-5 text-[0.9375rem]">
                 {[
                   ["Luas wilayah", site.luasWilayah],
                   ["Batas utara", site.batasUtara],
@@ -122,12 +122,12 @@ export default async function ProfilPage() {
                   Pemerintahan desa dipimpin oleh <span className="font-semibold text-ink">{kepala.nama}</span> sebagai {kepala.jabatan.toLowerCase()}, dibantu {perangkat.length} perangkat desa.
                 </p>
               ) : null}
-              <table className="mt-6 w-full max-w-[44rem] text-[0.9375rem]">
+              <div className="mt-6 max-w-[44rem] rounded-[1.75rem] bg-white px-6 py-3"><table className="w-full text-[0.9375rem]">
                 <caption className="sr-only">Daftar aparat Desa {site.namaDesa}</caption>
                 <thead>
-                  <tr className="border-b border-ink text-left">
-                    <th scope="col" className="pb-2 font-mono text-[0.6875rem] font-normal tracking-[0.12em] text-muted uppercase">Jabatan</th>
-                    <th scope="col" className="pb-2 font-mono text-[0.6875rem] font-normal tracking-[0.12em] text-muted uppercase">Nama</th>
+                  <tr className="border-b border-line text-left">
+                    <th scope="col" className="pb-2 text-xs font-medium text-muted">Jabatan</th>
+                    <th scope="col" className="pb-2 text-xs font-medium text-muted">Nama</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -138,7 +138,7 @@ export default async function ProfilPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </section>
           ) : null}
         </div>

@@ -26,7 +26,7 @@ export default async function BeritaPage({ searchParams }: { searchParams: Promi
             }))}
           />
           {berita.length ? (
-            <div className="divide-y divide-line">
+            <div className="mt-6 space-y-2">
               {berita.map((b) => (
                 <BeritaRow key={b.id} item={b} />
               ))}
@@ -40,7 +40,7 @@ export default async function BeritaPage({ searchParams }: { searchParams: Promi
 
         {organisasi.length ? (
           <aside id="organisasi" className="scroll-mt-32 lg:col-span-4" aria-labelledby="judul-organisasi">
-            <div className="border-t-2 border-ink pt-5 lg:sticky lg:top-32">
+            <div className="rounded-[1.75rem] bg-white p-6 lg:sticky lg:top-24">
               <h2 id="judul-organisasi" className="font-display text-xl font-semibold text-ink">Lembaga kemasyarakatan desa</h2>
               <p className="mt-1 text-sm text-muted">Organisasi warga dan jadwal kegiatan rutinnya.</p>
               <ul className="mt-5 divide-y divide-line">

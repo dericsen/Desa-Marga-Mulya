@@ -93,7 +93,7 @@ export function VillageMap({ center, lokasi, zoom = 15, height = "420px", showFi
           </div>
         </fieldset>
       ) : null}
-      <div ref={ref} style={{ height }} className="w-full overflow-hidden rounded-md border border-line bg-line/40" role="region" aria-label="Peta interaktif desa" />
+      <div ref={ref} style={{ height }} className="w-full overflow-hidden rounded-3xl bg-line/40" role="region" aria-label="Peta interaktif desa" />
       {lokasi.length > 0 ? (
         <details className="mt-3 text-sm text-muted">
           <summary className="cursor-pointer font-semibold text-brand-700 hover:underline">Daftar lokasi ({lokasi.length})</summary>

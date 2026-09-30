@@ -27,8 +27,8 @@ export function ProductDialog({ closeHref, title, children }: { closeHref: strin
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={title}>
       <button type="button" className="absolute inset-0 h-full w-full cursor-default bg-ink/45" aria-label="Tutup detail produk" onClick={close} tabIndex={-1} />
-      <div ref={ref} tabIndex={-1} className="relative max-h-[92dvh] w-full max-w-4xl overflow-y-auto rounded-t-md bg-paper focus:outline-none sm:rounded-md">
-        <button type="button" onClick={close} className="absolute top-3 right-3 z-10 rounded-md bg-white/90 p-1.5 text-ink hover:bg-white" aria-label="Tutup">
+      <div ref={ref} tabIndex={-1} className="relative max-h-[92dvh] w-full max-w-4xl overflow-y-auto rounded-t-[1.75rem] bg-paper focus:outline-none sm:rounded-[1.75rem]">
+        <button type="button" onClick={close} className="absolute top-3 right-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-white text-ink shadow-md hover:bg-paper" aria-label="Tutup">
           <Icon name="close" className="h-5 w-5" />
         </button>
         {children}

@@ -78,16 +78,16 @@ export default async function CariPage({ searchParams }: { searchParams: Promise
         {q.length === 1 ? <p className="mt-6 text-sm text-muted">Masukkan minimal 2 karakter.</p> : null}
 
         {q.length >= 2 ? (
-          <p className="mt-8 border-b border-ink pb-3 text-sm text-muted" role="status">
+          <p className="mt-8 pb-2 text-sm text-muted" role="status">
             <span className="font-semibold text-ink tabular-nums">{hasil.length}</span> hasil untuk “{q}”
           </p>
         ) : null}
 
-        <ul className="divide-y divide-line">
+        <ul className="space-y-2">
           {hasil.map((h, i) => (
-            <li key={i} className="group relative py-5">
+            <li key={i} className="card-hover group relative p-5">
               <p className="eyebrow">{h.jenis}</p>
-              <Link href={h.href} className="mt-1 block font-semibold text-ink after:absolute after:inset-0 group-hover:underline group-hover:underline-offset-4">
+              <Link href={h.href} className="mt-1 block font-semibold text-ink after:absolute after:inset-0">
                 {h.judul}
               </Link>
               {h.ringkas ? <p className="mt-1 text-sm leading-relaxed text-muted">{h.ringkas}</p> : null}

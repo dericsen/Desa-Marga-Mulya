@@ -20,12 +20,12 @@ export default async function InformasiPage({ searchParams }: { searchParams: Pr
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`flex items-baseline justify-between gap-3 border-l-2 py-1.5 pl-4 text-[0.9375rem] transition-colors ${
-        active ? "border-ink font-semibold text-ink" : "-ml-px border-transparent text-muted hover:border-line-strong hover:text-ink"
+      className={`flex items-baseline justify-between gap-3 rounded-xl px-3.5 py-2 text-[0.9375rem] transition-colors ${
+        active ? "bg-ink font-medium text-white" : "text-muted hover:bg-white hover:text-ink"
       }`}
     >
       <span>{label}</span>
-      {count !== undefined ? <span className="text-xs text-muted tabular-nums">{count}</span> : null}
+      {count !== undefined ? <span className={`text-xs tabular-nums ${active ? "text-white/60" : "text-muted"}`}>{count}</span> : null}
     </Link>
   );
 
@@ -39,7 +39,7 @@ export default async function InformasiPage({ searchParams }: { searchParams: Pr
       <div className="container-desa grid gap-10 pt-10 lg:grid-cols-12 lg:gap-12">
         <nav aria-label="Kategori data" className="lg:col-span-3">
           {/* Seluler: gulir horizontal */}
-          <ul className="-mx-5 flex gap-5 overflow-x-auto border-b border-line px-5 lg:hidden">
+          <ul className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 lg:hidden">
             {[{ key: "", label: "Semua" }, ...kategoriAda].map((c) => {
               const active = (aktif ?? "") === c.key;
               return (
@@ -47,7 +47,7 @@ export default async function InformasiPage({ searchParams }: { searchParams: Pr
                   <Link
                     href={c.key ? `/informasi?kategori=${c.key}` : "/informasi"}
                     aria-current={active ? "page" : undefined}
-                    className={`-mb-px inline-block border-b-2 py-3 text-sm font-semibold ${active ? "border-ink text-ink" : "border-transparent text-muted"}`}
+                    className={`inline-block rounded-full px-4 py-2 text-sm whitespace-nowrap ${active ? "bg-ink font-medium text-white" : "bg-white text-muted"}`}
                   >
                     {c.label}
                   </Link>
@@ -58,18 +58,18 @@ export default async function InformasiPage({ searchParams }: { searchParams: Pr
           {/* Desktop: daftar samping lengket */}
           <div className="hidden lg:sticky lg:top-32 lg:block">
             <p className="eyebrow mb-3">Kategori</p>
-            <ul className="border-l border-line">
+            <ul className="space-y-0.5">
               <li>{navItem("/informasi", "Semua kategori", !aktif, statistik.length)}</li>
               {kategoriAda.map((c) => (
                 <li key={c.key}>{navItem(`/informasi?kategori=${c.key}`, c.label, aktif === c.key, statistik.filter((s) => s.kategori === c.key).length)}</li>
               ))}
             </ul>
-            {site.catatanData ? <p className="mt-8 border-t border-line pt-4 text-xs leading-relaxed text-muted">{site.catatanData}</p> : null}
+            {site.catatanData ? <p className="mt-6 rounded-2xl bg-white p-4 text-xs leading-relaxed text-muted">{site.catatanData}</p> : null}
           </div>
         </nav>
 
         <div className="lg:col-span-9">
-          {site.catatanData ? <p className="mb-8 border-l-2 border-ink pl-4 text-sm leading-relaxed text-muted lg:hidden">{site.catatanData}</p> : null}
+          {site.catatanData ? <p className="mb-8 rounded-2xl bg-white p-4 text-sm leading-relaxed text-muted lg:hidden">{site.catatanData}</p> : null}
 
           {tampil.length === 0 ? (
             <EmptyState title="Belum ada data desa" text="Data statistik akan tampil di sini setelah diisi oleh admin desa melalui CMS." />
@@ -80,13 +80,13 @@ export default async function InformasiPage({ searchParams }: { searchParams: Pr
               const data = statistik.filter((s) => s.kategori === c.key);
               return (
                 <section key={c.key} id={c.key} className="scroll-mt-32" aria-labelledby={`judul-${c.key}`}>
-                  <header className="border-b border-ink pb-3">
+                  <header>
                     <h2 id={`judul-${c.key}`} className="section-title">{c.label}</h2>
                     <p className="mt-1 text-sm text-muted">{c.description}</p>
                   </header>
-                  <div className="grid gap-x-12 md:grid-cols-2">
+                  <div className="mt-6 grid gap-4 md:grid-cols-2">
                     {data.map((s) => (
-                      <figure key={s.id} className={`border-b border-line py-7 ${s.items.length > 7 ? "md:col-span-2" : ""}`}>
+                      <figure key={s.id} className={`rounded-[1.5rem] bg-white p-6 sm:p-7 ${s.items.length > 7 ? "md:col-span-2" : ""}`}>
                         <figcaption className="mb-5 flex items-start justify-between gap-4">
                           <span>
                             <span className="block font-semibold text-ink">{s.judul}</span>
@@ -94,7 +94,7 @@ export default async function InformasiPage({ searchParams }: { searchParams: Pr
                               {[s.tahun ? `Tahun ${s.tahun}` : null, s.satuan ? `dalam ${s.satuan}` : null].filter(Boolean).join(" · ")}
                             </span>
                           </span>
-                          <a href={`/api/statistik/${s.id}/csv`} className="shrink-0 text-xs font-semibold text-brand-700 hover:underline" aria-label={`Unduh data ${s.judul} dalam format CSV`}>
+                          <a href={`/api/statistik/${s.id}/csv`} className="shrink-0 rounded-full bg-paper px-3 py-1 text-xs font-medium text-ink hover:bg-line" aria-label={`Unduh data ${s.judul} dalam format CSV`}>
                             Unduh CSV
                           </a>
                         </figcaption>

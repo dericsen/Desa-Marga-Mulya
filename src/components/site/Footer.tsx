@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { waLink } from "@/lib/format";
 import { NAV } from "@/lib/nav";
+import { Contours } from "./Contours";
 import type { SiteSettings } from "@/lib/types";
 
 const FULL: Record<string, string> = { "/pasar": "Pasar Desa", "/potensi": "Wisata & Budaya", "/informasi": "Informasi Desa", "/profil": "Profil Desa", "/berita": "Berita & Kegiatan" };
@@ -14,7 +15,9 @@ export function Footer({ site }: { site: SiteSettings }) {
   ].filter((s) => s.href);
 
   return (
-    <footer className="band-dark mt-24 text-white/75">
+    <footer className="mt-24 px-3 pb-3 sm:px-4 sm:pb-4">
+      <div className="panel-dark text-white/75">
+      <Contours className="right-[-5%] top-[-30%] h-[120%] w-[60%] text-sun-400/25" />
       <div className="container-desa grid gap-10 py-14 md:grid-cols-12">
         <div className="md:col-span-5">
           <p className="font-display text-2xl font-semibold text-white">Pemerintah Desa {site.namaDesa}</p>
@@ -26,7 +29,7 @@ export function Footer({ site }: { site: SiteSettings }) {
         </div>
 
         <nav aria-label="Tautan halaman" className="md:col-span-3">
-          <h2 className="font-mono text-[0.6875rem] tracking-[0.14em] text-white/45 uppercase">Halaman</h2>
+          <h2 className="text-sm font-medium text-white/50">Halaman</h2>
           <ul className="mt-4 space-y-2 text-sm">
             {NAV.map((n) => (
               <li key={n.href}>
@@ -40,7 +43,7 @@ export function Footer({ site }: { site: SiteSettings }) {
         </nav>
 
         <div className="md:col-span-4">
-          <h2 className="font-mono text-[0.6875rem] tracking-[0.14em] text-white/45 uppercase">Hubungi kami</h2>
+          <h2 className="text-sm font-medium text-white/50">Hubungi kami</h2>
           <dl className="mt-4 space-y-3 text-sm">
             {site.telepon ? (
               <div>
@@ -73,10 +76,11 @@ export function Footer({ site }: { site: SiteSettings }) {
         </div>
       </div>
       <div className="border-t border-white/10">
-        <div className="container-desa flex flex-col gap-2 py-5 font-mono text-[0.6875rem] text-white/45 sm:flex-row sm:justify-between">
+        <div className="container-desa flex flex-col gap-2 py-5 text-xs text-white/45 sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} Pemerintah Desa {site.namaDesa}. Peta © kontributor OpenStreetMap.</p>
-          <Link href="/admin" className="hover:text-white hover:underline">Masuk pengelola</Link>
+          <Link href="/admin" className="hover:text-white hover:underline">Masuk pengelola & penjual</Link>
         </div>
+      </div>
       </div>
     </footer>
   );

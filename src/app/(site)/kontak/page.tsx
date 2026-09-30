@@ -28,8 +28,8 @@ export default async function KontakPage() {
       />
       <div className="container-desa grid gap-12 pt-10 lg:grid-cols-12">
         <div className="lg:col-span-5">
-          <h2 className="text-sm font-semibold text-ink">Kantor Desa {site.namaDesa}</h2>
-          <dl className="mt-3 divide-y divide-line border-y border-line text-[0.9375rem]">
+          <h2 className="text-sm font-medium text-muted">Kantor Desa {site.namaDesa}</h2>
+          <dl className="mt-3 divide-y divide-line rounded-3xl bg-white px-5 text-[0.9375rem]">
             {baris.map((b) => (
               <div key={b.label} className="grid grid-cols-[7rem_1fr] gap-3 py-3">
                 <dt className="text-muted">{b.label}</dt>

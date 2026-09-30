@@ -88,7 +88,7 @@ export function CartDrawer() {
   return (
     <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-labelledby="judul-keranjang">
       <button type="button" className="absolute inset-0 h-full w-full cursor-default bg-ink/40" aria-label="Tutup keranjang" onClick={() => setOpen(false)} tabIndex={-1} />
-      <div ref={panelRef} tabIndex={-1} className="absolute inset-y-0 right-0 flex w-full max-w-[28rem] flex-col bg-paper shadow-[-12px_0_40px_-20px_rgb(12_27_21/0.5)] focus:outline-none">
+      <div ref={panelRef} tabIndex={-1} className="absolute inset-y-0 right-0 flex w-full max-w-[28rem] flex-col overflow-hidden bg-paper shadow-[-12px_0_40px_-20px_rgb(12_27_21/0.5)] focus:outline-none sm:inset-y-3 sm:right-3 sm:rounded-[1.75rem]">
         <header className="flex items-center justify-between gap-4 border-b border-line bg-white px-5 py-4">
           <div className="flex items-center gap-3">
             {step === "data" ? (
@@ -119,14 +119,14 @@ export function CartDrawer() {
                   const sub = g.items.reduce((s, i) => s + i.harga * i.qty, 0);
                   return (
                     <section key={g.nama} className="mb-6 last:mb-0" aria-label={`Produk dari ${g.nama}`}>
-                      <h3 className="flex items-baseline justify-between border-b border-ink pb-2 text-sm">
+                      <h3 className="flex items-baseline justify-between pb-2 text-sm">
                         <span className="font-semibold text-ink">{g.nama}</span>
                         <span className="text-muted tabular-nums">{formatRupiah(sub)}</span>
                       </h3>
-                      <ul className="divide-y divide-line">
+                      <ul className="divide-y divide-line rounded-2xl bg-white px-3">
                         {g.items.map((i) => (
                           <li key={i.id} className="grid grid-cols-[3.5rem_1fr] gap-3 py-3">
-                            {i.gambar ? <img src={i.gambar} alt="" className="aspect-square w-14 rounded-md object-cover" /> : <div className="aspect-square w-14 rounded-md bg-line/60" />}
+                            {i.gambar ? <img src={i.gambar} alt="" className="aspect-square w-14 rounded-xl object-cover" /> : <div className="aspect-square w-14 rounded-md bg-line/60" />}
                             <div>
                               <div className="flex items-start justify-between gap-3">
                                 <p className="text-[0.9375rem] leading-snug text-ink">
@@ -179,7 +179,7 @@ export function CartDrawer() {
                 <legend className="label">Cara pengambilan</legend>
                 <div className="space-y-2">
                   {PENGIRIMAN.map((p) => (
-                    <label key={p.key} className={`flex cursor-pointer items-start gap-3 rounded-md border bg-white px-3 py-2.5 text-[0.9375rem] ${pengiriman === p.key ? "border-brand-600" : "border-line-strong"}`}>
+                    <label key={p.key} className={`flex cursor-pointer items-start gap-3 rounded-2xl border-2 bg-white px-4 py-3 text-[0.9375rem] ${pengiriman === p.key ? "border-ink" : "border-transparent"}`}>
                       <input type="radio" name="pengiriman" value={p.key} checked={pengiriman === p.key} onChange={() => setPengiriman(p.key)} className="mt-1 accent-brand-700" />
                       <span className="text-ink">{p.label}</span>
                     </label>
@@ -220,7 +220,7 @@ export function CartDrawer() {
             </p>
             <ol className="mt-5 space-y-4">
               {hasil.map((p) => (
-                <li key={p.kode} className="rounded-md border border-line bg-white p-4">
+                <li key={p.kode} className="rounded-2xl bg-white p-4">
                   <div className="flex items-baseline justify-between gap-3">
                     <p className="font-semibold text-ink">{p.penjual}</p>
                     <p className="font-semibold text-ink tabular-nums">{formatRupiah(p.total)}</p>
