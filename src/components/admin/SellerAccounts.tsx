@@ -1,17 +1,40 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { aturAkunPenjual, buatAkunPenjual, hapusAkunPenjual, resetSandiPenjual, type FormState } from "@/app/admin/actions";
 import { ConfirmButton } from "./ConfirmButton";
 
 type Akun = { id: number; nama: string; email: string; aktif: boolean };
 
+/** Sandi acak mudah dibaca/diketik di HP: tanpa huruf/angka yang mirip (0/O, 1/l). */
+function sandiAcak(): string {
+  const huruf = "abcdefghjkmnpqrstuvwxyz";
+  const angka = "23456789";
+  const pick = (s: string) => s[Math.floor(Math.random() * s.length)];
+  let out = "";
+  for (let i = 0; i < 6; i++) out += pick(huruf);
+  for (let i = 0; i < 4; i++) out += pick(angka);
+  return out;
+}
+
 export function SellerAccounts({ penjualId, penjualNama, akun }: { penjualId: number; penjualNama: string; akun: Akun[] }) {
   const [state, action, pending] = useActionState<FormState, FormData>(buatAkunPenjual.bind(null, penjualId), null);
   const ref = useRef<HTMLFormElement>(null);
+  const kirim = useRef<{ nama: string; login: string; password: string } | null>(null);
+  const [dibuat, setDibuat] = useState<{ nama: string; login: string; password: string } | null>(null);
+  const [sandi, setSandi] = useState("");
   useEffect(() => {
-    if (state?.ok) ref.current?.reset();
+    if (state?.ok && kirim.current) {
+      setDibuat(kirim.current);
+      setSandi("");
+      ref.current?.reset();
+    }
   }, [state]);
+  const loginUrl = typeof window !== "undefined" ? `${window.location.origin}/admin/login` : "/admin/login";
+  const waPesan = dibuat
+    ? `Halo ${dibuat.nama}, akun Pasar Desa untuk ${penjualNama} sudah dibuat.\n\nMasuk di: ${loginUrl}\nNomor HP: ${dibuat.login}\nKata sandi: ${dibuat.password}\n\nSetelah masuk, silakan ganti kata sandi di menu Akun.`
+    : "";
+  const waNomor = dibuat ? dibuat.login.replace(/\D/g, "").replace(/^0/, "62") : "";
 
   return (
     <section aria-labelledby="judul-akun-penjual" className="card mb-6 p-5 sm:p-6">
@@ -30,7 +53,38 @@ export function SellerAccounts({ penjualId, penjualNama, akun }: { penjualId: nu
         <p className="mt-4 text-sm text-muted">{penjualNama} belum memiliki akun.</p>
       )}
 
-      <form ref={ref} action={action} className="mt-5 grid gap-4 sm:grid-cols-3" noValidate>
+      {dibuat ? (
+        <div role="status" className="mt-5 rounded-2xl bg-brand-50 p-4 text-sm">
+          <p className="font-semibold text-ink">Akun untuk {dibuat.nama} sudah dibuat. Berikan data login ini kepada penjual:</p>
+          <dl className="mt-3 grid grid-cols-[7rem_1fr] gap-y-1">
+            <dt className="text-muted">Halaman masuk</dt>
+            <dd className="break-all text-ink">{loginUrl}</dd>
+            <dt className="text-muted">Nomor HP</dt>
+            <dd className="font-semibold text-ink tabular-nums">{dibuat.login}</dd>
+            <dt className="text-muted">Kata sandi</dt>
+            <dd className="font-mono font-semibold text-ink">{dibuat.password}</dd>
+          </dl>
+          <p className="mt-3 text-xs text-muted">Kata sandi hanya ditampilkan sekali. Jika lupa, gunakan “Atur ulang sandi” di atas.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {/^62\d{8,}$/.test(waNomor) ? (
+              <a href={`https://wa.me/${waNomor}?text=${encodeURIComponent(waPesan)}`} target="_blank" rel="noopener noreferrer" className="btn-primary py-2">Kirim lewat WhatsApp</a>
+            ) : null}
+            <button type="button" className="btn-light py-2" onClick={() => navigator.clipboard?.writeText(waPesan)}>Salin pesan</button>
+            <button type="button" className="btn-light py-2" onClick={() => setDibuat(null)}>Tutup</button>
+          </div>
+        </div>
+      ) : null}
+
+      <form
+        ref={ref}
+        action={action}
+        onSubmit={(e) => {
+          const fd = new FormData(e.currentTarget);
+          kirim.current = { nama: String(fd.get("nama") || "").trim(), login: String(fd.get("login") || "").trim(), password: String(fd.get("password") || "") };
+        }}
+        className="mt-5 grid gap-4 sm:grid-cols-3"
+        noValidate
+      >
         <div>
           <label htmlFor="akun-nama" className="label">Nama pemegang akun</label>
           <input id="akun-nama" name="nama" className="input" defaultValue={String(state?.values?.nama ?? "")} aria-invalid={Boolean(state?.errors?.nama)} />
@@ -43,8 +97,12 @@ export function SellerAccounts({ penjualId, penjualNama, akun }: { penjualId: nu
         </div>
         <div>
           <label htmlFor="akun-password" className="label">Kata sandi awal</label>
-          <input id="akun-password" name="password" type="text" autoComplete="off" className="input" placeholder="min. 8 karakter" aria-invalid={Boolean(state?.errors?.password)} />
+          <div className="flex gap-2">
+            <input id="akun-password" name="password" type="text" autoComplete="off" className="input font-mono" placeholder="min. 8 karakter" value={sandi} onChange={(e) => setSandi(e.target.value)} aria-invalid={Boolean(state?.errors?.password)} aria-describedby="akun-password-bantuan" />
+            <button type="button" className="btn-light shrink-0 px-3" onClick={() => setSandi(sandiAcak())}>Buat acak</button>
+          </div>
           {state?.errors?.password ? <p className="mt-1 text-sm text-red-700">{state.errors.password}</p> : null}
+          <p id="akun-password-bantuan" className="mt-1 text-xs text-muted">Penjual masuk dengan nomor HP di samping dan kata sandi <strong>ini</strong>.</p>
         </div>
         <div className="flex flex-wrap items-center gap-3 sm:col-span-3">
           <button type="submit" className="btn-primary" disabled={pending}>{pending ? "Membuat…" : "Buat akun penjual"}</button>

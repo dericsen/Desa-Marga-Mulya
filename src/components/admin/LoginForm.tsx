@@ -11,7 +11,8 @@ export function LoginForm() {
       <p className="-mt-2 text-sm text-muted">Untuk admin desa dan penjual Pasar Desa.</p>
       <div>
         <label htmlFor="email" className="label">Email atau nomor HP</label>
-        <input id="email" name="email" type="text" inputMode="email" autoComplete="username" required className="input" defaultValue={String(state?.values?.email ?? "")} />
+        <input id="email" name="email" type="text" inputMode="email" autoComplete="username" required className="input" placeholder="admin@… atau 0812…" defaultValue={String(state?.values?.email ?? "")} aria-describedby="login-bantuan" />
+        <p id="login-bantuan" className="mt-1 text-xs text-muted">Penjual: pakai nomor HP yang didaftarkan admin desa dan kata sandi yang diberikan admin.</p>
       </div>
       <div>
         <label htmlFor="password" className="label">Kata Sandi</label>

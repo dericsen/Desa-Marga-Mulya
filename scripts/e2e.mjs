@@ -328,6 +328,7 @@ console.log("\n== CMS ==");
   await page.getByRole("button", { name: "Buat akun penjual" }).click();
   await page.getByText("Akun penjual dibuat").waitFor({ timeout: 15000 });
   check(true, "admin membuat akun penjual");
+  check((await page.getByText("RahasiaBuEnah1").count()) > 0 && (await page.getByRole("link", { name: "Kirim lewat WhatsApp" }).count()) > 0, "ringkasan login (nomor HP + sandi) tampil untuk dikirim ke penjual");
   const penjualUrl = page.url();
   {
     const c2 = await browser.newContext();
