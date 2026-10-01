@@ -160,7 +160,7 @@ function build(key, t) {
       s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: cw, h, fill: { color: "FFFFFF" }, line: { color: t.primary, width: 1 }, rectRadius: 0.12, shadow: shadow() });
       s.addShape(pres.shapes.OVAL, { x: x + 0.25, y: y + 0.25, w: 0.72, h: 0.72, fill: { color: t.primary }, line: { color: t.primary } });
       s.addImage({ path: A(`icon-${p.icon}-w.png`), x: x + 0.42, y: y + 0.42, w: 0.38, h: 0.38 });
-      text(s, p.kanji, { x: x + 0.2, y: y + 1.1, w: cw - 0.4, h: 0.35, fontSize: 17, bold: true, color: t.text });
+      text(s, p.kanji, { x: x + 0.18, y: y + 1.12, w: cw - 0.3, h: 0.32, fontSize: 14, bold: true, color: t.text, fit: "shrink" });
       text(s, p.id, { x: x + 0.2, y: y + 1.46, w: cw - 0.4, h: 0.3, fontSize: 9.5, italic: true, color: t.muted });
       s.addText(
         p.pts.map((pt, j) => ({ text: pt, options: { bullet: { code: "2022", indent: 12 }, breakLine: j < p.pts.length - 1, fontSize: 9.5, color: t.text, paraSpaceAfter: 5 } })),
