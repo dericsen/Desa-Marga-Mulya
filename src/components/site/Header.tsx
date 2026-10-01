@@ -73,12 +73,18 @@ export function Header({ namaDesa, wilayah, jamRingkas, jamLayanan }: Props) {
             <button
               type="button"
               onClick={() => cart.setOpen(true)}
-              className="flex h-10 items-center gap-2 rounded-full bg-white px-3.5 text-sm font-medium text-ink shadow-[0_0_0_1px_rgb(11_19_16/0.06)] hover:shadow-[0_4px_14px_-6px_rgb(11_19_16/0.25)]"
+              className="relative flex h-10 w-10 items-center justify-center gap-2 rounded-full bg-white text-sm font-medium text-ink shadow-[0_0_0_1px_rgb(11_19_16/0.06)] hover:shadow-[0_4px_14px_-6px_rgb(11_19_16/0.25)] sm:w-auto sm:px-3.5"
               aria-label={`Buka keranjang, ${cart.count} barang`}
             >
               <Icon name="store" className="h-[18px] w-[18px]" />
               <span className="hidden sm:inline">Keranjang</span>
-              <span className={`grid h-5 min-w-5 place-items-center rounded-full px-1 text-xs tabular-nums ${cart.count ? "bg-sun-400 text-ink" : "bg-paper text-muted"}`}>{cart.count}</span>
+              <span
+                className={`absolute -top-1 -right-1 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[0.6875rem] tabular-nums ring-2 ring-paper sm:static sm:text-xs sm:ring-0 ${
+                  cart.count ? "bg-sun-400 text-ink" : "bg-paper text-muted"
+                }`}
+              >
+                {cart.count}
+              </span>
             </button>
           ) : null}
           <button
