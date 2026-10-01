@@ -61,6 +61,11 @@ jobs:
       - name: Uji end-to-end
         run: node scripts/e2e.mjs
 
+      - name: Audit tata letak (HP, tablet, laptop)
+        if: always()
+        continue-on-error: true
+        run: node scripts/layout-audit.mjs
+
       - name: Log server
         if: always()
         run: cat server.log || true
