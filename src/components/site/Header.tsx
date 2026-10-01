@@ -80,7 +80,7 @@ export function Header({ namaDesa, wilayah, jamRingkas, jamLayanan }: Props) {
               <span className="hidden sm:inline">Keranjang</span>
               <span
                 className={`absolute -top-1 -right-1 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[0.6875rem] tabular-nums ring-2 ring-paper sm:static sm:text-xs sm:ring-0 ${
-                  cart.count ? "bg-sun-400 text-ink" : "bg-paper text-muted"
+                  cart.count ? "bg-sun-400 text-ink" : "hidden bg-paper text-muted sm:grid"
                 }`}
               >
                 {cart.count}
