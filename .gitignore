@@ -12,4 +12,5 @@ npm-debug.log*
 # Pitch deck build output
 deck/node_modules
 deck/out
+!deck/dist
 deck/assets/build

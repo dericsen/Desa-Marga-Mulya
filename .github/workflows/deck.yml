@@ -45,15 +45,13 @@ jobs:
           for f in out/*.pptx; do
             python3 -c "import sys; from pptx import Presentation; p=Presentation(sys.argv[1]); print(sys.argv[1], 'slides:', len(p.slides))" "$f"
           done
-          markitdown out/Desa-Marga-Mulya-Pitch-Deck-Mono.pptx > out/deck-text.md
+          markitdown out/Desa-Marga-Mulya-Pitch-Deck-New-Revisition.pptx > out/deck-text.md
           cat out/deck-text.md
       - name: Render ke PDF & gambar
         run: |
           cd out
-          for v in Mono Red; do
-            soffice --headless --convert-to pdf Desa-Marga-Mulya-Pitch-Deck-$v.pptx > /dev/null
-            pdftoppm -jpeg -r 110 Desa-Marga-Mulya-Pitch-Deck-$v.pdf $v-slide
-          done
+          soffice --headless --convert-to pdf Desa-Marga-Mulya-Pitch-Deck-New-Revisition.pptx > /dev/null
+          pdftoppm -jpeg -r 110 Desa-Marga-Mulya-Pitch-Deck-New-Revisition.pdf slide
           ls -la
       - uses: actions/upload-artifact@v4
         with:

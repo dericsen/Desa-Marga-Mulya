@@ -151,7 +151,7 @@ async function roundedCrop(file, out, ratio, radius) {
   await roundedCrop("pasar-keranjang.png", "shot-cart.png", 2.1, 34);
   await roundedCrop("penjual-produk.png", "shot-seller.png", 2.1, 34);
   await sharp(path.join(__dirname, "..", "public", "logo-desa.svg")).resize(512, 512).png().toFile(path.join(OUT, "logo.png"));
-  await QRCode.toFile(path.join(OUT, "qr.png"), DEMO_URL, { width: 700, margin: 1, color: { dark: "#111111FF", light: "#FFFFFFFF" } });
+  await QRCode.toFile(path.join(OUT, "qr.png"), DEMO_URL, { width: 700, margin: 1, color: { dark: "#0B3B38FF", light: "#FFFFFFFF" } });
 
   const TECH = [
     ["SiNextdotjs", "Next.js"], ["SiReact", "React"], ["SiTypescript", "TypeScript"], ["SiTailwindcss", "Tailwind"],
