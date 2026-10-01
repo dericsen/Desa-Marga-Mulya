@@ -99,6 +99,20 @@ console.log("\n== Endpoint lain ==");
   const chatJson = await chat.json();
   console.log("    jawaban:", JSON.stringify(chatJson).slice(0, 300));
   check(chat.status === 200 && /7\.842|7842/.test(chatJson.reply || ""), "API Tanya Desa menjawab jumlah penduduk");
+  const tanya = async (q) => (await (await fetch(`${BASE}/api/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [{ role: "user", content: q }] }) })).json()).reply || "";
+  for (const [q, re, label] of [
+    ["jam berapa kantor desa buka?", /08\.00/, "jam layanan"],
+    ["kantor buka hari sabtu ga?", /Sabtu kantor desa \*\*tutup/, "jam hari tertentu"],
+    ["syarat bikin surat domisili", /KTP-el, KK, surat pengantar RT\/RW/, "syarat surat domisili"],
+    ["syarat bikin kk", /Kartu Keluarga/, "syarat KK"],
+    ["berapa harga bandeng presto", /Rp\s?45\.000/, "harga produk"],
+    ["berapa jumlah petani", /612/, "jumlah petani"],
+    ["siapa kepala desanya", /Ahmad Suryadi/, "kepala desa"],
+    ["kapan posyandu", /tanggal 8/, "jadwal posyandu"],
+  ]) {
+    const r = await tanya(q);
+    check(re.test(r) && r.length < 900, `Tanya Desa menjawab tepat: ${label}${re.test(r) ? "" : " — " + r.slice(0, 120)}`);
+  }
   const sara = await fetch(`${BASE}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

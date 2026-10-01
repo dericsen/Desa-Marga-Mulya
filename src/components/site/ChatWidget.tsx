@@ -10,6 +10,8 @@ const SARAN = [
   "Apa saja produk UMKM di desa ini?",
   "Syarat membuat surat domisili?",
   "Berapa jumlah penduduk desa?",
+  "Berapa harga bandeng presto?",
+  "Bagaimana cuaca hari ini?",
 ];
 
 function renderText(text: string) {

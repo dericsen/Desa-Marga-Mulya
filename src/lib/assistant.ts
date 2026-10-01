@@ -5,10 +5,12 @@ import { categoryLabel, POTENSI_TYPES } from "./categories";
 import { getAparat, getBerita, getLokasi, getOrganisasi, getPotensi, getProduk, getSite, getStatistik } from "./data";
 import { excerpt, formatDate, formatNumber, formatRupiah } from "./format";
 import { getCuaca } from "./cuaca";
+import { jawabLokal, type DataDesa } from "./assistant-lokal";
+import { parseJamLayanan, statusKantor } from "./jam";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 type Doc = { title: string; text: string; link: string };
-type Knowledge = { context: string; docs: Doc[]; namaDesa: string; at: number };
+type Knowledge = { context: string; docs: Doc[]; namaDesa: string; jamLayanan: string; data: DataDesa; at: number };
 
 let cached: Knowledge | null = null;
 
@@ -90,21 +92,39 @@ async function buildKnowledge(): Promise<Knowledge> {
   if (lokasi.length) add("Lokasi penting di peta desa", lokasi.map((l) => `${l.nama} (${l.kategori})${l.deskripsi ? `: ${l.deskripsi}` : ""}`).join("; "), "/profil");
 
   const context = docs.map((d) => `### ${d.title}\n${d.text}\n(Halaman: ${d.link})`).join("\n\n");
-  cached = { context, docs, namaDesa: site.namaDesa, at: Date.now() };
+  cached = {
+    context,
+    docs,
+    namaDesa: site.namaDesa,
+    jamLayanan: site.jamLayanan,
+    data: { site, statistik, aparat, potensi, organisasi, berita, lokasi, produk, cuaca },
+    at: Date.now(),
+  };
   return cached;
 }
 
 const SENSITIF = /\b(agama|suku|etnis|pemeluk|keyakinan|rasial|sara|antargolongan|antar golongan)\b/i;
 
+function waktuSekarang(k: Knowledge): string {
+  const now = new Date();
+  const teks = new Intl.DateTimeFormat("id-ID", { timeZone: "Asia/Jakarta", weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(now);
+  const jd = k.jamLayanan ? parseJamLayanan(k.jamLayanan) : null;
+  const st = jd ? statusKantor(jd, now) : null;
+  return `Waktu sekarang: ${teks} WIB.${st ? ` Status kantor desa saat ini: ${st.buka ? "BUKA" : "TUTUP"} (${st.teks}).` : ""}`;
+}
+
 function systemPrompt(k: Knowledge) {
   return `Anda adalah "Tanya Desa", asisten virtual resmi website Desa ${k.namaDesa}, Kecamatan Mauk, Kabupaten Tangerang, Banten.
+${waktuSekarang(k)}
 Aturan:
-1. Selalu jawab dalam Bahasa Indonesia yang ramah, sopan, singkat, dan mudah dipahami warga (maksimal sekitar 150 kata).
+1. Selalu jawab dalam Bahasa Indonesia yang ramah, sopan, dan mudah dipahami warga. Langsung jawab inti pertanyaan pada kalimat pertama; total 1–5 kalimat atau daftar poin singkat (maksimal sekitar 120 kata). Jangan menyalin seluruh data.
 2. Jawab HANYA berdasarkan DATA DESA di bawah. Jika informasi tidak tersedia, katakan dengan jujur dan sarankan menghubungi kantor desa melalui halaman Kontak.
 3. Jangan mengarang angka, nama, harga, atau jadwal.
 4. Jangan membahas atau membandingkan warga berdasarkan suku, agama, ras, dan antargolongan (SARA). Tolak dengan sopan bila diminta.
 5. Jika relevan, sebutkan halaman website terkait (mis. "lihat halaman Informasi Desa").
-6. Gunakan **tebal** untuk angka penting. Jangan gunakan tabel atau HTML.
+6. Gunakan **tebal** untuk angka penting. Untuk daftar gunakan baris berawalan "• ". Jangan gunakan tabel, HTML, atau judul markdown (#).
+7. Untuk pertanyaan "buka/tutup sekarang", gunakan status kantor di atas. Untuk cuaca, gunakan data cuaca dan sebutkan bahwa itu prakiraan, bukan peringatan resmi BMKG.
+8. Jika pertanyaan tidak berkaitan dengan desa (mis. pengetahuan umum), jelaskan singkat bahwa Anda hanya menjawab seputar Desa ${k.namaDesa}.
 
 DATA DESA:
 ${k.context}`;
@@ -126,7 +146,7 @@ async function askGemini(k: Knowledge, messages: ChatMessage[]): Promise<string 
         body: JSON.stringify({
           systemInstruction: { parts: [{ text: systemPrompt(k) }] },
           contents,
-          generationConfig: { temperature: 0.3, maxOutputTokens: 2048 },
+          generationConfig: { temperature: 0.2, maxOutputTokens: 2048 },
         }),
         signal: AbortSignal.timeout(25_000),
       });
@@ -145,49 +165,6 @@ async function askGemini(k: Knowledge, messages: ChatMessage[]): Promise<string 
   return null;
 }
 
-const STOPWORDS = new Set(
-  "apa apakah berapa bagaimana gimana siapa dimana di mana kapan yang dan atau untuk dengan ada saja ini itu ke dari desa marga mulya saya mau ingin tahu tolong bisa dong ya kah nya adalah jumlah info informasi tentang cara bagaimanakah kami kita".split(" ")
-);
-
-function tokens(text: string): string[] {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
-    .split(/\s+/)
-    .filter((t) => t.length > 2 && !STOPWORDS.has(t));
-}
-
-function localAnswer(k: Knowledge, question: string): string {
-  const q = question.toLowerCase().trim();
-  if (/^(halo|hai|hi|selamat (pagi|siang|sore|malam)|assalam|permisi)\b/.test(q) && q.length < 30) {
-    return `Halo! Silakan tanyakan apa saja seputar Desa ${k.namaDesa}, misalnya jumlah penduduk, jam layanan kantor desa, produk UMKM, atau wisata terdekat.`;
-  }
-  const qt = tokens(question);
-  if (!qt.length) return "Boleh diperjelas pertanyaannya? Contoh: \"Berapa jumlah penduduk?\" atau \"Apa saja produk UMKM desa?\"";
-
-  const scored = k.docs
-    .map((d) => {
-      const title = d.title.toLowerCase();
-      const text = d.text.toLowerCase();
-      let score = 0;
-      for (const t of qt) {
-        const stem = t.length >= 6 ? t.slice(0, 5) : t;
-        if (title.includes(stem)) score += 3;
-        if (text.includes(stem)) score += 1;
-      }
-      return { d, score };
-    })
-    .filter((x) => x.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 2);
-
-  if (!scored.length) {
-    return `Maaf, saya belum menemukan informasi tersebut di data website desa. Silakan hubungi kantor desa melalui halaman **Kontak** atau coba kata kunci lain.`;
-  }
-  const parts = scored.map(({ d }) => `**${d.title}**\n${d.text.length > 600 ? d.text.slice(0, 600) + "…" : d.text}`);
-  return `${parts.join("\n\n")}\n\nInformasi lengkap tersedia di halaman ${scored[0].d.link}.`;
-}
-
 export async function answer(messages: ChatMessage[]): Promise<{ reply: string; mode: "ai" | "lokal" }> {
   const question = messages[messages.length - 1]?.content ?? "";
   if (SENSITIF.test(question)) {
@@ -200,5 +177,5 @@ export async function answer(messages: ChatMessage[]): Promise<{ reply: string; 
   const k = await buildKnowledge();
   const ai = await askGemini(k, messages);
   if (ai) return { reply: ai, mode: "ai" };
-  return { reply: localAnswer(k, question), mode: "lokal" };
+  return { reply: jawabLokal(k.data, question), mode: "lokal" };
 }
