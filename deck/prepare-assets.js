@@ -40,7 +40,7 @@ function base(t) {
     <stop offset="0" stop-color="#FFFFFF"/><stop offset="0.62" stop-color="#FFFFFF"/><stop offset="1" stop-color="#${t.tint}"/></linearGradient></defs>
     <rect width="${W}" height="${H}" fill="url(#g)"/>${waves(t.wave, 0.35)}`;
 }
-function titleDecor(t) {
+function titleDecor(t, pixels = true) {
   // Pita bersudut di kiri atas dan kanan atas
   let s = `<polygon points="0,0 1130,0 800,235 0,235" fill="#${t.primaryDark}"/>
     <polygon points="0,0 1000,0 760,195 0,195" fill="#${t.primary}"/>
@@ -49,6 +49,7 @@ function titleDecor(t) {
     <rect x="1050" y="0" width="870" height="175" fill="#${t.gray}"/>
     <rect x="1050" y="175" width="870" height="16" fill="#${t.primaryDark}"/>
     <polygon points="1050,0 1120,0 900,191 830,191" fill="#${t.primary}"/>`;
+  if (!pixels) return s;
   // Kotak piksel di kanan bawah (makin rapat ke sudut)
   let seed = 7;
   const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
@@ -85,7 +86,7 @@ function blob(t) {
 }
 
 // ---------- Peta lokasi dari OpenStreetMap ----------
-async function map(t, file) {
+async function map(t, file, Wm = 1200, Hm = 470, label = true) {
   const z = 13;
   const n = 2 ** z;
   const fx = ((LNG + 180) / 360) * n;
@@ -94,37 +95,35 @@ async function map(t, file) {
   const cx = Math.floor(fx);
   const cy = Math.floor(fy);
   const cols = [-2, -1, 0, 1, 2];
-  const rows = [-1, 0, 1];
+  const rows = [-2, -1, 0, 1, 2];
   const tiles = [];
   for (const dy of rows) {
     for (const dx of cols) {
       const url = `https://tile.openstreetmap.org/${z}/${cx + dx}/${cy + dy}.png`;
       const res = await fetch(url, { headers: { "User-Agent": "DesaMargaMulyaPitchDeck/1.0 (+https://github.com/dericsen/Desa-Marga-Mulya)" } });
       if (!res.ok) throw new Error(`tile ${res.status}`);
-      tiles.push({ input: Buffer.from(await res.arrayBuffer()), left: (dx + 2) * 256, top: (dy + 1) * 256 });
+      tiles.push({ input: Buffer.from(await res.arrayBuffer()), left: (dx + 2) * 256, top: (dy + 2) * 256 });
     }
   }
-  const mosaic = await sharp({ create: { width: 1280, height: 768, channels: 4, background: "#ffffff" } }).composite(tiles).png().toBuffer();
+  const mosaic = await sharp({ create: { width: 1280, height: 1280, channels: 4, background: "#ffffff" } }).composite(tiles).png().toBuffer();
   const px = (fx - (cx - 2)) * 256;
-  const py = (fy - (cy - 1)) * 256;
-  const Wm = 1200;
-  const Hm = 470;
+  const py = (fy - (cy - 2)) * 256;
   const left = Math.round(Math.max(0, Math.min(1280 - Wm, px - Wm / 2)));
-  const top = Math.round(Math.max(0, Math.min(768 - Hm, py - Hm / 2)));
+  const top = Math.round(Math.max(0, Math.min(1280 - Hm, py - Hm / 2)));
   const mx = px - left;
   const my = py - top;
   const gray = await sharp(mosaic).extract({ left, top, width: Wm, height: Hm }).grayscale().modulate({ brightness: 1.05 }).png().toBuffer();
   const overlay = `<svg xmlns="http://www.w3.org/2000/svg" width="${Wm}" height="${Hm}">
     <circle cx="${mx}" cy="${my}" r="46" fill="#${t.primary}" fill-opacity="0.22"/>
     <circle cx="${mx}" cy="${my}" r="15" fill="#${t.primary}" stroke="#FFFFFF" stroke-width="5"/>
-    <rect x="${mx + 26}" y="${my - 62}" rx="10" width="300" height="52" fill="#${t.dark}"/>
-    <text x="${mx + 44}" y="${my - 28}" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#FFFFFF">Desa Marga Mulya</text>
+    ${label ? `<rect x="${mx + 26}" y="${my - 62}" rx="10" width="300" height="52" fill="#${t.dark}"/><text x="${mx + 44}" y="${my - 28}" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#FFFFFF">Desa Marga Mulya</text>` : ""}
     <rect x="${Wm - 330}" y="${Hm - 34}" width="330" height="34" fill="#FFFFFF" fill-opacity="0.85"/>
     <text x="${Wm - 12}" y="${Hm - 11}" text-anchor="end" font-family="Arial, sans-serif" font-size="17" fill="#333">© OpenStreetMap contributors</text>
   </svg>`;
   const mask = `<svg xmlns="http://www.w3.org/2000/svg" width="${Wm}" height="${Hm}"><rect width="${Wm}" height="${Hm}" rx="36" fill="#fff"/></svg>`;
   const withPin = await sharp(gray).composite([{ input: Buffer.from(overlay) }]).png().toBuffer();
   await sharp(withPin).composite([{ input: Buffer.from(mask), blend: "dest-in" }]).png().toFile(file);
+  return { cx: mx / Wm, cy: my / Hm };
 }
 
 // ---------- Ikon ----------
@@ -150,6 +149,7 @@ async function roundedCrop(file, out, ratio, radius) {
   await roundedCrop("desktop-beranda.png", "shot-home.png", 1 / 1.6, 6);
   await roundedCrop("pasar-keranjang.png", "shot-cart.png", 2.1, 34);
   await roundedCrop("penjual-produk.png", "shot-seller.png", 2.1, 34);
+  await roundedCrop("pasar-selesai.png", "shot-order.png", 2.1, 34);
   await sharp(path.join(__dirname, "..", "public", "logo-desa.svg")).resize(512, 512).png().toFile(path.join(OUT, "logo.png"));
   await QRCode.toFile(path.join(OUT, "qr.png"), DEMO_URL, { width: 700, margin: 1, color: { dark: "#0B3B38FF", light: "#FFFFFFFF" } });
 
@@ -165,6 +165,7 @@ async function roundedCrop(file, out, ratio, radius) {
     const wrap = (inner) => `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">${inner}</svg>`;
     await svgPng(wrap(base(t)), path.join(dir, "bg-content.png"), W, H);
     await svgPng(wrap(base(t) + titleDecor(t)), path.join(dir, "bg-title.png"), W, H);
+    await svgPng(wrap(base(t) + titleDecor(t, false)), path.join(dir, "bg-hero.png"), W, H);
     await svgPng(wrap(base(t) + endDecor(t)), path.join(dir, "bg-end.png"), W, H);
     await svgPng(blob(t), path.join(dir, "blob.png"), 800, 600);
 
@@ -176,10 +177,28 @@ async function roundedCrop(file, out, ratio, radius) {
       await svgPng(ph, path.join(dir, "map.png"), 1200, 470);
     }
 
-    const icons = { FaClock: "services", FaChartBar: "data", FaStore: "market", FaRobot: "ai", FaSearch: "search" };
+    let pin = { cx: 0.5, cy: 0.5 };
+    try {
+      pin = await map(t, path.join(dir, "map-square.png"), 720, 720, false);
+    } catch (e) {
+      console.warn("square map fallback:", e.message);
+      const ph = `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="720"><rect width="720" height="720" rx="36" fill="#E5E5E5"/><circle cx="360" cy="360" r="15" fill="#${t.primary}"/></svg>`;
+      await svgPng(ph, path.join(dir, "map-square.png"), 720, 720);
+    }
+    fs.writeFileSync(path.join(dir, "map-square.json"), JSON.stringify(pin));
+
+    const icons = {
+      FaClock: "services", FaChartBar: "data", FaStore: "market", FaRobot: "ai", FaSearch: "search",
+      FaUsers: "users", FaGlobeAsia: "globe", FaHome: "home", FaSeedling: "seedling", FaFish: "fish",
+      FaMapMarkerAlt: "pin", FaWhatsapp: "whatsapp", FaClipboardCheck: "check", FaShoppingBasket: "basket",
+      FaDatabase: "db", FaServer: "server", FaShieldAlt: "shield", FaEdit: "cms",
+    };
     for (const [c, name] of Object.entries(icons)) {
+      if (!fa[c]) throw new Error("icon missing: " + c);
       await icon(fa[c], "FFFFFF", path.join(dir, `icon-${name}-w.png`));
       await icon(fa[c], t.dark, path.join(dir, `icon-${name}-d.png`));
+      await icon(fa[c], t.primary, path.join(dir, `icon-${name}-p.png`));
+      await icon(fa[c], t.highlight, path.join(dir, `icon-${name}-h.png`));
     }
     await icon(fa.FaStore, t.dark, path.join(dir, "store-on.png"));
     await icon(fa.FaStore, t.soft, path.join(dir, "store-off.png"));
