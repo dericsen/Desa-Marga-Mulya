@@ -1,6 +1,6 @@
 # Pitch Script — Desa Marga Mulya (max 5 minutes)
 
-About 640 words, which takes about 4:40 at a calm pace. That leaves about 20 seconds of buffer.
+About 620 words, which takes about 4:40 at a calm pace. That leaves about 20 seconds of buffer.
 **Bold** = stress the word. `[pause]` = stop for one second. `[click]` = next slide.
 
 ---
