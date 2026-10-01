@@ -4,6 +4,8 @@ import { ProductCard } from "@/components/pasar/ProductCard";
 import { Img, kategoriBerita, SectionHeading } from "@/components/site/ui";
 import { Icon } from "@/components/Icon";
 import { Contours } from "@/components/site/Contours";
+import { CuacaDesa } from "@/components/site/CuacaDesa";
+import { getCuaca } from "@/lib/cuaca";
 import { JamLayanan } from "@/components/site/JamLayanan";
 import { OfficeStatus } from "@/components/site/OfficeStatus";
 import { VillageMap } from "@/components/site/VillageMap";
@@ -36,14 +38,15 @@ function AngkaKunci({ nilai }: { nilai: string }) {
 }
 
 export default async function BerandaPage() {
-  const [site, statistik, potensi, berita, galeri, lokasi, produkPilihan] = await Promise.all([
-    getSite(),
+  const site = await getSite();
+  const [statistik, potensi, berita, galeri, lokasi, produkPilihan, cuaca] = await Promise.all([
     getStatistik(),
     getPotensi(),
     getBerita({ limit: 5 }),
     getGaleri(),
     getLokasi(),
     getProduk({ unggulan: true, limit: 4 }),
+    getCuaca(site.lat, site.lng),
   ]);
 
   const wa = waLink(site.whatsapp, `Halo Pemerintah Desa ${site.namaDesa}, saya ingin bertanya tentang layanan desa.`);
@@ -136,6 +139,9 @@ export default async function BerandaPage() {
         ) : null}
       </section>
       {site.heroKeterangan ? <p className="container-desa mt-3 text-xs text-muted">{site.heroKeterangan}</p> : null}
+
+      {/* ===== Cuaca: untuk petani, nelayan, dan warga ===== */}
+      {cuaca ? <CuacaDesa cuaca={cuaca} namaDesa={site.namaDesa} /> : null}
 
       {/* ===== Kabar desa: satu utama + daftar ===== */}
       {utama ? (

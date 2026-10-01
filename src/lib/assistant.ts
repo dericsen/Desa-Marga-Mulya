@@ -4,6 +4,7 @@
 import { categoryLabel, POTENSI_TYPES } from "./categories";
 import { getAparat, getBerita, getLokasi, getOrganisasi, getPotensi, getProduk, getSite, getStatistik } from "./data";
 import { excerpt, formatDate, formatNumber, formatRupiah } from "./format";
+import { getCuaca } from "./cuaca";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 type Doc = { title: string; text: string; link: string };
@@ -40,6 +41,17 @@ async function buildKnowledge(): Promise<Knowledge> {
   add("Visi dan misi desa", `Visi: ${site.visi}. Misi: ${site.misi.map((m, i) => `${i + 1}) ${m}`).join(" ")}`, "/profil");
   add("Sejarah desa", excerpt(site.sejarah, 900), "/profil");
   if (site.namaKepalaDesa) add("Kepala desa", `Kepala Desa ${site.namaDesa} adalah ${site.namaKepalaDesa}. Sambutan: ${site.sambutan}`, "/profil");
+  const cuaca = await getCuaca(site.lat, site.lng);
+  if (cuaca) {
+    const k = cuaca.sekarang;
+    add(
+      "Cuaca dan prakiraan cuaca desa hari ini, gelombang laut",
+      `Cuaca sekarang (pukul ${cuaca.diperbarui.slice(11, 16)} WIB): ${k.label}, suhu ${Math.round(k.suhu)}°C, angin ${Math.round(k.angin)} km/jam dari ${k.arahAngin}${k.gelombang !== null ? `, gelombang laut ${k.gelombang.toFixed(1)} m` : ""}. Prakiraan: ${cuaca.hari
+        .map((h) => `${h.tanggal}: ${h.label}, ${Math.round(h.suhuMin)}–${Math.round(h.suhuMaks)}°C${h.peluangHujan !== null ? `, peluang hujan ${h.peluangHujan}%` : ""}`)
+        .join("; ")}. Saran: ${cuaca.saran.map((s) => `${s.untuk}: ${s.teks}`).join(" ")} Sumber Open-Meteo, bukan peringatan resmi BMKG.`,
+      "/#cuaca"
+    );
+  }
   if (site.angkaKunci.length) add("Angka kunci desa", site.angkaKunci.map((a) => `${a.label}: ${a.nilai}`).join("; "), "/");
 
   for (const s of statistik) {

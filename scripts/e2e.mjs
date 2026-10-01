@@ -65,6 +65,22 @@ async function publicPages(name, viewport) {
   await ctx.close();
 }
 
+console.log("\n== Cuaca ==");
+{
+  const html = await (await fetch(BASE + "/")).text();
+  const ada = html.includes("Prakiraan cuaca");
+  console.log(ada ? "  · bagian cuaca tampil (data Open-Meteo)" : "  · Open-Meteo tidak terjangkau — bagian cuaca disembunyikan dengan aman");
+  check(!html.includes("NaN°") && !html.includes("undefined°"), "bagian cuaca tanpa angka rusak");
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const p = await ctx.newPage();
+  await p.goto(BASE + "/", { waitUntil: "networkidle" });
+  const sec = p.locator("#cuaca");
+  if (await sec.count()) await sec.screenshot({ path: `${OUT}/cuaca-mobile.png` });
+  await p.setViewportSize({ width: 1366, height: 900 });
+  if (await sec.count()) await sec.screenshot({ path: `${OUT}/cuaca-desktop.png` });
+  await ctx.close();
+}
+
 await publicPages("desktop", { width: 1366, height: 900 });
 await publicPages("mobile", { width: 390, height: 844 });
 
