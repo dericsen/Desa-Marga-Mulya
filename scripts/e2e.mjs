@@ -203,6 +203,7 @@ console.log("\n== Portal penjual ==");
   await page.goto(BASE + "/admin/toko/produk/baru", { waitUntil: "networkidle" });
   await page.fill("#f-nama", "Pepes Bandeng Uji CI");
   await page.fill("#f-harga", "25000");
+  check((await page.inputValue("#f-harga")) === "25.000", "harga otomatis diberi titik ribuan (25000 → 25.000)");
   await page.fill("#f-deskripsi", "Produk uji otomatis dari portal penjual.");
   await page.getByRole("button", { name: "Kirim untuk ditinjau" }).click();
   await konfirmasi(page);

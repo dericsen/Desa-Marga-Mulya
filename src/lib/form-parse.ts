@@ -26,6 +26,18 @@ export function parseFields(fields: Field[], formData: FormData): ParseResult {
         data[f.name] = Number.isNaN(n) ? null : n;
         break;
       }
+      case "rupiah": {
+        // "45.000", "Rp 45.000", "45000" → 45000
+        const digits = str.replace(/[^\d]/g, "");
+        if (!digits) {
+          data[f.name] = null;
+          if (f.required) errors[f.name] = `${f.label} wajib diisi.`;
+          break;
+        }
+        if (/[,]\d/.test(str) || digits.length > 10) errors[f.name] = `${f.label} ditulis dalam rupiah bulat, mis. 45.000.`;
+        data[f.name] = Number(digits);
+        break;
+      }
       case "relation": {
         const n = Number(str);
         if (!str || !Number.isInteger(n) || n <= 0) {

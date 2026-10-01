@@ -227,7 +227,7 @@ export async function saveSettings(_prev: FormState, formData: FormData): Promis
   if (Object.keys(errors).length) return { message: "Periksa kembali isian yang ditandai.", errors, values: data };
 
   for (const f of fields) {
-    if (f.type !== "number" && f.type !== "list" && f.type !== "items" && f.type !== "boolean" && data[f.name] === null) data[f.name] = "";
+    if (f.type !== "number" && f.type !== "rupiah" && f.type !== "list" && f.type !== "items" && f.type !== "boolean" && data[f.name] === null) data[f.name] = "";
   }
 
   const sql = db();

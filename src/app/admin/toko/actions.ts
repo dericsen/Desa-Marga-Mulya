@@ -17,7 +17,7 @@ const MAX_HARGA = 100_000_000;
 function cekAngka(data: Record<string, unknown>, errors: Record<string, string>) {
   const harga = data.harga as number | null;
   if (harga === null || harga === undefined) errors.harga = "Harga wajib diisi.";
-  else if (!Number.isInteger(harga) || harga < 0 || harga > MAX_HARGA) errors.harga = "Tulis harga dalam rupiah tanpa titik, mis. 45000.";
+  else if (!Number.isInteger(harga) || harga < 0 || harga > MAX_HARGA) errors.harga = "Tulis harga dalam rupiah bulat, mis. 45.000.";
   const stok = data.stok as number | null;
   if (stok !== null && stok !== undefined && (!Number.isInteger(stok) || stok < 0 || stok > 100000)) errors.stok = "Stok harus bilangan bulat 0 atau lebih. Kosongkan bila selalu tersedia.";
 }
@@ -93,7 +93,7 @@ export async function saveProdukPenjual(id: number | null, _prev: FormState, for
 /** Ubah cepat harga, stok, dan status jual. Langsung berlaku tanpa tinjauan. */
 export async function updateHargaStok(id: number, _prev: FormState, formData: FormData): Promise<FormState> {
   const s = await requirePenjual();
-  const hargaRaw = String(formData.get("harga") ?? "").replace(/[.\s]/g, "").trim();
+  const hargaRaw = String(formData.get("harga") ?? "").replace(/[^\d]/g, "");
   const stokRaw = String(formData.get("stok") ?? "").trim();
   const data: Record<string, unknown> = {
     harga: hargaRaw === "" ? null : Number(hargaRaw),

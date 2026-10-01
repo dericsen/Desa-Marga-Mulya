@@ -3,7 +3,7 @@
 import { BERITA_TYPES, LOKASI_TYPES, PESANAN_STATUS, POTENSI_TYPES, PRODUK_KATEGORI, PRODUK_TINJAU, STAT_CATEGORIES, type IconName } from "./categories";
 
 export type FieldType =
-  | "text" | "textarea" | "markdown" | "number" | "select" | "image" | "date" | "boolean" | "items" | "list" | "email" | "relation";
+  | "text" | "textarea" | "markdown" | "number" | "rupiah" | "select" | "image" | "date" | "boolean" | "items" | "list" | "email" | "relation";
 
 /** Relasi ke tabel lain; pilihan diisi dari database saat form dibuka. */
 export type Relation = { table: string; labelColumn: string };
@@ -106,7 +106,7 @@ export const RESOURCES: Resource[] = [
       { name: "nama", label: "Nama Produk", type: "text", required: true, wide: true },
       { name: "penjual_id", label: "Penjual", type: "relation", relation: { table: "penjual", labelColumn: "nama" }, required: true },
       { name: "kategori", label: "Kategori", type: "select", options: opt(PRODUK_KATEGORI), required: true },
-      { name: "harga", label: "Harga (Rp)", type: "number", required: true, placeholder: "45000", help: "Angka saja, tanpa titik. Contoh: 45000" },
+      { name: "harga", label: "Harga", type: "rupiah", required: true, help: "Ketik angkanya saja — titik ribuan muncul otomatis." },
       { name: "satuan", label: "Satuan / Kemasan", type: "text", placeholder: "mis. 500 gr, per ikat, isi 10" },
       { name: "stok", label: "Stok", type: "number", help: "Kosongkan bila selalu tersedia. Stok berkurang otomatis saat ada pesanan." },
       { name: "urutan", label: "Urutan", type: "number" },
@@ -352,7 +352,7 @@ export const RESOURCES: Resource[] = [
 export const PRODUK_PENJUAL_FIELDS: Field[] = [
   { name: "nama", label: "Nama produk", type: "text", required: true, wide: true, placeholder: "mis. Bandeng Presto Duri Lunak" },
   { name: "kategori", label: "Kategori", type: "select", options: opt(PRODUK_KATEGORI), required: true },
-  { name: "harga", label: "Harga (Rp)", type: "number", required: true, placeholder: "45000", help: "Angka saja, tanpa titik." },
+  { name: "harga", label: "Harga", type: "rupiah", required: true, help: "Ketik angkanya saja — titik ribuan muncul otomatis." },
   { name: "satuan", label: "Kemasan / satuan", type: "text", placeholder: "mis. 500 gr, isi 10, per ikat" },
   { name: "stok", label: "Stok", type: "number", help: "Kosongkan bila selalu tersedia." },
   { name: "gambar", label: "Foto produk", type: "image", wide: true, help: "Foto dari HP sudah cukup. Gunakan cahaya terang dan latar polos." },

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { RupiahInput } from "./RupiahInput";
 import { useActionState } from "react";
 import type { FormState } from "@/app/admin/actions";
 import { updateHargaStok } from "@/app/admin/toko/actions";
@@ -49,8 +50,8 @@ export function QuickStockRow({ p }: { p: P }) {
 
           <form action={action} className="mt-3 flex flex-wrap items-end gap-3">
             <div>
-              <label htmlFor={`harga-${p.id}`} className="block text-xs font-semibold text-muted">Harga (Rp)</label>
-              <input id={`harga-${p.id}`} name="harga" inputMode="numeric" defaultValue={p.harga} className="input mt-1 w-32 py-2 tabular-nums" aria-invalid={Boolean(state?.errors?.harga)} />
+              <label htmlFor={`harga-${p.id}`} className="block text-xs font-semibold text-muted">Harga</label>
+              <RupiahInput id={`harga-${p.id}`} name="harga" defaultValue={p.harga} className="mt-1 w-36 [&_input]:py-2" invalid={Boolean(state?.errors?.harga)} />
             </div>
             <div>
               <label htmlFor={`stok-${p.id}`} className="block text-xs font-semibold text-muted">Stok</label>

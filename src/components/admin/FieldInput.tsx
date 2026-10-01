@@ -3,6 +3,7 @@
 import type { Field } from "@/lib/resources";
 import { ImageField } from "./ImageField";
 import { ItemsEditor } from "./ItemsEditor";
+import { RupiahInput } from "./RupiahInput";
 
 export function FieldInput({ field, value, error }: { field: Field; value: unknown; error?: string }) {
   const id = `f-${field.name}`;
@@ -23,6 +24,9 @@ export function FieldInput({ field, value, error }: { field: Field; value: unkno
       break;
     case "number":
       control = <input {...common} type="number" step={field.step ?? "1"} defaultValue={str} className="input" required={field.required} placeholder={field.placeholder} />;
+      break;
+    case "rupiah":
+      control = <RupiahInput id={id} name={field.name} defaultValue={str} required={field.required} invalid={Boolean(error)} describedBy={describedBy} />;
       break;
     case "date":
       control = <input {...common} type="date" defaultValue={str} className="input" required={field.required} />;
