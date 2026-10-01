@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { logout } from "@/app/admin/actions";
+import { ConfirmGuard } from "@/components/admin/ConfirmGuard";
 import { BottomNav, SideNav, type MenuItem } from "@/components/admin/PanelNav";
 import { Icon } from "@/components/Icon";
 import { requireStaff } from "@/lib/auth";
@@ -125,6 +126,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
 
       <main className={`min-w-0 flex-1 p-4 sm:p-8 ${isPenjual ? "pb-24 lg:pb-8" : ""}`}>{children}</main>
       {isPenjual ? <BottomNav items={menu} /> : null}
+      <ConfirmGuard />
     </div>
   );
 }

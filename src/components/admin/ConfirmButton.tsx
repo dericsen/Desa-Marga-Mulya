@@ -1,18 +1,12 @@
-"use client";
-
 import type { ReactNode } from "react";
 
-/** Tombol submit yang meminta konfirmasi sebelum menjalankan aksi (mis. hapus). */
+/**
+ * Tombol submit dengan pesan konfirmasi khusus (mis. hapus).
+ * Pop-up-nya ditampilkan oleh <ConfirmGuard /> di layout CMS.
+ */
 export function ConfirmButton({ message, className, children, label }: { message: string; className?: string; children: ReactNode; label?: string }) {
   return (
-    <button
-      type="submit"
-      className={className}
-      aria-label={label}
-      onClick={(e) => {
-        if (!window.confirm(message)) e.preventDefault();
-      }}
-    >
+    <button type="submit" className={className} aria-label={label} data-confirm={message} data-confirm-tone="danger">
       {children}
     </button>
   );

@@ -34,6 +34,13 @@ const PAGES = [
 
 const browser = await chromium.launch();
 
+/** Setujui pop-up konfirmasi CMS (simpan/hapus/keluar). */
+async function konfirmasi(page) {
+  const ok = page.locator("dialog[open] [data-confirm-ok-button]");
+  await ok.waitFor({ timeout: 10000 });
+  await ok.click();
+}
+
 async function publicPages(name, viewport) {
   console.log(`\n== Halaman publik (${name}) ==`);
   const ctx = await browser.newContext({ viewport, locale: "id-ID" });
@@ -186,6 +193,7 @@ console.log("\n== Portal penjual ==");
   const row = page.locator('li[data-produk="Otak-otak Bandeng"]');
   await row.locator('input[name="harga"]').fill("32000");
   await row.getByRole("button", { name: /Simpan harga dan stok/ }).click();
+  await konfirmasi(page);
   await row.getByText("Tersimpan").waitFor({ timeout: 15000 });
   await page.screenshot({ path: `${OUT}/penjual-produk.png`, fullPage: true });
   await page.goto(BASE + "/pasar?produk=otak-otak-bandeng", { waitUntil: "networkidle" });
@@ -197,6 +205,7 @@ console.log("\n== Portal penjual ==");
   await page.fill("#f-harga", "25000");
   await page.fill("#f-deskripsi", "Produk uji otomatis dari portal penjual.");
   await page.getByRole("button", { name: "Kirim untuk ditinjau" }).click();
+  await konfirmasi(page);
   await page.getByText("Produk baru sudah dikirim").waitFor({ timeout: 15000 });
   check(true, "penjual mengajukan produk baru");
   await page.goto(BASE + "/pasar?q=Pepes%20Bandeng%20Uji", { waitUntil: "networkidle" });
@@ -231,6 +240,12 @@ console.log("\n== CMS ==");
   await page.getByText("Dasbor CMS").waitFor({ timeout: 15000 });
   check(true, "login admin berhasil");
   await page.screenshot({ path: `${OUT}/cms-dasbor.png`, fullPage: true });
+  await page.getByRole("button", { name: "Keluar" }).first().click();
+  await page.getByText("Keluar dari akun?").waitFor({ timeout: 10000 });
+  await page.screenshot({ path: `${OUT}/cms-konfirmasi-keluar.png` });
+  await page.getByRole("button", { name: "Batal" }).click();
+  await page.waitForTimeout(500);
+  check(new URL(page.url()).pathname === "/admin" && (await page.locator("dialog[open]").count()) === 0, "pop-up keluar muncul; Batal tetap di CMS");
 
   // Tambah berita
   await page.goto(BASE + "/admin/berita/baru", { waitUntil: "networkidle" });
@@ -238,6 +253,7 @@ console.log("\n== CMS ==");
   await page.fill("#f-ringkasan", "Ringkasan berita uji otomatis.");
   await page.fill("#f-konten", "Isi berita **uji otomatis**.\n\n- poin satu\n- poin dua");
   await page.getByRole("button", { name: "Simpan" }).click();
+  await konfirmasi(page);
   await page.getByText("Data berhasil ditambahkan").waitFor({ timeout: 15000 });
   check(true, "berita baru tersimpan di CMS");
   await page.goto(BASE + "/berita", { waitUntil: "networkidle" });
@@ -248,6 +264,7 @@ console.log("\n== CMS ==");
   await page.fill("#f-album", "Album Uji");
   await page.locator("#f-judul").evaluate((el) => el.removeAttribute("required"));
   await page.getByRole("button", { name: "Simpan" }).click();
+  await konfirmasi(page);
   await page.getByText("Judul Foto wajib diisi").waitFor({ timeout: 15000 });
   check((await page.inputValue("#f-album")) === "Album Uji", "validasi CMS menampilkan error dan mempertahankan isian");
 
@@ -260,6 +277,7 @@ console.log("\n== CMS ==");
   await page.getByLabel(/^Label baris/).last().fill("Baris Uji CI");
   await page.getByLabel(/^Nilai baris/).last().fill("12.5");
   await page.getByRole("button", { name: "Simpan" }).click();
+  await konfirmasi(page);
   await page.getByText("Perubahan berhasil disimpan").waitFor({ timeout: 15000 });
   await page.goto(BASE + "/informasi", { waitUntil: "networkidle" });
   check((await page.getByText("Baris Uji CI").count()) > 0, "perubahan data statistik tampil di halaman Informasi");
@@ -268,6 +286,7 @@ console.log("\n== CMS ==");
   await page.goto(BASE + "/admin/pengaturan", { waitUntil: "networkidle" });
   await page.fill("#f-tagline", "Tagline Uji CI");
   await page.getByRole("button", { name: "Simpan Pengaturan" }).click();
+  await konfirmasi(page);
   await page.getByText("Pengaturan berhasil disimpan").waitFor({ timeout: 15000 });
   check((await page.inputValue("#f-tagline")) === "Tagline Uji CI", "form pengaturan menampilkan nilai tersimpan");
   await page.screenshot({ path: `${OUT}/cms-pengaturan.png` });
@@ -282,6 +301,7 @@ console.log("\n== CMS ==");
   await page.getByText("Pesanan MM-").waitFor({ timeout: 15000 });
   await page.selectOption("#status", "dibatalkan");
   await page.getByRole("button", { name: "Simpan status" }).click();
+  await konfirmasi(page);
   await page.getByText("Status pesanan diperbarui").waitFor({ timeout: 15000 });
   await page.waitForFunction(() => document.querySelector("[data-status-pesanan]")?.textContent === "Dibatalkan", null, { timeout: 15000 });
   check((await page.inputValue("#status")) === "dibatalkan", "status pesanan tersimpan dan tampil sebagai Dibatalkan");
@@ -293,6 +313,7 @@ console.log("\n== CMS ==");
   await page.selectOption("#f-penjual_id", { label: "Dapur Bu Enah" });
   await page.fill("#f-harga", "12500");
   await page.getByRole("button", { name: "Simpan" }).click();
+  await konfirmasi(page);
   await page.getByText("Data berhasil ditambahkan").waitFor({ timeout: 15000 });
   await page.goto(BASE + "/pasar?q=Produk%20Uji%20CI", { waitUntil: "networkidle" });
   check((await page.getByText("Rp 12.500").count()) > 0, "produk baru dari CMS tampil di Pasar Desa");
@@ -303,8 +324,8 @@ console.log("\n== CMS ==");
 
   // Penjual yang masih punya produk tidak bisa dihapus
   await page.goto(BASE + "/admin/penjual", { waitUntil: "networkidle" });
-  page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Hapus" }).first().click();
+  await konfirmasi(page);
   await page.getByText("tidak dapat dihapus").waitFor({ timeout: 15000 });
   check(true, "penjual dengan produk dilindungi dari penghapusan");
 
@@ -315,6 +336,7 @@ console.log("\n== CMS ==");
   await page.getByText("Produk menunggu tinjauan").waitFor({ timeout: 15000 });
   await page.screenshot({ path: `${OUT}/cms-tinjauan.png`, fullPage: true });
   await page.getByRole("button", { name: "Setujui dan tayangkan" }).click();
+  await konfirmasi(page);
   await page.getByText("Produk disetujui").waitFor({ timeout: 15000 });
   await page.goto(BASE + "/pasar?q=Pepes%20Bandeng%20Uji", { waitUntil: "networkidle" });
   check((await page.getByText("Rp 25.000").count()) > 0, "produk tampil di Pasar Desa setelah disetujui");
@@ -326,6 +348,7 @@ console.log("\n== CMS ==");
   await page.fill("#akun-login", "081200000002");
   await page.fill("#akun-password", "RahasiaBuEnah1");
   await page.getByRole("button", { name: "Buat akun penjual" }).click();
+  await konfirmasi(page);
   await page.getByText("Akun penjual dibuat").waitFor({ timeout: 15000 });
   check(true, "admin membuat akun penjual");
   check((await page.getByText("RahasiaBuEnah1").count()) > 0 && (await page.getByRole("link", { name: "Kirim lewat WhatsApp" }).count()) > 0, "ringkasan login (nomor HP + sandi) tampil untuk dikirim ke penjual");
@@ -342,6 +365,7 @@ console.log("\n== CMS ==");
     // Admin menonaktifkan akun → akses penjual langsung dicabut
     await page.goto(penjualUrl, { waitUntil: "networkidle" });
     await page.getByRole("button", { name: "Nonaktifkan" }).click();
+    await konfirmasi(page);
     await page.getByText("Nonaktif", { exact: true }).waitFor({ timeout: 15000 });
     await p2.goto(BASE + "/admin/toko", { waitUntil: "networkidle" });
     check(new URL(p2.url()).pathname === "/admin/login" && (await p2.getByText("dinonaktifkan").count()) > 0, "akun penjual yang dinonaktifkan langsung kehilangan akses");
