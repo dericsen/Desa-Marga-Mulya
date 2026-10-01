@@ -67,3 +67,44 @@ export function statusKantor(jadwal: Jadwal, now: Date): { buka: boolean; teks: 
   }
   return { buka: false, teks: "Tutup" };
 }
+
+
+/* ---------------- Status manual dari admin panel ---------------- */
+
+/**
+ * Petugas bisa menimpa status otomatis, mis. "Tutup sementara — rapat desa sampai 13.00"
+ * atau "Buka — pelayanan tambahan hari Sabtu". `sampai` = ISO waktu berakhir (null = sampai diubah lagi).
+ */
+export type StatusManual = { mode: "otomatis" | "buka" | "tutup"; alasan: string; sampai: string | null; diubah?: string; oleh?: string };
+
+export const STATUS_MANUAL_DEFAULT: StatusManual = { mode: "otomatis", alasan: "", sampai: null };
+
+/** Status manual yang masih berlaku pada waktu `now`, atau null bila memakai jadwal otomatis. */
+export function manualBerlaku(m: StatusManual | null | undefined, now: Date): StatusManual | null {
+  if (!m || m.mode === "otomatis") return null;
+  if (m.sampai && new Date(m.sampai).getTime() <= now.getTime()) return null;
+  return m;
+}
+
+function jamWib(iso: string, now: Date): string {
+  const d = new Date(iso);
+  const f = (o: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("id-ID", { timeZone: "Asia/Jakarta", ...o }).format(d);
+  const sama = f({ dateStyle: "short" }) === new Intl.DateTimeFormat("id-ID", { timeZone: "Asia/Jakarta", dateStyle: "short" }).format(now);
+  const jam = f({ hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).replace(":", ".");
+  return sama ? `pukul ${jam} WIB` : `${f({ weekday: "long", day: "numeric", month: "long" })} pukul ${jam} WIB`;
+}
+
+/** Status akhir kantor: status manual (bila berlaku) diutamakan, selain itu jadwal jam layanan. */
+export function statusKantorAkhir(jamLayanan: string, manual: StatusManual | null | undefined, now: Date): { buka: boolean; teks: string; manual: boolean; alasan?: string } | null {
+  const m = manualBerlaku(manual, now);
+  if (m) {
+    const sampai = m.sampai ? ` sampai ${jamWib(m.sampai, now)}` : "";
+    const alasan = m.alasan.trim();
+    return m.mode === "buka"
+      ? { buka: true, teks: `Buka${sampai}${alasan ? ` · ${alasan}` : ""}`, manual: true, alasan }
+      : { buka: false, teks: `Tutup sementara${sampai}${alasan ? ` · ${alasan}` : ""}`, manual: true, alasan };
+  }
+  const jadwal = jamLayanan ? parseJamLayanan(jamLayanan) : null;
+  if (!jadwal) return null;
+  return { ...statusKantor(jadwal, now), manual: false };
+}

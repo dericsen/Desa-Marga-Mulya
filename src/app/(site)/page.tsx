@@ -10,7 +10,7 @@ import { JamLayanan } from "@/components/site/JamLayanan";
 import { OfficeStatus } from "@/components/site/OfficeStatus";
 import { VillageMap } from "@/components/site/VillageMap";
 import { STAT_CATEGORIES } from "@/lib/categories";
-import { getBerita, getGaleri, getLokasi, getPotensi, getProduk, getSite, getStatistik } from "@/lib/data";
+import { getBerita, getGaleri, getLokasi, getPotensi, getProduk, getSite, getStatistik, getStatusManual } from "@/lib/data";
 import { excerpt, formatDate, toDateInput, waLink } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -39,7 +39,7 @@ function AngkaKunci({ nilai }: { nilai: string }) {
 
 export default async function BerandaPage() {
   const site = await getSite();
-  const [statistik, potensi, berita, galeri, lokasi, produkPilihan, cuaca] = await Promise.all([
+  const [statistik, potensi, berita, galeri, lokasi, produkPilihan, cuaca, statusManual] = await Promise.all([
     getStatistik(),
     getPotensi(),
     getBerita({ limit: 5 }),
@@ -47,6 +47,7 @@ export default async function BerandaPage() {
     getLokasi(),
     getProduk({ unggulan: true, limit: 4 }),
     getCuaca(site.lat, site.lng),
+    getStatusManual(),
   ]);
 
   const wa = waLink(site.whatsapp, `Halo Pemerintah Desa ${site.namaDesa}, saya ingin bertanya tentang layanan desa.`);
@@ -80,7 +81,7 @@ export default async function BerandaPage() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 id="kantor-desa" className="font-medium">Kantor Desa {site.namaDesa}</h2>
                 <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/85">
-                  <OfficeStatus jamLayanan={site.jamLayanan} tone="dark" short />
+                  <OfficeStatus jamLayanan={site.jamLayanan} manual={statusManual} tone="dark" short />
                 </span>
               </div>
               <dl className="mt-5 space-y-4 text-[0.9375rem]">
@@ -196,7 +197,7 @@ export default async function BerandaPage() {
                 <h2 id="judul-layanan" className="section-title text-white">Layanan administrasi</h2>
                 {site.catatanLayanan ? <p className="mt-4 leading-relaxed text-white/70">{site.catatanLayanan}</p> : null}
                 <p className="mt-6 inline-flex rounded-full bg-white/10 px-3.5 py-1.5 text-sm text-white/85">
-                  <OfficeStatus jamLayanan={site.jamLayanan} tone="dark" />
+                  <OfficeStatus jamLayanan={site.jamLayanan} manual={statusManual} tone="dark" />
                 </p>
                 <p className="mt-6 text-sm text-white/60">
                   Ada pertanyaan sebelum datang?{" "}

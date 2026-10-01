@@ -4,7 +4,7 @@
 import { POTENSI_TYPES, PRODUK_KATEGORI, STAT_CATEGORIES } from "./categories";
 import type { Cuaca } from "./cuaca";
 import { formatDate, formatNumber, formatRupiah } from "./format";
-import { parseJamLayanan, statusKantor } from "./jam";
+import { parseJamLayanan, statusKantorAkhir, type StatusManual } from "./jam";
 import type { Aparat, Berita, Lokasi, Organisasi, Potensi, Produk, SiteSettings, Statistik } from "./types";
 
 export type DataDesa = {
@@ -17,6 +17,8 @@ export type DataDesa = {
   lokasi: Lokasi[];
   produk: Produk[];
   cuaca: Cuaca | null;
+  /** Status buka/tutup yang diatur manual oleh admin. */
+  statusManual?: StatusManual | null;
   /** Seluruh dokumen pengetahuan (judul, isi, tautan halaman) untuk pencarian teks penuh. */
   docs?: { title: string; text: string; link: string }[];
 };
@@ -86,6 +88,10 @@ function jawabJam(d: DataDesa, b: string): string {
   const { site } = d;
   const hariDitanya = NAMA_HARI_KECIL.findIndex((h) => new RegExp(`\\b${h}\\b`).test(b.replace(/jum at/g, "jumat")));
   const jd = site.jamLayanan ? parseJamLayanan(site.jamLayanan) : null;
+  const sm = statusKantorAkhir(site.jamLayanan, d.statusManual, new Date());
+  if (sm?.manual && /sekarang|hari ini|skrg|lagi buka|masih buka/.test(b)) {
+    return `Saat ini kantor desa **${sm.buka ? "buka" : "tutup sementara"}** — ${sm.teks}.\n\nJam layanan biasa:\n${daftar(site.jamLayanan.split("\n").map((l) => l.trim()).filter(Boolean))}`;
+  }
   if (jd && hariDitanya >= 0) {
     const j = jd[hariDitanya];
     const nama = hariDitanya === 5 ? "Jumat" : NAMA_HARI_KECIL[hariDitanya][0].toUpperCase() + NAMA_HARI_KECIL[hariDitanya].slice(1);
@@ -94,9 +100,12 @@ function jawabJam(d: DataDesa, b: string): string {
       : `Hari ${nama} kantor desa **tutup**. Jam layanan: ${site.jamLayanan.split("\n").filter((l) => !/tutup|libur/i.test(l)).join("; ")}.`;
   }
   if (!site.jamLayanan) return "Jam layanan kantor desa belum diisi di website. Silakan hubungi kantor desa melalui halaman **Kontak**.";
-  const jadwal = parseJamLayanan(site.jamLayanan);
-  const st = jadwal ? statusKantor(jadwal, new Date()) : null;
-  const status = st ? `Saat ini kantor desa **${st.buka ? "buka" : "tutup"}** (${st.teks.replace(/^(Buka|Tutup) · /, "")}).\n\n` : "";
+  const st = statusKantorAkhir(site.jamLayanan, d.statusManual, new Date());
+  const status = st
+    ? st.manual
+      ? `Saat ini kantor desa **${st.buka ? "buka" : "tutup sementara"}** (${st.teks.replace(/^(Buka|Tutup sementara)( · )?/, "") || "diumumkan petugas desa"}).\n\n`
+      : `Saat ini kantor desa **${st.buka ? "buka" : "tutup"}** (${st.teks.replace(/^(Buka|Tutup) · /, "")}).\n\n`
+    : "";
   return `${status}Jam layanan Kantor Desa ${site.namaDesa}:\n${daftar(site.jamLayanan.split("\n").map((l) => l.trim()).filter(Boolean))}${
     site.alamat ? `\n\nAlamat: ${site.alamat}.` : ""
   }`;

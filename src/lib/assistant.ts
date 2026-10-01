@@ -2,15 +2,15 @@
 // Mode utama memakai Google Gemini (bila GEMINI_API_KEY diatur); jika tidak tersedia/gagal,
 // asisten memakai pencarian kata kunci lokal atas data yang sama sehingga tetap berfungsi.
 import { categoryLabel, POTENSI_TYPES, PRODUK_KATEGORI } from "./categories";
-import { getAparat, getBerita, getGaleri, getLokasi, getOrganisasi, getPenjual, getPotensi, getProduk, getSite, getStatistik } from "./data";
+import { getAparat, getBerita, getGaleri, getLokasi, getOrganisasi, getPenjual, getPotensi, getProduk, getSite, getStatistik, getStatusManual } from "./data";
 import { formatDate, formatNumber, formatRupiah } from "./format";
 import { getCuaca } from "./cuaca";
 import { jawabLokal, type DataDesa } from "./assistant-lokal";
-import { parseJamLayanan, statusKantor } from "./jam";
+import { statusKantorAkhir, type StatusManual } from "./jam";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 type Doc = { title: string; text: string; link: string };
-type Knowledge = { context: string; docs: Doc[]; namaDesa: string; jamLayanan: string; data: DataDesa; at: number };
+type Knowledge = { context: string; docs: Doc[]; namaDesa: string; jamLayanan: string; statusManual: StatusManual; data: DataDesa; at: number };
 
 let cached: Knowledge | null = null;
 
@@ -23,10 +23,16 @@ let cached: Knowledge | null = null;
  * Dibangun ulang tiap 60 detik sehingga perubahan di CMS cepat terbaca asisten.
  */
 async function buildKnowledge(): Promise<Knowledge> {
-  if (cached && Date.now() - cached.at < 60_000) return cached;
+  if (cached && Date.now() - cached.at < 60_000) {
+    // Status kantor manual dibaca ulang tiap kali agar perubahan dari admin langsung berlaku.
+    const sm = await getStatusManual();
+    cached.statusManual = sm;
+    cached.data.statusManual = sm;
+    return cached;
+  }
   const site = await getSite();
-  const [statistik, aparat, potensi, organisasi, berita, lokasi, produk, galeri, penjual, cuaca] = await Promise.all([
-    getStatistik(), getAparat(), getPotensi(), getOrganisasi(), getBerita({ limit: 500 }), getLokasi(), getProduk({ limit: 1000 }), getGaleri(), getPenjual(), getCuaca(site.lat, site.lng),
+  const [statistik, aparat, potensi, organisasi, berita, lokasi, produk, galeri, penjual, cuaca, statusManual] = await Promise.all([
+    getStatistik(), getAparat(), getPotensi(), getOrganisasi(), getBerita({ limit: 500 }), getLokasi(), getProduk({ limit: 1000 }), getGaleri(), getPenjual(), getCuaca(site.lat, site.lng), getStatusManual(),
   ]);
 
   const docs: Doc[] = [];
@@ -128,7 +134,8 @@ async function buildKnowledge(): Promise<Knowledge> {
     docs,
     namaDesa: site.namaDesa,
     jamLayanan: site.jamLayanan,
-    data: { site, statistik, aparat, potensi, organisasi, berita, lokasi, produk, cuaca, docs },
+    statusManual,
+    data: { site, statistik, aparat, potensi, organisasi, berita, lokasi, produk, cuaca, docs, statusManual },
     at: Date.now(),
   };
   return cached;
@@ -139,9 +146,8 @@ const SENSITIF = /\b(agama|suku|etnis|pemeluk|keyakinan|rasial|sara|antargolonga
 function waktuSekarang(k: Knowledge): string {
   const now = new Date();
   const teks = new Intl.DateTimeFormat("id-ID", { timeZone: "Asia/Jakarta", weekday: "long", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(now);
-  const jd = k.jamLayanan ? parseJamLayanan(k.jamLayanan) : null;
-  const st = jd ? statusKantor(jd, now) : null;
-  return `Waktu sekarang: ${teks} WIB.${st ? ` Status kantor desa saat ini: ${st.buka ? "BUKA" : "TUTUP"} (${st.teks}).` : ""}`;
+  const st = statusKantorAkhir(k.jamLayanan, k.statusManual, now);
+  return `Waktu sekarang: ${teks} WIB.${st ? ` Status kantor desa saat ini: ${st.buka ? "BUKA" : "TUTUP"} (${st.teks})${st.manual ? " — diumumkan langsung oleh petugas desa, utamakan ini dibanding jam layanan biasa" : ""}.` : ""}`;
 }
 
 function systemPrompt(k: Knowledge) {

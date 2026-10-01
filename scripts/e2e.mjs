@@ -300,6 +300,31 @@ console.log("\n== CMS ==");
   await page.waitForTimeout(500);
   check(new URL(page.url()).pathname === "/admin" && (await page.locator("dialog[open]").count()) === 0, "pop-up keluar muncul; Batal tetap di CMS");
 
+  // Status kantor manual dari admin panel
+  {
+    const panel = page.locator("[data-panel-status-kantor]");
+    await panel.getByText("Tutup sementara", { exact: true }).click();
+    await panel.locator("#status-alasan").fill("Rapat desa uji CI");
+    await panel.getByText("Sampai diubah lagi").click();
+    await panel.getByRole("button", { name: "Tandai tutup sementara" }).click();
+    await konfirmasi(page);
+    await panel.getByText("TUTUP SEMENTARA").waitFor({ timeout: 15000 });
+    await page.screenshot({ path: `${OUT}/cms-status-kantor.png`, fullPage: false });
+    const pub = await browser.newPage();
+    await pub.goto(BASE + "/", { waitUntil: "networkidle" });
+    await pub.locator("[data-status-manual=ya]").first().waitFor({ timeout: 10000 });
+    const teks = await pub.locator("#kantor-desa").locator("..").locator("..").innerText();
+    check(/Tutup sementara/.test(teks) && /Rapat desa uji CI/.test(await pub.content()), "status TUTUP SEMENTARA dari admin tampil di website");
+    const jawab = (await (await fetch(`${BASE}/api/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [{ role: "user", content: "kantor desa buka sekarang?" }] }) })).json()).reply || "";
+    check(/tutup sementara/i.test(jawab), "Tanya Desa mengikuti status kantor dari admin");
+    await pub.close();
+    await panel.getByText("Otomatis", { exact: true }).click();
+    await panel.getByRole("button", { name: "Kembalikan ke otomatis" }).click();
+    await konfirmasi(page);
+    await panel.getByText("kembali mengikuti jam layanan").waitFor({ timeout: 15000 });
+    check(true, "status kantor dikembalikan ke otomatis");
+  }
+
   // Tambah berita
   await page.goto(BASE + "/admin/berita/baru", { waitUntil: "networkidle" });
   await page.fill("#f-judul", "Uji Otomatis CI Berita Baru");

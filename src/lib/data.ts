@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { STATUS_MANUAL_DEFAULT, type StatusManual } from "./jam";
 import { db } from "./db";
 import type { Aparat, Berita, Galeri, Lokasi, Organisasi, Penjual, Potensi, Produk, SiteSettings, Statistik } from "./types";
 
@@ -44,6 +45,14 @@ export const DEFAULT_SITE: SiteSettings = {
   layanan: [],
   catatanLayanan: "",
 };
+
+/** Status buka/tutup kantor yang diatur manual oleh admin (tabel settings, key "kantor"). */
+export const getStatusManual = cache(async (): Promise<StatusManual> => {
+  const rows = await db()<{ value: Partial<StatusManual> }[]>`select value from settings where key = 'kantor'`;
+  const v = rows[0]?.value ?? {};
+  const mode = v.mode === "buka" || v.mode === "tutup" ? v.mode : "otomatis";
+  return { ...STATUS_MANUAL_DEFAULT, ...v, mode, alasan: String(v.alasan ?? ""), sampai: v.sampai ? String(v.sampai) : null };
+});
 
 export const getSite = cache(async (): Promise<SiteSettings> => {
   const rows = await db()<{ value: Partial<SiteSettings> }[]>`select value from settings where key = 'site'`;

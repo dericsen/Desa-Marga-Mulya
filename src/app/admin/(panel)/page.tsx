@@ -2,6 +2,8 @@ import { requireAdmin } from "@/lib/auth";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
+import { StatusKantorPanel } from "@/components/admin/StatusKantorPanel";
+import { getSite, getStatusManual } from "@/lib/data";
 import { db } from "@/lib/db";
 import { formatDateTime } from "@/lib/format";
 import { RESOURCES } from "@/lib/resources";
@@ -18,7 +20,7 @@ export default async function DashboardPage() {
       return { ...r, count };
     })
   );
-  const pesan = await sql<Pesan[]>`select * from pesan order by created_at desc limit 5`;
+  const [pesan, site, statusManual] = await Promise.all([sql<Pesan[]>`select * from pesan order by created_at desc limit 5`, getSite(), getStatusManual()]);
 
   const status = [
     { label: "Database", ok: true, info: "Terhubung" },
@@ -31,6 +33,8 @@ export default async function DashboardPage() {
     <div className="mx-auto max-w-6xl">
       <h1 className="text-2xl font-extrabold text-stone-900">Dasbor CMS</h1>
       <p className="mt-1 text-stone-600">Kelola seluruh konten website Desa Marga Mulya dari sini. Perubahan langsung tampil di website.</p>
+
+      <StatusKantorPanel jamLayanan={site.jamLayanan} manual={statusManual} />
 
       <ul className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
         {counts.map((c) => (

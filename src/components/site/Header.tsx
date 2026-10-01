@@ -6,11 +6,12 @@ import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { useCart } from "@/components/pasar/CartContext";
 import { NAV } from "@/lib/nav";
+import type { StatusManual } from "@/lib/jam";
 import { OfficeStatus } from "./OfficeStatus";
 
-type Props = { namaDesa: string; wilayah: string; jamRingkas: string; jamLayanan: string; telepon: string };
+type Props = { namaDesa: string; wilayah: string; jamRingkas: string; jamLayanan: string; statusManual?: StatusManual | null; telepon: string };
 
-export function Header({ namaDesa, wilayah, jamRingkas, jamLayanan }: Props) {
+export function Header({ namaDesa, wilayah, jamRingkas, jamLayanan, statusManual }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -64,7 +65,7 @@ export function Header({ namaDesa, wilayah, jamRingkas, jamLayanan }: Props) {
 
         <div className="flex items-center gap-1.5">
           <span className="hidden rounded-full bg-white px-3 py-1.5 text-xs text-ink shadow-[0_0_0_1px_rgb(11_19_16/0.06)] md:inline-flex">
-            <OfficeStatus jamLayanan={jamLayanan} tone="light" fallback={jamRingkas} short />
+            <OfficeStatus jamLayanan={jamLayanan} manual={statusManual} tone="light" fallback={jamRingkas} short />
           </span>
           <Link href="/cari" className="grid h-10 w-10 place-items-center rounded-full text-ink hover:bg-white" aria-label="Cari informasi">
             <Icon name="search" className="h-[18px] w-[18px]" />
@@ -104,7 +105,7 @@ export function Header({ namaDesa, wilayah, jamRingkas, jamLayanan }: Props) {
         <nav id="menu-mobile" aria-label="Navigasi seluler" className="h-[calc(100dvh-4.5rem)] overflow-y-auto xl:hidden">
           <div className="container-desa pb-8">
             <p className="mb-3 inline-flex rounded-full bg-white px-3 py-1.5 text-xs text-ink">
-              <OfficeStatus jamLayanan={jamLayanan} tone="light" fallback={jamRingkas} />
+              <OfficeStatus jamLayanan={jamLayanan} manual={statusManual} tone="light" fallback={jamRingkas} />
             </p>
             <ul className="space-y-1">
               {NAV.map((item) => (

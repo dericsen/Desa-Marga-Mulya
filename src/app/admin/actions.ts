@@ -286,3 +286,40 @@ export async function deleteAdmin(id: number) {
   await sql`delete from users where id = ${id} and role = 'admin'`;
   revalidatePath("/admin/akun");
 }
+
+/* ------------------------- Status buka/tutup kantor ------------------------- */
+
+/** Admin menimpa status otomatis kantor desa (mis. tutup sementara karena rapat). */
+export async function aturStatusKantor(_prev: FormState, formData: FormData): Promise<FormState> {
+  const s = await requireAdmin();
+  const modeRaw = String(formData.get("mode") || "otomatis");
+  const mode = modeRaw === "buka" || modeRaw === "tutup" ? modeRaw : "otomatis";
+  const alasan = String(formData.get("alasan") || "").trim().slice(0, 120);
+  const durasi = String(formData.get("durasi") || "tanpa");
+  let sampai: string | null = null;
+  if (mode !== "otomatis") {
+    const now = Date.now();
+    if (durasi === "1j") sampai = new Date(now + 60 * 60 * 1000).toISOString();
+    else if (durasi === "2j") sampai = new Date(now + 2 * 60 * 60 * 1000).toISOString();
+    else if (durasi === "hari-ini") {
+      // 23.59 WIB hari ini
+      const tgl = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date(now));
+      sampai = new Date(`${tgl}T23:59:00+07:00`).toISOString();
+    } else if (durasi === "pilih") {
+      const v = String(formData.get("sampai") || "");
+      if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v)) return { ok: false, errors: { sampai: "Pilih tanggal dan jam berakhir." }, message: "Pilih tanggal dan jam berakhir." };
+      const t = new Date(`${v}:00+07:00`);
+      if (t.getTime() <= now) return { ok: false, errors: { sampai: "Waktu berakhir harus di masa depan." }, message: "Waktu berakhir harus di masa depan." };
+      sampai = t.toISOString();
+    }
+  }
+  const value = { mode, alasan: mode === "otomatis" ? "" : alasan, sampai, diubah: new Date().toISOString(), oleh: s.nama };
+  await db()`
+    insert into settings (key, value) values (kantor, ${db().json(value as never)})
+    on conflict (key) do update set value = excluded.value, updated_at = now()`;
+  revalidatePath("/", "layout");
+  return {
+    ok: true,
+    message: mode === "otomatis" ? "Status kantor kembali mengikuti jam layanan." : mode === "buka" ? "Kantor ditandai BUKA di website." : "Kantor ditandai TUTUP SEMENTARA di website.",
+  };
+}
