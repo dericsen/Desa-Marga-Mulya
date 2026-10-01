@@ -1,9 +1,9 @@
 // Asisten "Tanya Desa": menjawab pertanyaan warga hanya berdasarkan konten yang dikelola di CMS.
 // Mode utama memakai Google Gemini (bila GEMINI_API_KEY diatur); jika tidak tersedia/gagal,
 // asisten memakai pencarian kata kunci lokal atas data yang sama sehingga tetap berfungsi.
-import { categoryLabel, POTENSI_TYPES } from "./categories";
-import { getAparat, getBerita, getLokasi, getOrganisasi, getPotensi, getProduk, getSite, getStatistik } from "./data";
-import { excerpt, formatDate, formatNumber, formatRupiah } from "./format";
+import { categoryLabel, POTENSI_TYPES, PRODUK_KATEGORI } from "./categories";
+import { getAparat, getBerita, getGaleri, getLokasi, getOrganisasi, getPenjual, getPotensi, getProduk, getSite, getStatistik } from "./data";
+import { formatDate, formatNumber, formatRupiah } from "./format";
 import { getCuaca } from "./cuaca";
 import { jawabLokal, type DataDesa } from "./assistant-lokal";
 import { parseJamLayanan, statusKantor } from "./jam";
@@ -14,82 +14,113 @@ type Knowledge = { context: string; docs: Doc[]; namaDesa: string; jamLayanan: s
 
 let cached: Knowledge | null = null;
 
+/**
+ * Basis pengetahuan = SELURUH konten publik website yang dikelola di CMS:
+ * pengaturan situs (profil, sejarah, visi-misi, wilayah, kontak, jam, layanan), semua tabel statistik,
+ * aparat, organisasi, potensi/wisata, semua berita terbit (isi lengkap), galeri, titik peta,
+ * pelaku usaha, semua produk Pasar Desa, dan cuaca.
+ * Data privat (pesan warga, pesanan & data pembeli, akun login) sengaja TIDAK dimasukkan.
+ * Dibangun ulang tiap 60 detik sehingga perubahan di CMS cepat terbaca asisten.
+ */
 async function buildKnowledge(): Promise<Knowledge> {
   if (cached && Date.now() - cached.at < 60_000) return cached;
-  const [site, statistik, aparat, potensi, organisasi, berita, lokasi, produk] = await Promise.all([
-    getSite(), getStatistik(), getAparat(), getPotensi(), getOrganisasi(), getBerita({ limit: 12 }), getLokasi(), getProduk({ limit: 80 }),
+  const site = await getSite();
+  const [statistik, aparat, potensi, organisasi, berita, lokasi, produk, galeri, penjual, cuaca] = await Promise.all([
+    getStatistik(), getAparat(), getPotensi(), getOrganisasi(), getBerita({ limit: 500 }), getLokasi(), getProduk({ limit: 1000 }), getGaleri(), getPenjual(), getCuaca(site.lat, site.lng),
   ]);
 
   const docs: Doc[] = [];
-  const add = (title: string, text: string, link: string) => docs.push({ title, text, link });
+  const add = (title: string, text: string, link: string) => {
+    const t = text.replace(/\s+\n/g, "\n").trim();
+    if (t) docs.push({ title, text: t, link });
+  };
+  const md = (x: string | null | undefined) => (x ?? "").replace(/[#*_>]/g, "").replace(/\n{2,}/g, "\n").trim();
 
   add(
+    "Halaman website",
+    "Beranda (/): status kantor, layanan, cuaca, kabar, data, Pasar Desa, galeri, peta. Profil Desa (/profil): sambutan, sejarah, visi-misi, wilayah, aparat. Informasi Desa (/informasi): semua data statistik + unduh CSV. Pasar Desa (/pasar): belanja produk warga. Wisata & Budaya (/potensi). Berita & Kegiatan (/berita): berita dan lembaga desa. Galeri (/galeri). Kontak (/kontak): formulir pesan & aspirasi. Pencarian (/cari). Pengelola dan penjual masuk di /admin.",
+    "/"
+  );
+  add(
     "Identitas dan wilayah desa",
-    `Desa ${site.namaDesa}, Kecamatan ${site.kecamatan}, Kabupaten ${site.kabupaten}, Provinsi ${site.provinsi}, kode pos ${site.kodePos}. Luas wilayah ${site.luasWilayah}. Batas utara: ${site.batasUtara}; selatan: ${site.batasSelatan}; timur: ${site.batasTimur}; barat: ${site.batasBarat}.`,
+    `Desa ${site.namaDesa}, Kecamatan ${site.kecamatan}, Kabupaten ${site.kabupaten}, Provinsi ${site.provinsi}, kode pos ${site.kodePos}. ${site.tagline ? `Semboyan: ${site.tagline}. ` : ""}Luas wilayah ${site.luasWilayah}. Batas utara: ${site.batasUtara}; selatan: ${site.batasSelatan}; timur: ${site.batasTimur}; barat: ${site.batasBarat}. Koordinat kantor desa: ${site.lat}, ${site.lng}.${site.heroDeskripsi ? ` ${site.heroDeskripsi}` : ""}`,
     "/profil"
   );
   add(
     "Kontak dan jam layanan kantor desa",
-    `Alamat: ${site.alamat}. Telepon: ${site.telepon}. Email: ${site.email}. WhatsApp: ${site.whatsapp}. Jam layanan: ${site.jamLayanan.replace(/\n/g, "; ")}. Warga dapat mengirim pesan dan aspirasi melalui formulir di halaman Kontak.`,
+    `Alamat: ${site.alamat}. Telepon: ${site.telepon}. Email: ${site.email}. WhatsApp: ${site.whatsapp}. Jam layanan: ${site.jamLayanan.replace(/\n/g, "; ")}.${[site.instagram && ` Instagram: ${site.instagram}.`, site.facebook && ` Facebook: ${site.facebook}.`, site.youtube && ` YouTube: ${site.youtube}.`].filter(Boolean).join("")} Warga dapat mengirim pesan dan aspirasi melalui formulir di halaman Kontak.`,
     "/kontak"
   );
   if (site.layanan.length) {
-    add(
-      "Layanan administrasi kantor desa dan persyaratannya",
-      `${site.layanan.map((l) => `${l.label}: bawa ${l.nilai}`).join(". ")}. ${site.catatanLayanan}`,
-      "/#layanan"
-    );
+    add("Layanan administrasi kantor desa dan persyaratannya", `${site.layanan.map((l) => `${l.label}: bawa ${l.nilai}`).join(". ")}. ${site.catatanLayanan}`, "/#layanan");
   }
   add("Visi dan misi desa", `Visi: ${site.visi}. Misi: ${site.misi.map((m, i) => `${i + 1}) ${m}`).join(" ")}`, "/profil");
-  add("Sejarah desa", excerpt(site.sejarah, 900), "/profil");
-  if (site.namaKepalaDesa) add("Kepala desa", `Kepala Desa ${site.namaDesa} adalah ${site.namaKepalaDesa}. Sambutan: ${site.sambutan}`, "/profil");
-  const cuaca = await getCuaca(site.lat, site.lng);
-  if (cuaca) {
-    const k = cuaca.sekarang;
-    add(
-      "Cuaca dan prakiraan cuaca desa hari ini, gelombang laut",
-      `Cuaca sekarang (pukul ${cuaca.diperbarui.slice(11, 16)} WIB): ${k.label}, suhu ${Math.round(k.suhu)}°C, angin ${Math.round(k.angin)} km/jam dari ${k.arahAngin}${k.gelombang !== null ? `, gelombang laut ${k.gelombang.toFixed(1)} m` : ""}. Prakiraan: ${cuaca.hari
-        .map((h) => `${h.tanggal}: ${h.label}, ${Math.round(h.suhuMin)}–${Math.round(h.suhuMaks)}°C${h.peluangHujan !== null ? `, peluang hujan ${h.peluangHujan}%` : ""}`)
-        .join("; ")}. Saran: ${cuaca.saran.map((s) => `${s.untuk}: ${s.teks}`).join(" ")} Sumber Open-Meteo, bukan peringatan resmi BMKG.`,
-      "/#cuaca"
-    );
-  }
+  add("Sejarah desa", md(site.sejarah), "/profil");
+  if (site.namaKepalaDesa) add("Kepala desa dan sambutannya", `Kepala Desa ${site.namaDesa} adalah ${site.namaKepalaDesa}. Sambutan: ${site.sambutan}`, "/profil");
   if (site.angkaKunci.length) add("Angka kunci desa", site.angkaKunci.map((a) => `${a.label}: ${a.nilai}`).join("; "), "/");
+  if (site.catatanData) add("Catatan sumber data", site.catatanData, "/informasi");
 
   for (const s of statistik) {
+    const total = s.items.reduce((t, i) => t + i.nilai, 0);
     add(
       `${s.judul} (${categoryLabel(s.kategori)})`,
       `${s.judul}${s.tahun ? ` tahun ${s.tahun}` : ""}${s.satuan ? ` (satuan ${s.satuan})` : ""}: ${s.items
         .map((i) => `${i.label} = ${formatNumber(i.nilai)}`)
-        .join("; ")}.${s.deskripsi ? ` ${s.deskripsi}` : ""}`,
+        .join("; ")}${s.tipe_grafik !== "tabel" && s.items.length > 1 ? `; total = ${formatNumber(total)}` : ""}.${s.deskripsi ? ` ${s.deskripsi}` : ""}`,
       `/informasi?kategori=${s.kategori}`
     );
   }
   if (aparat.length) add("Aparat / perangkat desa", aparat.map((a) => `${a.jabatan}: ${a.nama}`).join("; "), "/profil");
+  for (const o of organisasi) {
+    add(o.nama, `${o.nama}.${o.ketua ? ` Ketua: ${o.ketua}.` : ""} ${o.deskripsi ?? ""}${o.jadwal ? ` Kegiatan rutin: ${o.jadwal}.` : ""}${o.anggota ? ` Anggota: ${o.anggota} orang.` : ""}`, "/berita#organisasi");
+  }
   for (const p of potensi) {
     const tipe = POTENSI_TYPES.find((t) => t.key === p.tipe)?.label ?? p.tipe;
     add(
       `${p.nama} (${tipe})`,
-      `${p.nama} — ${tipe}. ${p.deskripsi ?? ""}${p.harga ? ` Harga: ${p.harga}.` : ""}${p.alamat ? ` Lokasi: ${p.alamat}.` : ""}${p.kontak ? ` WhatsApp: ${p.kontak}.` : ""}`,
+      `${p.nama} — ${tipe}${p.unggulan ? " (unggulan)" : ""}. ${p.deskripsi ?? ""}${p.harga ? ` Harga: ${p.harga}.` : ""}${p.alamat ? ` Lokasi: ${p.alamat}.` : ""}${p.kontak ? ` WhatsApp: ${p.kontak}.` : ""}`,
       `/potensi?jenis=${p.tipe}`
+    );
+  }
+  if (penjual.length) {
+    add(
+      "Pelaku usaha (penjual) di Pasar Desa",
+      penjual
+        .map((j) => `${j.nama}${j.pemilik ? `, pemilik ${j.pemilik}` : ""}${j.alamat ? `, ${j.alamat}` : ""}, WhatsApp ${j.whatsapp}, ${j.jumlah_produk} produk${j.harga_min !== null ? ` mulai ${formatRupiah(j.harga_min)}` : ""}${j.deskripsi ? `. ${j.deskripsi}` : ""}`)
+        .join(" | "),
+      "/pasar"
     );
   }
   if (produk.length) {
     add(
-      "Produk UMKM di Pasar Desa (cara belanja)",
-      `Produk warga dapat dipesan di halaman Pasar Desa: pilih produk, isi nama dan nomor HP, lalu kirim pesanan ke WhatsApp penjual. Pembayaran langsung ke penjual. Daftar produk: ${produk
-        .map((p) => `${p.nama}${p.satuan ? ` (${p.satuan})` : ""} ${formatRupiah(p.harga)} dari ${p.penjual_nama}${p.stok === 0 ? " — sedang habis" : ""}`)
-        .join("; ")}.`,
+      "Cara belanja di Pasar Desa",
+      "Pilih produk di halaman Pasar Desa, masukkan ke keranjang (boleh dari beberapa penjual), isi nama dan nomor HP, pilih ambil sendiri atau diantar di dalam desa, lalu pesanan dikirim ke WhatsApp penjual. Pembayaran langsung ke penjual (tunai/transfer). Tanpa potongan komisi. Warga yang ingin berjualan dapat mendaftar ke kantor desa; admin membuatkan akun penjual (login dengan nomor HP).",
       "/pasar"
     );
-  }
-  for (const o of organisasi) {
-    add(o.nama, `${o.nama}. ${o.deskripsi ?? ""}${o.jadwal ? ` Kegiatan rutin: ${o.jadwal}.` : ""}${o.anggota ? ` Anggota: ${o.anggota}.` : ""}`, "/berita#organisasi");
+    for (const p of produk) {
+      const kat = PRODUK_KATEGORI.find((k) => k.key === p.kategori)?.label ?? p.kategori;
+      add(
+        `Produk: ${p.nama}${p.satuan ? ` (${p.satuan})` : ""}`,
+        `${p.nama}${p.satuan ? `, ${p.satuan}` : ""} — ${formatRupiah(p.harga)}, kategori ${kat}, dijual oleh ${p.penjual_nama}${p.penjual_alamat ? ` (${p.penjual_alamat})` : ""}. Stok: ${p.stok === null ? "selalu tersedia" : p.stok === 0 ? "sedang habis" : `${p.stok}`}.${p.deskripsi ? ` ${p.deskripsi}` : ""}`,
+        `/pasar?produk=${p.slug}`
+      );
+    }
   }
   for (const b of berita) {
-    add(b.judul, `${formatDate(b.tanggal)} — ${b.ringkasan ?? ""} ${excerpt(b.konten, 700)}`, `/berita/${b.slug}`);
+    add(`Berita: ${b.judul}`, `${formatDate(b.tanggal)} (${b.kategori}) — ${b.ringkasan ?? ""}\n${md(b.konten)}`, `/berita/${b.slug}`);
   }
-  if (lokasi.length) add("Lokasi penting di peta desa", lokasi.map((l) => `${l.nama} (${l.kategori})${l.deskripsi ? `: ${l.deskripsi}` : ""}`).join("; "), "/profil");
+  if (galeri.length) add("Galeri foto desa", galeri.map((g) => `${g.judul} (album ${g.album})${g.deskripsi ? `: ${g.deskripsi}` : ""}`).join("; "), "/galeri");
+  if (lokasi.length) add("Lokasi penting di peta desa", lokasi.map((l) => `${l.nama} (${l.kategori}, koordinat ${l.lat}, ${l.lng})${l.deskripsi ? `: ${l.deskripsi}` : ""}`).join("; "), "/profil");
+  if (cuaca) {
+    const k = cuaca.sekarang;
+    add(
+      "Cuaca dan prakiraan cuaca desa, gelombang laut",
+      `Cuaca sekarang (pukul ${cuaca.diperbarui.slice(11, 16)} WIB): ${k.label}, suhu ${Math.round(k.suhu)}°C (terasa ${Math.round(k.terasa)}°C), kelembapan ${Math.round(k.kelembapan)}%, angin ${Math.round(k.angin)} km/jam dari ${k.arahAngin}${k.gelombang !== null ? `, gelombang laut ${k.gelombang.toFixed(1)} m` : ""}. Prakiraan 7 hari: ${cuaca.hari
+        .map((h) => `${h.tanggal}: ${h.label}, ${Math.round(h.suhuMin)}–${Math.round(h.suhuMaks)}°C${h.peluangHujan !== null ? `, peluang hujan ${h.peluangHujan}%` : ""}, angin maks ${Math.round(h.anginMaks)} km/jam${h.gelombangMaks !== null ? `, gelombang maks ${h.gelombangMaks.toFixed(1)} m` : ""}`)
+        .join("; ")}. Saran: ${cuaca.saran.map((x) => `${x.untuk}: ${x.teks}`).join(" ")} Sumber Open-Meteo, bukan peringatan resmi BMKG.`,
+      "/#cuaca"
+    );
+  }
 
   const context = docs.map((d) => `### ${d.title}\n${d.text}\n(Halaman: ${d.link})`).join("\n\n");
   cached = {
@@ -97,7 +128,7 @@ async function buildKnowledge(): Promise<Knowledge> {
     docs,
     namaDesa: site.namaDesa,
     jamLayanan: site.jamLayanan,
-    data: { site, statistik, aparat, potensi, organisasi, berita, lokasi, produk, cuaca },
+    data: { site, statistik, aparat, potensi, organisasi, berita, lokasi, produk, cuaca, docs },
     at: Date.now(),
   };
   return cached;

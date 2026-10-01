@@ -17,6 +17,8 @@ export type DataDesa = {
   lokasi: Lokasi[];
   produk: Produk[];
   cuaca: Cuaca | null;
+  /** Seluruh dokumen pengetahuan (judul, isi, tautan halaman) untuk pencarian teks penuh. */
+  docs?: { title: string; text: string; link: string }[];
 };
 
 /* ----------------------------- Pemrosesan teks ----------------------------- */
@@ -29,14 +31,14 @@ const SINGKATAN: Record<string, string> = {
   org: "orang", warga: "penduduk", masyarakat: "penduduk", jiwa: "penduduk", cowok: "laki", cewek: "perempuan", pria: "laki", wanita: "perempuan",
   sklh: "sekolah", skolah: "sekolah", ktp: "ktp", akte: "akta", meninggal: "kematian", wafat: "kematian", lahir: "kelahiran", bikin: "urus",
   membuat: "urus", ngurus: "urus", mengurus: "urus", pembuatan: "urus", oleh2: "oleh", jualan: "jual", berjualan: "jual", dagang: "jual",
-  smp: "sltp", sma: "slta", ombak: "gelombang", melaut: "gelombang", ujan: "hujan",
+  ngapain: "kegiatan", ngapa: "kegiatan", smp: "sltp", sma: "slta", ombak: "gelombang", melaut: "gelombang", ujan: "hujan",
 };
 
 const STOP = new Set(
   ("apa apakah apaan berapa bagaimana siapa siapakah dimana mana kapan yang dan atau untuk dengan ada adakah saja aja ini itu ke dari di desa marga mulya " +
     "saya mau ingin pengen tahu tau tolong bisa bisakah dong ya kah nya adalah info informasi tentang cara kami kita sih deh kak min mohon minta " +
     "jumlah banyak total berapakah boleh punya mengenai soal terkait ga tidak yg kalau kalo nih tuh lagi udah sudah perlu harus kah pak bu " +
-    "menurut per berdasarkan dalam sebutkan jelaskan tampilkan lihat")
+    "menurut per berdasarkan dalam sebutkan jelaskan tampilkan lihat kapan aja apa")
     .split(" ")
 );
 
@@ -61,7 +63,7 @@ export function token(s: string): string[] {
 
 const sama = (a: string, b: string) =>
   a === b ||
-  (a.length >= 5 && b.length >= 5 && (a.includes(b) || b.includes(a))) || (a.length >= 4 && b.length >= 4 && (a.startsWith(b) || b.startsWith(a))) || (a.length >= 5 && b.length >= 5 && a.slice(0, 5) === b.slice(0, 5));
+  (a.length >= 5 && b.length >= 5 && (a.endsWith(b) || b.endsWith(a))) || (a.length >= 4 && b.length >= 4 && (a.startsWith(b) || b.startsWith(a))) || (a.length >= 5 && b.length >= 5 && a.slice(0, 5) === b.slice(0, 5));
 
 /** Skor kecocokan: berapa token target yang disebut di pertanyaan (0–1), plus jumlah token cocok. */
 function cocok(q: string[], teks: string): { rasio: number; n: number } {
@@ -208,8 +210,12 @@ function jawabProduk(d: DataDesa, q: string[], b: string): string | null {
   return `Ada **${tersedia.length} produk** dari **${jumlahPenjual} pelaku usaha** warga di Pasar Desa, antara lain:\n${daftar(contoh.map(baris))}\n\n${infoBelanja()}`;
 }
 
-function jawabWisata(d: DataDesa, q: string[], b: string): string | null {
+const GENERIK_WISATA = new Set(["wisata", "budaya", "kesenian", "seni", "tempat", "rekreasi", "liburan", "jalan", "main", "piknik", "destinasi"]);
+const tanpaGenerik = (q: string[]) => q.filter((x) => !GENERIK_WISATA.has(x));
+
+function jawabWisata(d: DataDesa, q0: string[], b: string): string | null {
   if (!d.potensi.length) return null;
+  const q = tanpaGenerik(q0);
   const hasil = d.potensi.map((p) => ({ p, s: cocok(q, p.nama) })).filter((x) => x.s.rasio >= 0.5).sort((a, c) => c.s.rasio - a.s.rasio);
   if (hasil.length) {
     const p = hasil[0].p;
@@ -340,7 +346,7 @@ function jawabOrganisasi(d: DataDesa, q: string[], b: string): { teks: string; s
   const o = h.o;
   return {
     teks: `**${o.nama}**\n${o.deskripsi ?? ""}${o.jadwal ? `\nKegiatan rutin: ${o.jadwal}.` : ""}${o.anggota ? `\nAnggota: ${formatNumber(o.anggota)} orang.` : ""}`.trim(),
-    skor: 1 + h.s.rasio * 2 + (/kapan|jadwal|kegiatan|rutin|pertemuan|rapat|anggota|ketua/.test(b) ? 6 : 0),
+    skor: 1 + h.s.rasio * 2 + (/kapan|jadwal|kegiatan|ngapain|rutin|pertemuan|rapat|anggota|ketua|tugas|fungsi/.test(b) ? 6 : 0),
   };
 }
 
@@ -352,6 +358,61 @@ function jawabLokasi(d: DataDesa, q: string[], b: string): { teks: string; skor:
   return {
     teks: `**${l.nama}**${l.deskripsi ? ` — ${l.deskripsi}` : ""}\nLihat titiknya di peta desa (halaman **Beranda** atau **Profil**), atau buka Google Maps: https://www.google.com/maps/search/?api=1&query=${l.lat},${l.lng}`,
     skor: 1 + h.s.rasio * 2 + (tanyaTempat ? 3.5 : 0),
+  };
+}
+
+const NAMA_HALAMAN: Record<string, string> = {
+  "/": "Beranda", "/profil": "Profil Desa", "/informasi": "Informasi Desa", "/pasar": "Pasar Desa", "/potensi": "Wisata & Budaya",
+  "/berita": "Berita", "/galeri": "Galeri", "/kontak": "Kontak",
+};
+const halaman = (link: string) => NAMA_HALAMAN[link.split(/[?#]/)[0]] ?? (link.startsWith("/berita/") ? "Berita" : link.startsWith("/pasar") ? "Pasar Desa" : "Beranda");
+
+/** Pecah teks menjadi kalimat tanpa memotong singkatan (Kec., Kab., Jl., No., dll.). */
+function kalimatDari(teks: string): string[] {
+  const aman = teks.replace(/\b(Kec|Kab|Kel|Jl|No|Ds|Prov|dll|dsb|Hj|H|Dr|Ir|St|Bpk|Ibu|Sdr)\./g, "$1\u2024");
+  return aman
+    .split(/(?<=[.!?])\s+|\n+|\s\|\s|;\s/)
+    .map((k) => k.replace(/\u2024/g, ".").replace(/^\d{1,2} \w+ \d{4} \([^)]*\) — /, "").replace(/^\d{4}-\d{2}-\d{2} \([^)]*\) — /, "").trim())
+    .filter((k) => k.length > 12);
+}
+
+/**
+ * Pencarian teks penuh di semua konten website: pilih dokumen paling relevan,
+ * lalu kembalikan 1–3 kalimat yang paling cocok (bukan seluruh dokumen).
+ */
+function cariKalimat(d: DataDesa, q: string[]): { teks: string; skor: number } | null {
+  if (!d.docs?.length || !q.length) return null;
+  const nilai = d.docs
+    .map((doc) => {
+      const jt = cocok(q, doc.title);
+      const tj = token(doc.title);
+      const kalimat = kalimatDari(doc.text)
+        .map((k) => {
+          const tk = token(k);
+          // Kalimat dinilai bersama judul dokumennya (judul memberi konteks, mis. nama kegiatan).
+          const cakup = q.filter((x) => tk.some((y) => sama(x, y)) || tj.some((y) => sama(x, y))).length / q.length;
+          return { k, c: cocok(q, k), cakup };
+        })
+        .sort((a, b) => b.cakup - a.cakup || b.c.n - a.c.n);
+      const top = kalimat[0];
+      const skor = (top?.cakup ?? 0) * 3 + jt.n * 0.8 + (top?.c.n ?? 0) * 0.3;
+      return { doc, kalimat, skor };
+    })
+    .sort((a, b) => b.skor - a.skor);
+  const best = nilai[0];
+  if (!best || best.skor < 1.6 || !best.kalimat[0] || best.kalimat[0].cakup < 0.34) return null;
+  let pilih = best.kalimat.filter((x) => x.cakup >= Math.max(0.34, best.kalimat[0].cakup - 0.2)).slice(0, 3).map((x) => x.k.replace(/\s+/g, " "));
+  const judul = best.doc.title.replace(/^(Berita|Produk): /, "");
+  // Kalimat terlalu pendek (mis. hanya nama) → ambil beberapa kalimat awal dokumen sebagai konteks.
+  if (pilih.join(" ").length < 70) {
+    pilih = kalimatDari(best.doc.text).filter((k) => bersihkan(k) !== bersihkan(judul)).slice(0, 3);
+  }
+  pilih = pilih.filter((k) => bersihkan(k) !== bersihkan(judul));
+  pilih = pilih.filter((k, i) => !pilih.slice(0, i).some((p) => cocok(token(p), k).rasio >= 0.7));
+  const tanggal = best.doc.title.startsWith("Berita:") ? best.doc.text.match(/^\d{1,2} \w+ \d{4}|^\d{4}-\d{2}-\d{2}/)?.[0] : undefined;
+  return {
+    teks: `**${judul}**${tanggal ? ` (${tanggal})` : ""}\n${pilih.map((k) => (/[.!?:]$/.test(k) ? k : k + ".")).join(" ")}\n\nSelengkapnya di halaman **${halaman(best.doc.link)}**.`,
+    skor: best.skor,
   };
 }
 
@@ -396,15 +457,20 @@ export function jawabLokal(d: DataDesa, pertanyaan: string): string {
   // Pencocokan entitas: produk, wisata, statistik, organisasi, lokasi
   const niatBelanja = ada(b, /harga|\bbeli|membeli|belanja|pesan(an)? (produk|barang)|order|produk|umkm|oleh oleh|\bjual|pasar desa|murah|ongkir/);
   const niatWisata = ada(b, /wisata|liburan|jalan jalan|rekreasi|pantai|budaya|kesenian|tradisi|tari|silat|piknik|main ke/);
-  if (niatBelanja) return jawabProduk(d, q, b) ?? saranPertanyaan(d);
-  if (niatWisata) return jawabWisata(d, q, b) ?? saranPertanyaan(d);
+  const teksPenuh = cariKalimat(d, q);
+  const penuhKuat = teksPenuh && teksPenuh.skor >= 4.5;
+  const produkSpesifik = d.produk.some((p) => cocok(q, p.nama).rasio >= 0.5 || cocok(q, p.penjual_nama).rasio >= 0.6);
+  if (niatBelanja && (produkSpesifik || !penuhKuat)) return jawabProduk(d, q, b) ?? saranPertanyaan(d);
+  const wisataSpesifik = d.potensi.some((p) => cocok(tanpaGenerik(q), p.nama).rasio >= 0.5);
+  if (niatWisata && (wisataSpesifik || !penuhKuat)) return jawabWisata(d, q, b) ?? saranPertanyaan(d);
 
   const calon = [jawabStatistik(d, q, b), jawabOrganisasi(d, q, b), jawabLokasi(d, q, b)].filter(Boolean) as { teks: string; skor: number }[];
   // Nama produk/wisata yang disebut langsung (mis. "bandeng presto", "tanjung kait")
   const produkSkor = Math.max(0, ...d.produk.map((p) => cocok(q, p.nama)).map((c) => (c.n ? c.rasio : 0)));
-  const wisataSkor = Math.max(0, ...d.potensi.map((p) => cocok(q, p.nama)).map((c) => (c.n ? c.rasio : 0)));
-  if (produkSkor >= 0.5) calon.push({ teks: jawabProduk(d, q, b) ?? "", skor: 1.5 + produkSkor * 1.7 });
-  if (wisataSkor >= 0.5) calon.push({ teks: jawabWisata(d, q, b) ?? "", skor: 1.5 + wisataSkor * 1.6 });
+  const wisataSkor = Math.max(0, ...d.potensi.map((p) => cocok(tanpaGenerik(q), p.nama)).map((c) => (c.n ? c.rasio : 0)));
+  if (produkSkor >= 0.5) calon.push({ teks: jawabProduk(d, q, b) ?? "", skor: 1.5 + produkSkor * 4.2 });
+  if (wisataSkor >= 0.5) calon.push({ teks: jawabWisata(d, q, b) ?? "", skor: 1.5 + wisataSkor * 4.1 });
+  if (teksPenuh) calon.push(teksPenuh);
   calon.sort((a, c) => c.skor - a.skor);
   if (calon[0]?.teks) return calon[0].teks;
 

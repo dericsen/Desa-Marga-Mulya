@@ -129,7 +129,7 @@ console.log("\n== Interaksi pengunjung ==");
   const page = await ctx.newPage();
   await page.goto(BASE + "/", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Tanya Desa" }).click();
-  await page.getByRole("button", { name: "Apa saja produk UMKM di desa ini?" }).click();
+  await page.getByRole("button", { name: "Berapa harga bandeng presto?" }).click();
   await page.waitForFunction(
     () => {
       const el = document.querySelector("#tanya-desa");
@@ -140,6 +140,28 @@ console.log("\n== Interaksi pengunjung ==");
   );
   await page.screenshot({ path: `${OUT}/interaksi-tanya-desa.png` });
   check((await page.locator("#tanya-desa").innerText()).length > 100, "widget Tanya Desa menampilkan jawaban");
+
+  // Tampilan HP: layar penuh, daftar & tautan rapi
+  {
+    const m = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    const mp = await m.newPage();
+    await mp.goto(BASE + "/", { waitUntil: "networkidle" });
+    await mp.getByRole("button", { name: "Tanya Desa" }).click();
+    await mp.screenshot({ path: `${OUT}/tanya-desa-hp-awal.png` });
+    const box = await mp.locator("#tanya-desa").boundingBox();
+    check(!!box && box.width >= 389 && box.height >= 800, "Tanya Desa tampil layar penuh di HP");
+    await mp.fill("#tanya-input", "jam berapa kantor desa buka?");
+    await mp.keyboard.press("Enter");
+    await mp.waitForFunction(() => document.querySelectorAll("#tanya-desa [data-role=assistant]").length >= 2 && !document.querySelector("#tanya-desa [data-loading]"), null, { timeout: 30000 });
+    await mp.fill("#tanya-input", "wisata apa aja?");
+    await mp.keyboard.press("Enter");
+    await mp.waitForFunction(() => document.querySelectorAll("#tanya-desa [data-role=assistant]").length >= 3 && !document.querySelector("#tanya-desa [data-loading]"), null, { timeout: 30000 });
+    await mp.screenshot({ path: `${OUT}/tanya-desa-hp-jawab.png` });
+    check((await mp.locator("#tanya-desa ul li").count()) >= 3, "jawaban berpoin tampil sebagai daftar rapi");
+    const lebar = await mp.evaluate(() => document.documentElement.scrollWidth);
+    check(lebar <= 390, `Tanya Desa tidak melebar keluar layar HP (${lebar}px)`);
+    await m.close();
+  }
 
   await page.goto(BASE + "/kontak", { waitUntil: "networkidle" });
   await page.fill("#nama", "Warga Uji CI");
