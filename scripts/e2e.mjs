@@ -308,7 +308,7 @@ console.log("\n== CMS ==");
     await panel.getByText("Sampai diubah lagi").click();
     await panel.getByRole("button", { name: "Tandai tutup sementara" }).click();
     await konfirmasi(page);
-    await panel.getByText("TUTUP SEMENTARA").waitFor({ timeout: 15000 });
+    await panel.getByText("Kantor ditandai TUTUP SEMENTARA").waitFor({ timeout: 15000 });
     await page.screenshot({ path: `${OUT}/cms-status-kantor.png`, fullPage: false });
     const pub = await browser.newPage();
     await pub.goto(BASE + "/", { waitUntil: "networkidle" });

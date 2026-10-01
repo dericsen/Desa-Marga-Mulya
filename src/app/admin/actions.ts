@@ -315,7 +315,7 @@ export async function aturStatusKantor(_prev: FormState, formData: FormData): Pr
   }
   const value = { mode, alasan: mode === "otomatis" ? "" : alasan, sampai, diubah: new Date().toISOString(), oleh: s.nama };
   await db()`
-    insert into settings (key, value) values (kantor, ${db().json(value as never)})
+    insert into settings (key, value) values ('kantor', ${db().json(value as never)})
     on conflict (key) do update set value = excluded.value, updated_at = now()`;
   revalidatePath("/", "layout");
   return {
