@@ -55,16 +55,16 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
 
       {/* Cara belanja: tiga langkah, ringkas */}
       <div className="container-desa pt-4">
-        <ol className="grid gap-5 rounded-2xl bg-paper p-6 text-sm sm:grid-cols-3 sm:gap-8">
+        <ol className="grid gap-5 rounded-[1.75rem] bg-white p-6 text-sm sm:grid-cols-3 sm:gap-8">
           {[
             ["Pilih produk", "Masukkan ke keranjang. Boleh dari beberapa penjual sekaligus."],
             ["Isi nama dan nomor HP", "Pilih ambil sendiri atau diantar di dalam desa."],
             ["Kirim ke WhatsApp penjual", "Bayar langsung ke penjual, tunai atau transfer."],
           ].map(([t, d], i) => (
             <li key={t} className="flex gap-3">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-sun-400 text-xs font-bold text-ink tabular-nums">{i + 1}</span>
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-sun-400 text-xs font-semibold text-ink tabular-nums">{i + 1}</span>
               <span>
-                <span className="block font-bold text-ink">{t}</span>
+                <span className="block font-semibold text-ink">{t}</span>
                 <span className="text-muted">{d}</span>
               </span>
             </li>
@@ -89,7 +89,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
                 key={u.key}
                 href={href(base, { urut: u.key === "populer" ? undefined : u.key })}
                 aria-current={urut === u.key ? "true" : undefined}
-                className={urut === u.key ? "font-bold text-ink underline decoration-2 underline-offset-[6px]" : "text-muted hover:text-ink"}
+                className={`rounded-full px-3 py-1 ${urut === u.key ? "bg-white font-medium text-ink shadow-[0_0_0_1px_rgb(11_19_16/0.08)]" : "text-muted hover:text-ink"}`}
               >
                 {u.label}
               </Link>
@@ -108,11 +108,11 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
         </div>
 
         {penjualAktif ? (
-          <section className="mt-8 grid gap-5 rounded-2xl bg-paper p-6 sm:grid-cols-[6rem_1fr]" aria-label={`Tentang ${penjualAktif.nama}`}>
+          <section className="mt-8 grid gap-5 rounded-[1.75rem] bg-white p-6 sm:grid-cols-[6rem_1fr]" aria-label={`Tentang ${penjualAktif.nama}`}>
             <Img src={penjualAktif.foto} alt="" className="aspect-square w-24 rounded-2xl" />
             <div>
-              <h2 className="font-display text-2xl font-bold text-ink">{penjualAktif.nama}</h2>
-              <p className="meta mt-1">{[penjualAktif.pemilik, penjualAktif.alamat].filter(Boolean).join(", ")}</p>
+              <h2 className="font-display text-2xl font-semibold text-ink">{penjualAktif.nama}</h2>
+              <p className="meta mt-1">{[penjualAktif.pemilik, penjualAktif.alamat].filter(Boolean).join(" · ")}</p>
               {penjualAktif.deskripsi ? <p className="mt-2 max-w-[60ch] leading-relaxed text-muted">{penjualAktif.deskripsi}</p> : null}
               <Link href={href(base, { penjual: undefined })} className="link mt-3 inline-block text-sm">Lihat semua penjual</Link>
             </div>
@@ -120,11 +120,11 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
         ) : null}
 
         <p className="mt-6 text-sm text-muted" role="status">
-          <span className="font-bold text-ink tabular-nums">{produk.length}</span> produk
+          <span className="font-semibold text-ink tabular-nums">{produk.length}</span> produk
           {q ? <> untuk “{q}”</> : null}
           {adaFilter ? (
             <>
-              {". "}
+              {" · "}
               <Link href="/pasar" className="link font-normal">Hapus filter</Link>
             </>
           ) : null}
@@ -161,11 +161,11 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
                   <Link href={href({}, { penjual: j.slug })} className="card-hover group grid grid-cols-[3.5rem_1fr] items-center gap-4 p-4">
                     <Img src={j.foto} alt="" className="aspect-square w-14 rounded-2xl" />
                     <span>
-                      <span className="block font-bold text-ink">{j.nama}</span>
-                      <span className="block text-sm text-muted">{[j.pemilik, j.alamat].filter(Boolean).join(", ")}</span>
+                      <span className="block font-semibold text-ink">{j.nama}</span>
+                      <span className="block text-sm text-muted">{[j.pemilik, j.alamat].filter(Boolean).join(" · ")}</span>
                     </span>
                     <span className="col-start-2 text-sm text-muted tabular-nums">
-                      {j.jumlah_produk} produk{j.harga_min !== null ? `, mulai ${formatRupiah(j.harga_min)}` : ""}
+                      {j.jumlah_produk} produk{j.harga_min !== null ? ` · mulai ${formatRupiah(j.harga_min)}` : ""}
                     </span>
                   </Link>
                 </li>
@@ -187,14 +187,14 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
               <Link href={href({}, { penjual: detail.penjual_slug })} className="text-sm text-muted hover:text-ink hover:underline">
                 {detail.penjual_nama}
               </Link>
-              <h2 className="font-display mt-1 pr-8 text-[1.75rem] leading-tight font-bold text-ink">{detail.nama}</h2>
+              <h2 className="font-display mt-1 pr-8 text-[1.75rem] leading-tight font-semibold text-ink">{detail.nama}</h2>
               {detail.satuan ? <p className="mt-1 text-muted">{detail.satuan}</p> : null}
-              <p className="mt-4 text-2xl font-bold text-ink tabular-nums">{formatRupiah(detail.harga)}</p>
+              <p className="mt-4 text-2xl font-semibold text-ink tabular-nums">{formatRupiah(detail.harga)}</p>
               {detail.deskripsi ? <p className="mt-4 leading-relaxed text-ink/85">{detail.deskripsi}</p> : null}
               <div className="mt-6">
                 <AddToCart product={toCartProduct(detail)} tersedia={detail.stok !== 0} variant="full" />
               </div>
-              <dl className="mt-6 space-y-2 rounded-2xl bg-paper p-4 text-sm">
+              <dl className="mt-6 space-y-2 rounded-2xl bg-white p-4 text-sm">
                 {detail.penjual_alamat ? (
                   <div className="flex gap-3">
                     <dt className="w-24 shrink-0 text-muted">Lokasi</dt>
@@ -212,7 +212,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
               </dl>
               {lainDariPenjual.length ? (
                 <div className="mt-6">
-                  <p className="text-sm font-bold text-ink">Produk lain dari {detail.penjual_nama}</p>
+                  <p className="text-sm font-semibold text-ink">Produk lain dari {detail.penjual_nama}</p>
                   <ul className="mt-2 space-y-1.5 text-sm">
                     {lainDariPenjual.map((p) => (
                       <li key={p.id} className="flex justify-between gap-3">
@@ -231,7 +231,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
       ) : sp.produk ? (
         <ProductDialog closeHref={href(base, {})} title="Produk tidak ditemukan">
           <div className="p-8">
-            <p className="font-bold text-ink">Produk ini sudah tidak dijual.</p>
+            <p className="font-semibold text-ink">Produk ini sudah tidak dijual.</p>
             <p className="mt-1 text-sm text-muted">Penjual mungkin sedang menghentikan produk ini sementara.</p>
           </div>
         </ProductDialog>

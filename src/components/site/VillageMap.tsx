@@ -85,7 +85,7 @@ export function VillageMap({ center, lokasi, zoom = 15, height = "420px", showFi
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             {tersedia.map((t) => (
               <label key={t.key} className="inline-flex cursor-pointer items-center gap-2 text-sm text-ink select-none">
-                <input type="checkbox" checked={aktif.includes(t.key)} onChange={() => toggle(t.key)} className="h-4 w-4 accent-[#36454f]" />
+                <input type="checkbox" checked={aktif.includes(t.key)} onChange={() => toggle(t.key)} className="h-4 w-4 accent-brand-700" />
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: t.color }} aria-hidden="true" />
                 {t.label}
               </label>
@@ -93,10 +93,10 @@ export function VillageMap({ center, lokasi, zoom = 15, height = "420px", showFi
           </div>
         </fieldset>
       ) : null}
-      <div ref={ref} style={{ height }} className="w-full overflow-hidden rounded-xl border border-line bg-paper" role="region" aria-label="Peta interaktif desa" />
+      <div ref={ref} style={{ height }} className="w-full overflow-hidden rounded-3xl bg-line/40" role="region" aria-label="Peta interaktif desa" />
       {lokasi.length > 0 ? (
         <details className="mt-3 text-sm text-muted">
-          <summary className="cursor-pointer font-bold text-brand-700 hover:underline">Daftar lokasi ({lokasi.length})</summary>
+          <summary className="cursor-pointer font-semibold text-brand-700 hover:underline">Daftar lokasi ({lokasi.length})</summary>
           <ul className="mt-2 grid gap-1 sm:grid-cols-2">
             {lokasi.map((l) => (
               <li key={l.id}>

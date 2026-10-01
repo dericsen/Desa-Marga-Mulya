@@ -64,9 +64,9 @@ export default async function PotensiPage({ searchParams }: { searchParams: Prom
           </section>
         ))}
 
-        <aside className="mt-16 flex flex-col gap-4 rounded-2xl bg-paper p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+        <aside className="mt-16 flex flex-col gap-4 rounded-[1.75rem] bg-sun-400 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
           <p className="max-w-[60ch] text-ink">
-            <span className="font-bold">Mencari oleh-oleh?</span> <span className="text-ink/75">Bandeng presto, kerupuk ikan, beras, dan anyaman bambu dijual langsung oleh warga di Pasar Desa.</span>
+            <span className="font-semibold">Mencari oleh-oleh?</span> <span className="text-ink/75">Bandeng presto, kerupuk ikan, beras, dan anyaman bambu dijual langsung oleh warga di Pasar Desa.</span>
           </p>
           <Link href="/pasar" className="btn-primary shrink-0">Buka Pasar Desa</Link>
         </aside>

@@ -29,7 +29,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <h1 className="text-2xl font-bold text-stone-900">Dasbor CMS</h1>
+      <h1 className="text-2xl font-extrabold text-stone-900">Dasbor CMS</h1>
       <p className="mt-1 text-stone-600">Kelola seluruh konten website Desa Marga Mulya dari sini. Perubahan langsung tampil di website.</p>
 
       <ul className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -39,7 +39,7 @@ export default async function DashboardPage() {
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-50 text-brand-700">
                 <Icon name={c.icon} className="h-[18px] w-[18px]" />
               </span>
-              <span className="text-2xl font-bold text-stone-900">{c.count}</span>
+              <span className="text-2xl font-extrabold text-stone-900">{c.count}</span>
               <span className="text-sm text-stone-600">{c.label}</span>
             </Link>
           </li>
@@ -50,7 +50,7 @@ export default async function DashboardPage() {
         <section className="card p-5">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-stone-900">Pesan Terbaru</h2>
-            <Link href="/admin/pesan" className="text-sm font-bold text-brand-700 hover:underline">Lihat semua</Link>
+            <Link href="/admin/pesan" className="text-sm font-semibold text-brand-700 hover:underline">Lihat semua</Link>
           </div>
           {pesan.length ? (
             <ul className="mt-4 divide-y divide-stone-100">
@@ -59,7 +59,7 @@ export default async function DashboardPage() {
                   <Link href={`/admin/pesan/${p.id}`} className="flex items-start gap-3 py-3 hover:bg-stone-50">
                     <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${p.dibaca ? "bg-stone-300" : "bg-sun-500"}`} aria-label={p.dibaca ? "Sudah dibaca" : "Belum dibaca"} />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate font-bold text-stone-900">{p.subjek || "(tanpa subjek)"} — {p.nama}</span>
+                      <span className="block truncate font-semibold text-stone-900">{p.subjek || "(tanpa subjek)"} — {p.nama}</span>
                       <span className="block truncate text-sm text-stone-500">{p.pesan}</span>
                     </span>
                     <span className="shrink-0 text-xs text-stone-400">{formatDateTime(p.created_at)}</span>
@@ -79,7 +79,7 @@ export default async function DashboardPage() {
               <li key={s.label} className="flex items-start gap-3 text-sm">
                 <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${s.ok ? "bg-brand-500" : "bg-sun-500"}`} aria-hidden="true" />
                 <span>
-                  <span className="block font-bold text-stone-800">{s.label}</span>
+                  <span className="block font-semibold text-stone-800">{s.label}</span>
                   <span className="block text-stone-500">{s.info}</span>
                 </span>
               </li>

@@ -43,14 +43,14 @@ export default async function EditResourcePage({ params }: Props) {
     const wa = waLink(row.telepon as string | null, `Halo ${row.nama}, menanggapi pesan Anda kepada Pemerintah Desa Marga Mulya: `);
     return (
       <div className="mx-auto max-w-3xl">
-        <Link href={`/admin/${key}`} className="text-sm font-bold text-brand-700 hover:underline">← {resource.label}</Link>
+        <Link href={`/admin/${key}`} className="text-sm font-semibold text-brand-700 hover:underline">← {resource.label}</Link>
         <article className="card mt-3 p-6">
-          <h1 className="text-xl font-bold text-stone-900">{String(row.subjek || "(tanpa subjek)")}</h1>
+          <h1 className="text-xl font-extrabold text-stone-900">{String(row.subjek || "(tanpa subjek)")}</h1>
           <p className="mt-1 text-sm text-stone-500">Diterima {formatDateTime(row.created_at as Date)}</p>
           <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-3">
-            <div><dt className="text-stone-500">Nama</dt><dd className="font-bold">{String(row.nama)}</dd></div>
-            <div><dt className="text-stone-500">Email</dt><dd className="font-bold break-all">{String(row.email || "-")}</dd></div>
-            <div><dt className="text-stone-500">Telepon</dt><dd className="font-bold">{String(row.telepon || "-")}</dd></div>
+            <div><dt className="text-stone-500">Nama</dt><dd className="font-semibold">{String(row.nama)}</dd></div>
+            <div><dt className="text-stone-500">Email</dt><dd className="font-semibold break-all">{String(row.email || "-")}</dd></div>
+            <div><dt className="text-stone-500">Telepon</dt><dd className="font-semibold">{String(row.telepon || "-")}</dd></div>
           </dl>
           <p className="mt-5 rounded-xl bg-stone-50 p-4 whitespace-pre-line text-stone-800">{String(row.pesan)}</p>
           <div className="mt-5 flex flex-wrap gap-2">
@@ -86,9 +86,9 @@ export default async function EditResourcePage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link href={`/admin/${key}`} className="text-sm font-bold text-brand-700 hover:underline">← {resource.label}</Link>
+      <Link href={`/admin/${key}`} className="text-sm font-semibold text-brand-700 hover:underline">← {resource.label}</Link>
       <div className="mt-2 mb-6 flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-stone-900">Ubah {resource.singular}</h1>
+        <h1 className="text-2xl font-extrabold text-stone-900">Ubah {resource.singular}</h1>
         <form action={remove}>
           <ConfirmButton message="Hapus data ini secara permanen?" className="btn-light text-red-600">
             <Icon name="trash" className="h-4 w-4" /> Hapus

@@ -38,16 +38,16 @@ export function GalleryGrid({ items }: { items: Item[] }) {
 
   return (
     <>
-      <div className="-mx-5 overflow-x-auto border-b border-line px-5 sm:mx-0 sm:px-0" role="group" aria-label="Filter album">
-        <div className="flex min-w-max gap-6">
+      <div className="-mx-5 overflow-x-auto px-5 pb-1 sm:mx-0 sm:px-0" role="group" aria-label="Filter album">
+        <div className="flex min-w-max gap-2">
           {[[null, items.length] as const, ...albums].map(([a, n]) => (
             <button
               key={a ?? "semua"}
               type="button"
               aria-pressed={album === a}
               onClick={() => setAlbum(a)}
-              className={`-mb-px border-b-2 py-3 text-sm transition-colors ${
-                album === a ? "border-ink font-bold text-ink" : "border-transparent text-muted hover:text-ink"
+              className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                album === a ? "bg-ink font-medium text-white" : "bg-white text-muted shadow-[0_0_0_1px_rgb(11_19_16/0.06)] hover:text-ink"
               }`}
             >
               {a ?? "Semua album"} <span className="font-normal opacity-60 tabular-nums">{n}</span>
@@ -60,11 +60,11 @@ export function GalleryGrid({ items }: { items: Item[] }) {
         {shown.map((g, i) => (
           <li key={g.id}>
             <button type="button" onClick={() => setIndex(i)} className="group block w-full overflow-hidden text-left" aria-label={`Perbesar foto: ${g.judul}`}>
-              <img src={g.gambar} alt={g.judul} loading="lazy" className="aspect-[4/3] w-full rounded-xl object-cover" />
+              <img src={g.gambar} alt={g.judul} loading="lazy" className="aspect-[4/3] w-full rounded-3xl object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
               <span className="mt-2 block text-sm leading-snug text-ink group-hover:underline">{g.judul}</span>
               <span className="block text-xs text-muted">
                 {g.album}
-                {g.tanggalText ? `, ${g.tanggalText}` : ""}
+                {g.tanggalText ? ` · ${g.tanggalText}` : ""}
               </span>
             </button>
           </li>
@@ -75,26 +75,26 @@ export function GalleryGrid({ items }: { items: Item[] }) {
         <div role="dialog" aria-modal="true" aria-label={current.judul} className="fixed inset-0 z-[60] flex flex-col bg-brand-950/95 p-4 sm:p-6" onClick={close}>
           <div className="flex items-center justify-between text-sm text-brand-100">
             <span className="tabular-nums">{index! + 1} / {shown.length}</span>
-            <button type="button" onClick={close} className="rounded-md p-2 text-white hover:bg-paper/10" aria-label="Tutup" autoFocus>
+            <button type="button" onClick={close} className="rounded-md p-2 text-white hover:bg-white/10" aria-label="Tutup" autoFocus>
               <Icon name="close" className="h-6 w-6" />
             </button>
           </div>
           <div className="relative flex flex-1 items-center justify-center gap-4" onClick={(e) => e.stopPropagation()}>
-            <button type="button" onClick={() => move(-1)} className="hidden rounded-md p-3 text-white hover:bg-paper/10 sm:block" aria-label="Foto sebelumnya">
+            <button type="button" onClick={() => move(-1)} className="hidden rounded-md p-3 text-white hover:bg-white/10 sm:block" aria-label="Foto sebelumnya">
               <Icon name="arrow" className="h-5 w-5 rotate-180" />
             </button>
             <figure className="max-w-5xl">
               <img src={current.gambar} alt={current.judul} className="max-h-[72vh] w-auto rounded-md object-contain" />
               <figcaption className="mt-4 max-w-[60ch] text-brand-50">
-                <p className="font-bold">{current.judul}</p>
+                <p className="font-semibold">{current.judul}</p>
                 {current.deskripsi ? <p className="mt-1 text-sm text-brand-200">{current.deskripsi}</p> : null}
                 <p className="mt-1 text-xs text-brand-300">
                   {current.album}
-                  {current.tanggalText ? `, ${current.tanggalText}` : ""}
+                  {current.tanggalText ? ` · ${current.tanggalText}` : ""}
                 </p>
               </figcaption>
             </figure>
-            <button type="button" onClick={() => move(1)} className="hidden rounded-md p-3 text-white hover:bg-paper/10 sm:block" aria-label="Foto berikutnya">
+            <button type="button" onClick={() => move(1)} className="hidden rounded-md p-3 text-white hover:bg-white/10 sm:block" aria-label="Foto berikutnya">
               <Icon name="arrow" className="h-5 w-5" />
             </button>
           </div>

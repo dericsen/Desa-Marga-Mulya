@@ -31,8 +31,8 @@ export default async function NewResourcePage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link href={`/admin/${key}`} className="text-sm font-bold text-brand-700 hover:underline">← {resource.label}</Link>
-      <h1 className="mt-2 mb-6 text-2xl font-bold text-stone-900">Tambah {resource.singular}</h1>
+      <Link href={`/admin/${key}`} className="text-sm font-semibold text-brand-700 hover:underline">← {resource.label}</Link>
+      <h1 className="mt-2 mb-6 text-2xl font-extrabold text-stone-900">Tambah {resource.singular}</h1>
       <CmsForm action={saveResource.bind(null, key, null)} groups={[{ fields }]} initial={initial} cancelHref={`/admin/${key}`} />
     </div>
   );

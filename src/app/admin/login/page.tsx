@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <div className="mb-6 flex items-center gap-3">
           <img src="/logo-desa.svg" alt="" width={48} height={48} className="h-12 w-12" />
           <div>
-            <p className="font-display text-lg font-bold text-ink">Desa Marga Mulya</p>
+            <p className="font-display text-lg font-semibold text-ink">Desa Marga Mulya</p>
             <p className="text-sm text-muted">Pengelola website & Pasar Desa</p>
           </div>
         </div>

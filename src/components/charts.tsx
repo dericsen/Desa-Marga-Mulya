@@ -2,7 +2,7 @@ import { formatNumber } from "@/lib/format";
 import type { Statistik } from "@/lib/types";
 
 // Palet terbatas: gradasi hijau + satu oker + netral. Warna menandai urutan, bukan dekorasi.
-export const CHART_COLORS = ["#36454f", "#708090", "#aab4bd", "#d3d3d3", "#5b6875", "#8a96a1", "#253037", "#c2c6ca", "#4a5a65", "#e8ebee"];
+export const CHART_COLORS = ["#0b1310", "#23845a", "#aad62f", "#6bbc92", "#8a918b", "#13573c", "#c8f250", "#9fd5b7", "#59615c", "#c4c9be"];
 
 /** Batang horizontal satu warna; nilai terbesar ditebalkan agar mudah dipindai. */
 export function BarChart({ stat }: { stat: Statistik }) {
@@ -15,9 +15,9 @@ export function BarChart({ stat }: { stat: Statistik }) {
         return (
           <li key={`${item.label}-${i}`}>
             <div className="mb-1.5 flex items-baseline justify-between gap-4 text-[0.9375rem]">
-              <span className={isMax ? "font-bold text-ink" : "text-ink/85"}>{item.label}</span>
+              <span className={isMax ? "font-semibold text-ink" : "text-ink/85"}>{item.label}</span>
               <span className="shrink-0 tabular-nums">
-                <span className="font-bold text-ink">{formatNumber(item.nilai)}</span>
+                <span className="font-semibold text-ink">{formatNumber(item.nilai)}</span>
                 {total > 0 && stat.items.length > 2 ? (
                   <span className="ml-2 inline-block w-12 text-right text-xs text-muted">{formatNumber(Math.round((item.nilai / total) * 1000) / 10)}%</span>
                 ) : null}
@@ -25,7 +25,7 @@ export function BarChart({ stat }: { stat: Statistik }) {
             </div>
             <div className="relative h-2 overflow-hidden rounded-full bg-paper" aria-hidden="true">
               <div
-                className={`h-full rounded-full ${isMax ? "bg-ink" : "bg-slate"}`}
+                className={`h-full rounded-full ${isMax ? "bg-ink" : "bg-brand-300"}`}
                 style={{ width: `${Math.max((item.nilai / max) * 100, item.nilai > 0 ? 1.5 : 0)}%` }}
               />
             </div>
@@ -44,7 +44,7 @@ export function DonutChart({ stat }: { stat: Statistik }) {
     <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
       <div className="relative mx-auto h-36 w-36 shrink-0 sm:mx-0">
         <svg viewBox="0 0 42 42" className="h-full w-full -rotate-90" aria-hidden="true">
-          <circle cx="21" cy="21" r={r} fill="none" stroke="#f4f4f4" strokeWidth="4" />
+          <circle cx="21" cy="21" r={r} fill="none" stroke="#e4e6de" strokeWidth="4" />
           {total > 0 &&
             stat.items.map((item, i) => {
               const pct = (item.nilai / total) * 100;
@@ -57,7 +57,7 @@ export function DonutChart({ stat }: { stat: Statistik }) {
         </svg>
         <div className="absolute inset-0 grid place-items-center text-center">
           <div>
-            <p className="font-display text-xl text-ink tabular-nums">{formatNumber(total)}</p>
+            <p className="font-display text-xl font-semibold text-ink tabular-nums">{formatNumber(total)}</p>
             <p className="text-xs text-muted">{stat.satuan || "total"}</p>
           </div>
         </div>
@@ -67,7 +67,7 @@ export function DonutChart({ stat }: { stat: Statistik }) {
           <li key={`${item.label}-${i}`} className="flex items-center gap-3 py-1.5">
             <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} aria-hidden="true" />
             <span className="flex-1 text-ink/85">{item.label}</span>
-            <span className="font-bold text-ink tabular-nums">{formatNumber(item.nilai)}</span>
+            <span className="font-semibold text-ink tabular-nums">{formatNumber(item.nilai)}</span>
             <span className="w-12 text-right text-xs text-muted tabular-nums">{total ? `${formatNumber(Math.round((item.nilai / total) * 1000) / 10)}%` : "–"}</span>
           </li>
         ))}
@@ -90,7 +90,7 @@ export function StatTable({ stat }: { stat: Statistik }) {
         {stat.items.map((item, i) => (
           <tr key={`${item.label}-${i}`} className="border-b border-line last:border-0">
             <th scope="row" className="py-2 pr-3 text-left font-normal text-ink/85">{item.label}</th>
-            <td className="py-2 text-right font-bold text-ink tabular-nums">
+            <td className="py-2 text-right font-semibold text-ink tabular-nums">
               {formatNumber(item.nilai)}
               {stat.satuan ? <span className="ml-1 font-normal text-muted">{stat.satuan}</span> : null}
             </td>

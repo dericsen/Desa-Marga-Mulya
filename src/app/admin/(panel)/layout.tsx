@@ -73,7 +73,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
 
   const brand = (
     <span className="leading-tight">
-      <span className="font-display block text-[1.0625rem] font-bold">{isPenjual ? toko?.nama ?? "Toko saya" : "CMS Desa"}</span>
+      <span className="font-display block text-[1.0625rem] font-semibold">{isPenjual ? toko?.nama ?? "Toko saya" : "CMS Desa"}</span>
       <span className="block text-xs text-brand-300">{isPenjual ? "Penjual · Pasar Desa" : "Desa Marga Mulya"}</span>
     </span>
   );

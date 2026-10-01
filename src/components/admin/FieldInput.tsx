@@ -66,7 +66,7 @@ export function FieldInput({ field, value, error }: { field: Field; value: unkno
     case "boolean":
       return (
         <div className={field.wide ? "sm:col-span-2" : ""}>
-          <label htmlFor={id} className="flex h-full cursor-pointer items-center gap-3 rounded-xl border border-stone-200 px-3 py-3 text-sm font-bold text-stone-700">
+          <label htmlFor={id} className="flex h-full cursor-pointer items-center gap-3 rounded-xl border border-stone-200 px-3 py-3 text-sm font-semibold text-stone-700">
             <input id={id} name={field.name} type="checkbox" defaultChecked={Boolean(value)} className="h-5 w-5 accent-brand-700" />
             {field.label}
           </label>
@@ -89,7 +89,7 @@ export function FieldInput({ field, value, error }: { field: Field; value: unkno
       </label>
       {control}
       {field.help ? <p id={`${id}-help`} className="mt-1 text-xs text-stone-500">{field.help}</p> : null}
-      {error ? <p id={`${id}-error`} className="mt-1 text-sm font-bold text-red-600">{error}</p> : null}
+      {error ? <p id={`${id}-error`} className="mt-1 text-sm font-semibold text-red-600">{error}</p> : null}
     </div>
   );
 }

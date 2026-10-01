@@ -12,7 +12,7 @@ export default async function PengaturanPage() {
   const site = await getSite();
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="text-2xl font-bold text-stone-900">Pengaturan Situs</h1>
+      <h1 className="text-2xl font-extrabold text-stone-900">Pengaturan Situs</h1>
       <p className="mt-1 mb-6 text-stone-600">Identitas desa, isi Beranda, profil, visi-misi, dan informasi kontak.</p>
       <CmsForm action={saveSettings} groups={SETTINGS_GROUPS} initial={site as unknown as Record<string, unknown>} submitLabel="Simpan Pengaturan" />
     </div>

@@ -38,7 +38,7 @@ export default async function ProdukSayaPage({ searchParams }: { searchParams: P
     <div className="mx-auto max-w-3xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold text-ink">Produk saya</h1>
+          <h1 className="font-display text-2xl font-semibold text-ink">Produk saya</h1>
           <p className="mt-1 text-sm text-muted">Ubah harga dan stok langsung di daftar ini. Perubahan harga dan stok berlaku seketika.</p>
         </div>
         <Link href="/admin/toko/produk/baru" className="btn-primary">Tambah produk</Link>
@@ -56,7 +56,7 @@ export default async function ProdukSayaPage({ searchParams }: { searchParams: P
         </ul>
       ) : (
         <div className="mt-8 rounded-md border border-dashed border-line-strong px-6 py-10 text-center">
-          <p className="font-bold text-ink">Belum ada produk</p>
+          <p className="font-semibold text-ink">Belum ada produk</p>
           <p className="mx-auto mt-1 max-w-[42ch] text-sm text-muted">Tambahkan produk pertama Anda. Siapkan foto, harga, dan kemasannya.</p>
           <Link href="/admin/toko/produk/baru" className="btn-primary mt-4">Tambah produk</Link>
         </div>

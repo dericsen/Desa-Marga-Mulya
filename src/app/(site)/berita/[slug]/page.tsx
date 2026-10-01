@@ -34,33 +34,35 @@ export default async function BeritaDetailPage({ params }: Props) {
           </ol>
         </nav>
         <p className="meta mt-8">
-          {kategoriBerita(item.kategori)}, <time dateTime={toDateInput(item.tanggal)}>{formatDate(item.tanggal, true)}</time>
+          <span className="font-semibold text-brand-700">{kategoriBerita(item.kategori)}</span>
+          <span aria-hidden="true"> · </span>
+          <time dateTime={toDateInput(item.tanggal)}>{formatDate(item.tanggal, true)}</time>
         </p>
-        <h1 className="font-display mt-3 text-[2.125rem] leading-[1.15] font-bold text-ink sm:text-[2.625rem]">{item.judul}</h1>
+        <h1 className="font-display mt-3 text-[2.125rem] leading-[1.15] font-semibold text-ink sm:text-[2.625rem]">{item.judul}</h1>
         {item.ringkasan ? <p className="mt-5 text-xl leading-relaxed text-muted">{item.ringkasan}</p> : null}
       </header>
 
       {item.gambar ? (
         <div className="container-desa mt-10 max-w-[60rem]">
-          <Img src={item.gambar} alt={item.judul} className="aspect-[16/9] w-full rounded-2xl" />
+          <Img src={item.gambar} alt={item.judul} className="aspect-[16/9] w-full rounded-[1.75rem]" />
         </div>
       ) : null}
 
       <div className="container-desa mt-10 max-w-[48rem]">
         <Markdown text={item.konten} />
-        <p className="mt-12 rounded-2xl bg-paper p-5 text-sm text-muted">
+        <p className="mt-12 rounded-2xl bg-white p-5 text-sm text-muted">
           Ada koreksi atau pertanyaan tentang tulisan ini? <Link href="/kontak" className="link">Hubungi pemerintah desa</Link>.
         </p>
       </div>
 
       {lainnya.length ? (
         <section className="container-desa mt-20 max-w-[60rem]" aria-labelledby="berita-lain">
-          <h2 id="berita-lain" className="font-display pb-3 text-xl font-bold text-ink">Tulisan lainnya</h2>
+          <h2 id="berita-lain" className="font-display pb-3 text-xl font-semibold text-ink">Tulisan lainnya</h2>
           <ul className="space-y-2">
             {lainnya.map((b) => (
               <li key={b.id} className="card-hover group relative p-5">
-                <p className="meta text-xs">{formatDate(b.tanggal)}, {kategoriBerita(b.kategori).toLowerCase()}</p>
-                <Link href={`/berita/${b.slug}`} className="mt-1 block font-bold text-ink after:absolute after:inset-0 group-hover:underline group-hover:underline-offset-4">
+                <p className="meta text-xs">{formatDate(b.tanggal)} · {kategoriBerita(b.kategori)}</p>
+                <Link href={`/berita/${b.slug}`} className="mt-1 block font-semibold text-ink after:absolute after:inset-0 group-hover:underline group-hover:underline-offset-4">
                   {b.judul}
                 </Link>
               </li>

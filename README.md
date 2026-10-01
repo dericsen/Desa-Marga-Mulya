@@ -54,7 +54,7 @@ Semua konten publik diambil dari database dan dikelola melalui CMS. Tidak ada da
 ## Teknologi
 
 - Next.js 15 (App Router, Server Actions), React 19, TypeScript
-- Tailwind CSS 4; huruf DejaVu Sans di-host sendiri (`public/fonts`)
+- Tailwind CSS 4
 - PostgreSQL melalui `postgres` (kompatibel dengan Neon, Supabase, dan Postgres lokal)
 - Leaflet + OpenStreetMap untuk peta
 - Grafik SVG buatan sendiri, tanpa pustaka grafik
@@ -127,7 +127,7 @@ Screenshot hasil uji diunggah sebagai artefak `hasil-uji`.
 ## Atribusi & lisensi pihak ketiga
 
 - Peta: © kontributor [OpenStreetMap](https://www.openstreetmap.org/copyright) (ODbL); pustaka [Leaflet](https://leafletjs.com) (BSD-2-Clause).
-- Huruf: [DejaVu Sans](https://dejavu-fonts.github.io/) (subset LGC), lisensi Bitstream Vera/DejaVu, disertakan di `public/fonts/LICENSE-DejaVu.md`.
+- Huruf: [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) (SIL Open Font License).
 - Ilustrasi di `public/img`, logo, dan ikon dibuat khusus untuk proyek ini. Ilustrasi hanya sebagai pengganti sementara; unggah foto asli desa melalui CMS.
 - Asisten AI memakai Google Gemini API sesuai ketentuan layanan Google.
 - Kode dikembangkan dengan bantuan AI, lalu ditinjau dan disesuaikan oleh tim.

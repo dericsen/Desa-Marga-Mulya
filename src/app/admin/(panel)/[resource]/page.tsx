@@ -60,7 +60,7 @@ export default async function ResourceListPage({ params, searchParams }: Props) 
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-stone-900">{resource.label}</h1>
+          <h1 className="text-2xl font-extrabold text-stone-900">{resource.label}</h1>
           <p className="mt-1 text-stone-600">{resource.description}</p>
         </div>
         <div className="flex gap-2">
@@ -80,7 +80,7 @@ export default async function ResourceListPage({ params, searchParams }: Props) 
       {pesan && PESAN[pesan] ? (
         <p
           role="status"
-          className={`mt-5 rounded-md border p-3 text-sm font-bold ${pesan === "gagal-hapus" ? "border-red-200 bg-red-50 text-red-800" : "border-brand-200 bg-brand-50 text-brand-800"}`}
+          className={`mt-5 rounded-md border p-3 text-sm font-semibold ${pesan === "gagal-hapus" ? "border-red-200 bg-red-50 text-red-800" : "border-brand-200 bg-brand-50 text-brand-800"}`}
         >
           {PESAN[pesan]}
         </p>
@@ -88,13 +88,13 @@ export default async function ResourceListPage({ params, searchParams }: Props) 
 
       {qf ? (
         <p className="mt-5 flex flex-wrap gap-x-5 gap-y-1 text-sm">
-          <Link href={`/admin/${key}`} aria-current={!pakaiSaring ? "true" : undefined} className={!pakaiSaring ? "font-bold text-ink" : "text-muted hover:text-ink"}>
+          <Link href={`/admin/${key}`} aria-current={!pakaiSaring ? "true" : undefined} className={!pakaiSaring ? "font-semibold text-ink" : "text-muted hover:text-ink"}>
             Semua
           </Link>
           <Link
             href={`/admin/${key}?saring=1`}
             aria-current={pakaiSaring ? "true" : undefined}
-            className={pakaiSaring ? "font-bold text-ink" : "text-muted hover:text-ink"}
+            className={pakaiSaring ? "font-semibold text-ink" : "text-muted hover:text-ink"}
           >
             {qf.label} <span className={`ml-1 rounded-sm px-1.5 py-0.5 text-xs tabular-nums ${jumlahSaring ? "bg-sun-400 text-ink" : "bg-line text-muted"}`}>{jumlahSaring}</span>
           </Link>
@@ -114,7 +114,7 @@ export default async function ResourceListPage({ params, searchParams }: Props) 
       <div className="card mt-5 overflow-x-auto">
         <table className="w-full min-w-[640px] text-sm">
           <thead>
-            <tr className="border-b border-stone-200 bg-stone-50 text-left text-xs font-bold text-stone-500">
+            <tr className="border-b border-stone-200 bg-stone-50 text-left text-xs font-bold tracking-wide text-stone-500 uppercase">
               {resource.columns.map((c) => (
                 <th key={c.name} scope="col" className={`px-4 py-3 ${c.type === "image" ? "w-16" : ""}`}>
                   {c.label || <span className="sr-only">Gambar</span>}
@@ -128,7 +128,7 @@ export default async function ResourceListPage({ params, searchParams }: Props) 
               const id = Number(row.id);
               const remove = deleteResource.bind(null, key, id);
               return (
-                <tr key={id} className={`border-b border-stone-100 last:border-0 hover:bg-stone-50 ${(key === "pesan" && !row.dibaca) || (key === "pesanan" && row.status === "baru") ? "font-bold" : ""}`}>
+                <tr key={id} className={`border-b border-stone-100 last:border-0 hover:bg-stone-50 ${(key === "pesan" && !row.dibaca) || (key === "pesanan" && row.status === "baru") ? "font-semibold" : ""}`}>
                   {resource.columns.map((c) => (
                     <td key={c.name} className="px-4 py-3 align-middle text-stone-700">
                       <Cell
@@ -185,10 +185,10 @@ const STATUS_STYLE: Record<string, string> = {
 function Cell({ type, name, value, label }: { type?: string; name: string; value: unknown; label?: string }) {
   if (name === "status_tinjau" && typeof value === "string") {
     const tone = value === "menunggu" ? STATUS_STYLE.baru : value === "ditolak" ? STATUS_STYLE.dibatalkan : STATUS_STYLE.diproses;
-    return <span className={`rounded-sm border px-2 py-0.5 text-xs font-bold ${tone}`}>{label}</span>;
+    return <span className={`rounded-sm border px-2 py-0.5 text-xs font-semibold ${tone}`}>{label}</span>;
   }
   if (name === "status" && typeof value === "string") {
-    return <span className={`rounded-sm border px-2 py-0.5 text-xs font-bold ${STATUS_STYLE[value] ?? ""}`}>{label}</span>;
+    return <span className={`rounded-sm border px-2 py-0.5 text-xs font-semibold ${STATUS_STYLE[value] ?? ""}`}>{label}</span>;
   }
   if (type === "rupiah") return <span className="tabular-nums">{formatRupiah(value as number)}</span>;
   if (type === "number") return <span className="tabular-nums">{value === null || value === undefined ? "Selalu ada" : String(value)}</span>;

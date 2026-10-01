@@ -36,12 +36,12 @@ async function cari(q: string): Promise<Hasil[]> {
   ]);
 
   return [
-    ...produk.map((p) => ({ jenis: "Pasar Desa", judul: p.nama, ringkas: `${formatRupiah(p.harga)}${p.satuan ? ` per ${p.satuan}` : ""}, dari ${p.penjual}`, href: `/pasar?produk=${p.slug}` })),
+    ...produk.map((p) => ({ jenis: "Pasar Desa", judul: p.nama, ringkas: `${formatRupiah(p.harga)}${p.satuan ? ` / ${p.satuan}` : ""} · ${p.penjual}`, href: `/pasar?produk=${p.slug}` })),
     ...berita.map((b) => ({ jenis: "Berita", judul: b.judul, ringkas: b.ringkasan || excerpt(b.konten), href: `/berita/${b.slug}` })),
-    ...statistik.map((s) => ({ jenis: `Data ${categoryLabel(s.kategori).toLowerCase()}`, judul: s.judul, ringkas: excerpt(s.deskripsi) || "Lihat grafik dan tabel data.", href: `/informasi?kategori=${s.kategori}#${s.kategori}` })),
+    ...statistik.map((s) => ({ jenis: `Data · ${categoryLabel(s.kategori)}`, judul: s.judul, ringkas: excerpt(s.deskripsi) || "Lihat grafik dan tabel data.", href: `/informasi?kategori=${s.kategori}#${s.kategori}` })),
     ...potensi.map((p) => ({ jenis: POTENSI_TYPES.find((t) => t.key === p.tipe)?.label ?? "Potensi", judul: p.nama, ringkas: excerpt(p.deskripsi), href: `/potensi?jenis=${p.tipe}` })),
     ...organisasi.map((o) => ({ jenis: "Organisasi", judul: o.nama, ringkas: o.jadwal || excerpt(o.deskripsi), href: "/berita#organisasi" })),
-    ...galeri.map((g) => ({ jenis: `Galeri, album ${g.album}`, judul: g.judul, ringkas: excerpt(g.deskripsi), href: "/galeri" })),
+    ...galeri.map((g) => ({ jenis: `Galeri · ${g.album}`, judul: g.judul, ringkas: excerpt(g.deskripsi), href: "/galeri" })),
   ];
 }
 
@@ -79,7 +79,7 @@ export default async function CariPage({ searchParams }: { searchParams: Promise
 
         {q.length >= 2 ? (
           <p className="mt-8 pb-2 text-sm text-muted" role="status">
-            <span className="font-bold text-ink tabular-nums">{hasil.length}</span> hasil untuk “{q}”
+            <span className="font-semibold text-ink tabular-nums">{hasil.length}</span> hasil untuk “{q}”
           </p>
         ) : null}
 
@@ -87,7 +87,7 @@ export default async function CariPage({ searchParams }: { searchParams: Promise
           {hasil.map((h, i) => (
             <li key={i} className="card-hover group relative p-5">
               <p className="eyebrow">{h.jenis}</p>
-              <Link href={h.href} className="mt-1 block font-bold text-ink after:absolute after:inset-0">
+              <Link href={h.href} className="mt-1 block font-semibold text-ink after:absolute after:inset-0">
                 {h.judul}
               </Link>
               {h.ringkas ? <p className="mt-1 text-sm leading-relaxed text-muted">{h.ringkas}</p> : null}
@@ -97,7 +97,7 @@ export default async function CariPage({ searchParams }: { searchParams: Promise
 
         {q.length >= 2 && hasil.length === 0 ? (
           <div className="py-8">
-            <p className="font-bold text-ink">Tidak ada yang cocok dengan “{q}”.</p>
+            <p className="font-semibold text-ink">Tidak ada yang cocok dengan “{q}”.</p>
             <p className="mt-1 text-sm text-muted">
               Coba kata yang lebih umum, periksa ejaan, atau tanyakan kepada asisten <strong className="text-ink">Tanya Desa</strong> di pojok kanan bawah.
             </p>

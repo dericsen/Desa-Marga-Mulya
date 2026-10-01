@@ -40,8 +40,8 @@ export default async function BeritaPage({ searchParams }: { searchParams: Promi
 
         {organisasi.length ? (
           <aside id="organisasi" className="scroll-mt-32 lg:col-span-4" aria-labelledby="judul-organisasi">
-            <div className="rounded-2xl bg-paper p-6 lg:sticky lg:top-24">
-              <h2 id="judul-organisasi" className="font-display text-xl font-bold text-ink">Lembaga kemasyarakatan desa</h2>
+            <div className="rounded-[1.75rem] bg-white p-6 lg:sticky lg:top-24">
+              <h2 id="judul-organisasi" className="font-display text-xl font-semibold text-ink">Lembaga kemasyarakatan desa</h2>
               <p className="mt-1 text-sm text-muted">Organisasi warga dan jadwal kegiatan rutinnya.</p>
               <ul className="mt-5 divide-y divide-line">
                 {organisasi.map((o) => (
@@ -49,14 +49,14 @@ export default async function BeritaPage({ searchParams }: { searchParams: Promi
                     <details className="group">
                       <summary className="flex cursor-pointer list-none items-start justify-between gap-3 [&::-webkit-details-marker]:hidden">
                         <span>
-                          <span className="block font-bold text-ink">{o.nama}</span>
+                          <span className="block font-semibold text-ink">{o.nama}</span>
                           {o.jadwal ? <span className="mt-0.5 block text-sm text-muted">{o.jadwal}</span> : null}
                         </span>
                         <span className="mt-0.5 text-muted transition-transform group-open:rotate-45" aria-hidden="true">+</span>
                       </summary>
                       <div className="mt-2 text-sm leading-relaxed text-muted">
                         {o.deskripsi ? <p>{o.deskripsi}</p> : null}
-                        {o.anggota ? <p className="mt-1 tabular-nums">{o.anggota} anggota{o.ketua ? `, dipimpin ${o.ketua.toLowerCase()}` : ""}</p> : null}
+                        {o.anggota ? <p className="mt-1 tabular-nums">{o.anggota} anggota{o.ketua ? ` · ${o.ketua}` : ""}</p> : null}
                       </div>
                     </details>
                   </li>

@@ -34,7 +34,7 @@ export default async function ProfilPage() {
             <ol className="mt-3 space-y-0.5 text-[0.9375rem]">
               {BAGIAN.map((b) => (
                 <li key={b.id}>
-                  <a href={`#${b.id}`} className="block rounded-xl px-3.5 py-2 text-muted hover:bg-paper hover:text-ink">
+                  <a href={`#${b.id}`} className="block rounded-xl px-3.5 py-2 text-muted hover:bg-white hover:text-ink">
                     {b.label}
                   </a>
                 </li>
@@ -49,15 +49,15 @@ export default async function ProfilPage() {
               <h2 className="section-title">Sambutan kepala desa</h2>
               <div className="mt-6 grid gap-6 sm:grid-cols-[9rem_1fr]">
                 {site.fotoKepalaDesa ? (
-                  <img src={site.fotoKepalaDesa} alt={`Foto ${site.namaKepalaDesa}`} className="aspect-[4/5] w-36 rounded-xl object-cover" />
+                  <img src={site.fotoKepalaDesa} alt={`Foto ${site.namaKepalaDesa}`} className="aspect-[4/5] w-36 rounded-3xl object-cover" />
                 ) : (
-                  <div className="grid aspect-[4/5] w-36 place-items-center rounded-xl bg-paper text-center text-xs text-muted">Foto belum diunggah</div>
+                  <div className="grid aspect-[4/5] w-36 place-items-center rounded-3xl bg-white text-center text-xs text-muted">Foto belum diunggah</div>
                 )}
                 <div>
                   <blockquote className="font-display text-xl leading-relaxed text-ink">{site.sambutan}</blockquote>
                   {site.namaKepalaDesa ? (
                     <p className="mt-4 text-[0.9375rem]">
-                      <span className="font-bold text-ink">{site.namaKepalaDesa}</span>
+                      <span className="font-semibold text-ink">{site.namaKepalaDesa}</span>
                       <span className="text-muted"> — Kepala Desa {site.namaDesa}</span>
                     </p>
                   ) : null}
@@ -76,13 +76,13 @@ export default async function ProfilPage() {
           <section id="visi-misi" className="scroll-mt-32">
             <h2 className="section-title">Visi dan misi</h2>
             {site.visi ? (
-              <p className="font-display mt-6 max-w-[44ch] rounded-2xl bg-paper p-7 text-[1.375rem] leading-snug text-ink">{site.visi}</p>
+              <p className="font-display mt-6 max-w-[44ch] rounded-[1.75rem] bg-sun-400 p-7 text-[1.375rem] leading-snug text-ink">{site.visi}</p>
             ) : null}
             {site.misi.length ? (
-              <ol className="mt-4 max-w-[68ch] divide-y divide-line rounded-2xl bg-paper px-6">
+              <ol className="mt-4 max-w-[68ch] divide-y divide-line rounded-[1.75rem] bg-white px-6">
                 {site.misi.map((m, i) => (
                   <li key={i} className="grid grid-cols-[2.5rem_1fr] gap-2 py-3.5 leading-relaxed">
-                    <span className="font-bold text-muted tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="font-semibold text-muted tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                     <span className="text-ink">{m}</span>
                   </li>
                 ))}
@@ -93,7 +93,7 @@ export default async function ProfilPage() {
           <section id="wilayah" className="scroll-mt-32">
             <h2 className="section-title">Wilayah</h2>
             <div className="mt-6 grid gap-8 xl:grid-cols-[18rem_1fr]">
-              <dl className="divide-y divide-line self-start rounded-xl bg-paper px-5 text-[0.9375rem]">
+              <dl className="divide-y divide-line self-start rounded-3xl bg-white px-5 text-[0.9375rem]">
                 {[
                   ["Luas wilayah", site.luasWilayah],
                   ["Batas utara", site.batasUtara],
@@ -106,7 +106,7 @@ export default async function ProfilPage() {
                   .map(([k, v]) => (
                     <div key={k} className="flex justify-between gap-4 py-2.5">
                       <dt className="text-muted">{k}</dt>
-                      <dd className="text-right font-bold text-ink">{v}</dd>
+                      <dd className="text-right font-semibold text-ink">{v}</dd>
                     </div>
                   ))}
               </dl>
@@ -119,10 +119,10 @@ export default async function ProfilPage() {
               <h2 className="section-title">Struktur aparat desa</h2>
               {kepala ? (
                 <p className="mt-4 text-muted">
-                  Pemerintahan desa dipimpin oleh <span className="font-bold text-ink">{kepala.nama}</span> sebagai {kepala.jabatan.toLowerCase()}, dibantu {perangkat.length} perangkat desa.
+                  Pemerintahan desa dipimpin oleh <span className="font-semibold text-ink">{kepala.nama}</span> sebagai {kepala.jabatan.toLowerCase()}, dibantu {perangkat.length} perangkat desa.
                 </p>
               ) : null}
-              <div className="mt-6 max-w-[44rem] rounded-2xl bg-paper px-6 py-3"><table className="w-full text-[0.9375rem]">
+              <div className="mt-6 max-w-[44rem] rounded-[1.75rem] bg-white px-6 py-3"><table className="w-full text-[0.9375rem]">
                 <caption className="sr-only">Daftar aparat Desa {site.namaDesa}</caption>
                 <thead>
                   <tr className="border-b border-line text-left">
@@ -134,7 +134,7 @@ export default async function ProfilPage() {
                   {aparat.map((a) => (
                     <tr key={a.id} className="border-b border-line last:border-0">
                       <td className="py-2.5 pr-6 text-muted">{a.jabatan}</td>
-                      <th scope="row" className="py-2.5 text-left font-bold text-ink">{a.nama}</th>
+                      <th scope="row" className="py-2.5 text-left font-semibold text-ink">{a.nama}</th>
                     </tr>
                   ))}
                 </tbody>

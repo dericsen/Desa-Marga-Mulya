@@ -32,9 +32,9 @@ export function ReviewPanel({
 
   return (
     <section aria-label="Tinjauan produk" className="mb-6 rounded-md border border-sun-400/60 bg-sun-50 p-5">
-      <h2 className="font-bold text-ink">{status === "menunggu" ? "Produk menunggu tinjauan" : "Menunggu perbaikan dari penjual"}</h2>
+      <h2 className="font-semibold text-ink">{status === "menunggu" ? "Produk menunggu tinjauan" : "Menunggu perbaikan dari penjual"}</h2>
       <p className="mt-1 text-sm text-ink/80">
-        Diajukan oleh <strong className="font-bold">{penjual}</strong>
+        Diajukan oleh <strong className="font-semibold">{penjual}</strong>
         {diajukan ? ` pada ${diajukan}` : ""}. Periksa nama, foto, harga, dan deskripsi di bawah sebelum memutuskan.
       </p>
       {status === "ditolak" && catatan ? <p className="mt-2 text-sm text-ink/80">Catatan terakhir: “{catatan}”</p> : null}

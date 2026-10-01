@@ -25,12 +25,12 @@ export function SideNav({ items }: { items: MenuItem[] }) {
               href={m.href}
               aria-current={active ? "page" : undefined}
               className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
-                active ? "bg-white/12 font-bold text-white" : "text-brand-100/85 hover:bg-white/8 hover:text-white"
+                active ? "bg-white/12 font-semibold text-white" : "text-brand-100/85 hover:bg-white/8 hover:text-white"
               }`}
             >
               <Icon name={m.icon} className="h-[18px] w-[18px] shrink-0 opacity-80" />
               <span className="flex-1">{m.label}</span>
-              {m.badge ? <span className="rounded-sm bg-sun-400 px-1.5 py-0.5 text-xs font-bold text-ink tabular-nums">{m.badge}</span> : null}
+              {m.badge ? <span className="rounded-sm bg-sun-400 px-1.5 py-0.5 text-xs font-semibold text-ink tabular-nums">{m.badge}</span> : null}
             </Link>
           </li>
         );
@@ -52,13 +52,13 @@ export function BottomNav({ items }: { items: MenuItem[] }) {
               <Link
                 href={m.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative flex flex-col items-center gap-0.5 py-2.5 text-[0.6875rem] font-bold ${active ? "text-brand-700" : "text-muted"}`}
+                className={`relative flex flex-col items-center gap-0.5 py-2.5 text-[0.6875rem] font-semibold ${active ? "text-brand-700" : "text-muted"}`}
               >
                 {active ? <span className="absolute inset-x-6 top-0 h-0.5 bg-brand-700" aria-hidden="true" /> : null}
                 <span className="relative">
                   <Icon name={m.icon} className="h-5 w-5" />
                   {m.badge ? (
-                    <span className="absolute -top-1.5 -right-2.5 min-w-4 rounded-sm bg-sun-400 px-1 text-center text-[0.625rem] leading-4 font-bold text-ink tabular-nums">{m.badge}</span>
+                    <span className="absolute -top-1.5 -right-2.5 min-w-4 rounded-sm bg-sun-400 px-1 text-center text-[0.625rem] leading-4 font-semibold text-ink tabular-nums">{m.badge}</span>
                   ) : null}
                 </span>
                 {m.short ?? m.label}
