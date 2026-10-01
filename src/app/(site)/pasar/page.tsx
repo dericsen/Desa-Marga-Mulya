@@ -75,21 +75,21 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
       <div className="container-desa pt-8">
         {/* Pencarian + urutan */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <form action="/pasar" method="get" role="search" className="flex w-full max-w-md gap-2">
+          <form action="/pasar" method="get" role="search" className="flex w-full gap-2 lg:max-w-md">
             {kategori ? <input type="hidden" name="kategori" value={kategori} /> : null}
             {sp.penjual ? <input type="hidden" name="penjual" value={sp.penjual} /> : null}
             <label htmlFor="cari-produk" className="sr-only">Cari produk</label>
             <input id="cari-produk" name="q" defaultValue={q} placeholder="Cari produk atau penjual" className="input" />
             <button type="submit" className="btn-light">Cari</button>
           </form>
-          <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-            <span className="text-muted">Urutkan:</span>
+          <p className="scroll-chips -mx-5 items-center px-5 text-sm sm:-mx-8 sm:px-8 lg:mx-0 lg:px-0">
+            <span className="shrink-0 pr-1 text-muted">Urutkan:</span>
             {URUT.map((u) => (
               <Link
                 key={u.key}
                 href={href(base, { urut: u.key === "populer" ? undefined : u.key })}
                 aria-current={urut === u.key ? "true" : undefined}
-                className={`rounded-full px-3 py-1 ${urut === u.key ? "bg-white font-medium text-ink shadow-[0_0_0_1px_rgb(11_19_16/0.08)]" : "text-muted hover:text-ink"}`}
+                className={`shrink-0 rounded-full px-3.5 py-1.5 whitespace-nowrap ${urut === u.key ? "bg-white font-medium text-ink shadow-[0_0_0_1px_rgb(11_19_16/0.08)]" : "text-muted hover:text-ink"}`}
               >
                 {u.label}
               </Link>
@@ -108,10 +108,10 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
         </div>
 
         {penjualAktif ? (
-          <section className="mt-8 grid gap-5 rounded-[1.75rem] bg-white p-6 sm:grid-cols-[6rem_1fr]" aria-label={`Tentang ${penjualAktif.nama}`}>
-            <Img src={penjualAktif.foto} alt="" className="aspect-square w-24 rounded-2xl" />
+          <section className="mt-8 grid grid-cols-[4.5rem_1fr] gap-4 rounded-[1.75rem] bg-white p-5 sm:grid-cols-[6rem_1fr] sm:gap-5 sm:p-6" aria-label={`Tentang ${penjualAktif.nama}`}>
+            <Img src={penjualAktif.foto} alt="" className="aspect-square w-full rounded-2xl" />
             <div>
-              <h2 className="font-display text-2xl font-semibold text-ink">{penjualAktif.nama}</h2>
+              <h2 className="font-display text-xl font-semibold text-ink sm:text-2xl">{penjualAktif.nama}</h2>
               <p className="meta mt-1">{[penjualAktif.pemilik, penjualAktif.alamat].filter(Boolean).join(" · ")}</p>
               {penjualAktif.deskripsi ? <p className="mt-2 max-w-[60ch] leading-relaxed text-muted">{penjualAktif.deskripsi}</p> : null}
               <Link href={href(base, { penjual: undefined })} className="link mt-3 inline-block text-sm">Lihat semua penjual</Link>
@@ -131,7 +131,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
         </p>
 
         {produk.length ? (
-          <ul className="mt-6 grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-3 lg:grid-cols-4">
+          <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-5 md:grid-cols-3 lg:grid-cols-4">
             {produk.map((p) => (
               <li key={p.id}>
                 <ProductCard p={p} detailHref={href(base, { produk: p.slug })} />
@@ -150,7 +150,7 @@ export default async function PasarPage({ searchParams }: { searchParams: Promis
 
         {/* Direktori pelaku usaha */}
         {penjual.length && !penjualAktif ? (
-          <section className="mt-20" aria-labelledby="judul-penjual">
+          <section className="mt-14 sm:mt-20" aria-labelledby="judul-penjual">
             <div className="mb-4 flex items-end justify-between gap-4">
               <h2 id="judul-penjual" className="section-title">Pelaku usaha</h2>
               <p className="text-sm text-muted tabular-nums">{penjual.length} usaha warga</p>

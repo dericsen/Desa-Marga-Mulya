@@ -7,7 +7,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 
 const BASE = process.env.BASE_URL || "http://localhost:3000";
 const OUT = "screenshots/audit";
-mkdirSync(OUT, { recursive: true });
+mkdirSync(`${OUT}/seg`, { recursive: true });
 
 const VIEWPORTS = [
   ["hp", 360, 780],
@@ -118,6 +118,16 @@ async function run(group, pages, login) {
         const bad = res.pageOverflow > 0 || res.overflow.length || res.clipped.length;
         console.log(`${bad ? "!" : "·"} ${vname.padEnd(6)} ${slug.padEnd(18)} overflow=${res.pageOverflow} el=${res.overflow.length} clip=${res.clipped.length} tiny=${res.tiny.length}`);
         await page.screenshot({ path: `${OUT}/${vname}-${slug}.png`, fullPage: true });
+        // Potongan seukuran layar agar mudah ditinjau (HP & tablet, halaman publik)
+        if (group === "publik" && (vname === "hp390" || vname === "tab")) {
+          const total = await page.evaluate(() => document.documentElement.scrollHeight);
+          for (let k = 0, y = 0; y < total && k < 8; k++, y += h - 80) {
+            await page.evaluate((y) => window.scrollTo(0, y), y);
+            await page.waitForTimeout(150);
+            await page.screenshot({ path: `${OUT}/seg/${vname}-${slug}-${k}.png` });
+          }
+          await page.evaluate(() => window.scrollTo(0, 0));
+        }
       } catch (e) {
         console.log(`x ${vname} ${slug}: ${e.message}`);
       }

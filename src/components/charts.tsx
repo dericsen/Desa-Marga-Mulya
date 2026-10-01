@@ -15,7 +15,7 @@ export function BarChart({ stat }: { stat: Statistik }) {
         return (
           <li key={`${item.label}-${i}`}>
             <div className="mb-1.5 flex items-baseline justify-between gap-4 text-[0.9375rem]">
-              <span className={isMax ? "font-semibold text-ink" : "text-ink/85"}>{item.label}</span>
+              <span className={`min-w-0 ${isMax ? "font-semibold text-ink" : "text-ink/85"}`}>{item.label}</span>
               <span className="shrink-0 tabular-nums">
                 <span className="font-semibold text-ink">{formatNumber(item.nilai)}</span>
                 {total > 0 && stat.items.length > 2 ? (
@@ -41,8 +41,10 @@ export function DonutChart({ stat }: { stat: Statistik }) {
   const r = 15.9155;
   let offset = 0;
   return (
-    <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-      <div className="relative mx-auto h-36 w-36 shrink-0 sm:mx-0">
+    // Donut di atas daftar bila kartunya sempit; berdampingan bila kartunya lebar (container query).
+    <div className="@container">
+    <div className="flex flex-col gap-5 @md:flex-row @md:items-center @md:gap-8">
+      <div className="relative mx-auto h-32 w-32 shrink-0 @md:mx-0 @md:h-36 @md:w-36">
         <svg viewBox="0 0 42 42" className="h-full w-full -rotate-90" aria-hidden="true">
           <circle cx="21" cy="21" r={r} fill="none" stroke="#e4e6de" strokeWidth="4" />
           {total > 0 &&
@@ -62,16 +64,17 @@ export function DonutChart({ stat }: { stat: Statistik }) {
           </div>
         </div>
       </div>
-      <ul className="w-full divide-y divide-line text-[0.9375rem]">
+      <ul className="w-full min-w-0 divide-y divide-line text-[0.9375rem]">
         {stat.items.map((item, i) => (
           <li key={`${item.label}-${i}`} className="flex items-center gap-3 py-1.5">
             <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} aria-hidden="true" />
-            <span className="flex-1 text-ink/85">{item.label}</span>
-            <span className="font-semibold text-ink tabular-nums">{formatNumber(item.nilai)}</span>
-            <span className="w-12 text-right text-xs text-muted tabular-nums">{total ? `${formatNumber(Math.round((item.nilai / total) * 1000) / 10)}%` : "–"}</span>
+            <span className="min-w-0 flex-1 text-ink/85">{item.label}</span>
+            <span className="shrink-0 font-semibold text-ink tabular-nums">{formatNumber(item.nilai)}</span>
+            <span className="w-12 shrink-0 text-right text-xs text-muted tabular-nums">{total ? `${formatNumber(Math.round((item.nilai / total) * 1000) / 10)}%` : "–"}</span>
           </li>
         ))}
       </ul>
+    </div>
     </div>
   );
 }

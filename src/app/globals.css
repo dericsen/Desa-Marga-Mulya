@@ -53,6 +53,18 @@ body {
   font-feature-settings: "kern", "liga", "ss01";
 }
 
+/* Isi grid & fieldset tidak boleh melebarkan halaman (mis. daftar chip yang digulir
+   horizontal atau teks "truncate"). Tanpa ini, satu kolom bisa melebar melewati layar HP. */
+.grid > *,
+fieldset {
+  min-width: 0;
+}
+
+/* Baris chip yang digulir horizontal: tanpa scrollbar yang mengganggu. */
+@utility scroll-chips {
+  @apply flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+}
+
 ::selection {
   background: var(--color-sun-400);
   color: var(--color-ink);
@@ -138,7 +150,7 @@ body {
   @apply py-12 sm:py-16;
 }
 @utility section-lg {
-  @apply py-16 sm:py-20;
+  @apply py-12 sm:py-16 lg:py-20;
 }
 
 /* ---------- Konten Markdown ---------- */

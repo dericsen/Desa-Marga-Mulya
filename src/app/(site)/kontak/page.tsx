@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/site/ContactForm";
+import { JamLayanan } from "@/components/site/JamLayanan";
 import { PageHeader } from "@/components/site/ui";
 import { VillageMap } from "@/components/site/VillageMap";
 import { getLokasi, getSite } from "@/lib/data";
@@ -15,7 +16,7 @@ export default async function KontakPage() {
 
   const baris: { label: string; isi: React.ReactNode }[] = [];
   if (site.alamat) baris.push({ label: "Alamat", isi: site.alamat });
-  if (site.jamLayanan) baris.push({ label: "Jam layanan", isi: <span className="whitespace-pre-line">{site.jamLayanan}</span> });
+  if (site.jamLayanan) baris.push({ label: "Jam layanan", isi: <JamLayanan teks={site.jamLayanan} /> });
   if (site.telepon) baris.push({ label: "Telepon", isi: <a className="tabular-nums hover:underline" href={`tel:${site.telepon.replace(/[^\d+]/g, "")}`}>{site.telepon}</a> });
   if (site.email) baris.push({ label: "Email", isi: <a className="break-all hover:underline" href={`mailto:${site.email}`}>{site.email}</a> });
   if (wa) baris.push({ label: "WhatsApp", isi: <a className="link" href={wa} target="_blank" rel="noopener noreferrer">Kirim pesan WhatsApp</a> });
@@ -31,8 +32,8 @@ export default async function KontakPage() {
           <h2 className="text-sm font-medium text-muted">Kantor Desa {site.namaDesa}</h2>
           <dl className="mt-3 divide-y divide-line rounded-3xl bg-white px-5 text-[0.9375rem]">
             {baris.map((b) => (
-              <div key={b.label} className="grid grid-cols-[7rem_1fr] gap-3 py-3">
-                <dt className="text-muted">{b.label}</dt>
+              <div key={b.label} className="grid gap-1 py-3 sm:grid-cols-[7rem_1fr] sm:gap-3">
+                <dt className="text-sm text-muted sm:text-[0.9375rem]">{b.label}</dt>
                 <dd className="text-ink">{b.isi}</dd>
               </div>
             ))}

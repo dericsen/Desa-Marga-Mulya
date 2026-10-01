@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/pasar/ProductCard";
 import { Img, kategoriBerita, SectionHeading } from "@/components/site/ui";
 import { Icon } from "@/components/Icon";
 import { Contours } from "@/components/site/Contours";
+import { JamLayanan } from "@/components/site/JamLayanan";
 import { OfficeStatus } from "@/components/site/OfficeStatus";
 import { VillageMap } from "@/components/site/VillageMap";
 import { STAT_CATEGORIES } from "@/lib/categories";
@@ -83,7 +84,7 @@ export default async function BerandaPage() {
                 {site.jamLayanan ? (
                   <div>
                     <dt className="text-xs text-white/50">Jam layanan</dt>
-                    <dd className="mt-1 whitespace-pre-line text-white/90">{site.jamLayanan}</dd>
+                    <dd className="mt-2"><JamLayanan teks={site.jamLayanan} tone="dark" /></dd>
                   </div>
                 ) : null}
                 <div className="grid grid-cols-2 gap-4">

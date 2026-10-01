@@ -82,14 +82,22 @@ export function VillageMap({ center, lokasi, zoom = 15, height = "420px", showFi
       {showFilter && tersedia.length > 0 ? (
         <fieldset className="mb-3">
           <legend className="sr-only">Tampilkan kategori lokasi</legend>
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
-            {tersedia.map((t) => (
-              <label key={t.key} className="inline-flex cursor-pointer items-center gap-2 text-sm text-ink select-none">
-                <input type="checkbox" checked={aktif.includes(t.key)} onChange={() => toggle(t.key)} className="h-4 w-4 accent-brand-700" />
-                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: t.color }} aria-hidden="true" />
-                {t.label}
-              </label>
-            ))}
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+            {tersedia.map((t) => {
+              const on = aktif.includes(t.key);
+              return (
+                <label
+                  key={t.key}
+                  className={`flex cursor-pointer items-center gap-2 rounded-full px-3.5 py-2 text-sm transition-colors select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-brand-500 ${
+                    on ? "bg-white text-ink shadow-[0_0_0_1px_rgb(11_19_16/0.12)]" : "bg-transparent text-muted shadow-[0_0_0_1px_rgb(11_19_16/0.08)] line-through decoration-muted/50"
+                  }`}
+                >
+                  <input type="checkbox" checked={on} onChange={() => toggle(t.key)} className="sr-only" />
+                  <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${on ? "" : "opacity-35"}`} style={{ backgroundColor: t.color }} aria-hidden="true" />
+                  <span className="truncate">{t.label}</span>
+                </label>
+              );
+            })}
           </div>
         </fieldset>
       ) : null}

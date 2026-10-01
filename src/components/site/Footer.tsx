@@ -15,10 +15,10 @@ export function Footer({ site }: { site: SiteSettings }) {
   ].filter((s) => s.href);
 
   return (
-    <footer className="mt-24 px-3 pb-3 sm:px-4 sm:pb-4">
+    <footer className="mt-16 px-3 pb-3 sm:mt-24 sm:px-4 sm:pb-4">
       <div className="panel-dark text-white/75">
       <Contours className="right-[-5%] top-[-30%] h-[120%] w-[60%] text-sun-400/25" />
-      <div className="container-desa grid gap-10 py-14 md:grid-cols-12">
+      <div className="container-desa grid gap-8 py-10 sm:py-14 md:grid-cols-12 md:gap-10">
         <div className="md:col-span-5">
           <p className="font-display text-2xl font-semibold text-white">Pemerintah Desa {site.namaDesa}</p>
           <p className="mt-1 text-sm text-white/55">
@@ -30,7 +30,7 @@ export function Footer({ site }: { site: SiteSettings }) {
 
         <nav aria-label="Tautan halaman" className="md:col-span-3">
           <h2 className="text-sm font-medium text-white/50">Halaman</h2>
-          <ul className="mt-4 space-y-2 text-sm">
+          <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm md:grid-cols-1">
             {NAV.map((n) => (
               <li key={n.href}>
                 <Link href={n.href} className="hover:text-white hover:underline">{FULL[n.href] ?? n.label}</Link>

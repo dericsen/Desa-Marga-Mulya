@@ -9,7 +9,7 @@ import type { Berita, Potensi } from "@/lib/types";
 export function PageHeader({ title, description, crumb }: { title: string; description?: string; crumb?: string; index?: string }) {
   return (
     <header className="container-desa pt-2">
-      <div className="panel-dark px-6 pt-7 pb-12 sm:px-12 sm:pt-9 sm:pb-16">
+      <div className="panel-dark px-6 pt-6 pb-10 sm:px-12 sm:pt-9 sm:pb-16">
         <Contours className="right-[-6%] bottom-[-35%] h-[130%] w-[60%] text-sun-400/35 [mask-image:linear-gradient(to_right,transparent,black_55%)]" />
         <nav aria-label="Remah roti" className="text-sm text-white/55">
           <ol className="flex flex-wrap items-center gap-2">
@@ -20,8 +20,8 @@ export function PageHeader({ title, description, crumb }: { title: string; descr
             <li aria-current="page" className="text-white">{crumb ?? title}</li>
           </ol>
         </nav>
-        <h1 className="font-display mt-10 max-w-[18ch] text-[2.5rem] leading-[1.02] font-semibold sm:text-[3.5rem]">{title}</h1>
-        {description ? <p className="mt-5 max-w-[58ch] text-[1.0625rem] leading-relaxed text-white/70">{description}</p> : null}
+        <h1 className="font-display mt-7 max-w-[18ch] text-[2.375rem] leading-[1.02] font-semibold sm:mt-10 sm:text-[3.5rem]">{title}</h1>
+        {description ? <p className="mt-4 max-w-[58ch] leading-relaxed text-white/70 sm:mt-5 sm:text-[1.0625rem]">{description}</p> : null}
       </div>
     </header>
   );
@@ -43,14 +43,14 @@ export function SectionHeading({
   index?: string;
 }) {
   return (
-    <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mb-7 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between sm:gap-5">
       <div className="max-w-[60ch]">
         {eyebrow ? <p className="eyebrow mb-3">{eyebrow}</p> : null}
         <h2 id={id} className="section-title">{title}</h2>
         {description ? <p className="mt-3 text-[1.0625rem] leading-relaxed text-muted">{description}</p> : null}
       </div>
       {action ? (
-        <Link href={action.href} className="btn-light group shrink-0">
+        <Link href={action.href} className="btn-light group shrink-0 self-start sm:self-auto">
           {action.label}
           <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
@@ -77,20 +77,20 @@ export function kategoriBerita(key: string) {
 /** Baris berita untuk daftar: gambar kecil di kiri, teks di kanan. */
 export function BeritaRow({ item }: { item: Berita }) {
   return (
-    <article className="group relative grid gap-4 rounded-3xl p-3 transition-colors hover:bg-white sm:grid-cols-[14rem_1fr] sm:gap-6">
-      <Img src={item.gambar} alt="" className="aspect-[3/2] w-full rounded-2xl" />
+    <article className="group relative grid grid-cols-[6.5rem_1fr] items-start gap-4 rounded-3xl p-2 transition-colors hover:bg-white sm:grid-cols-[14rem_1fr] sm:gap-6 sm:p-3">
+      <Img src={item.gambar} alt="" className="aspect-square w-full rounded-2xl sm:aspect-[3/2]" />
       <div className="sm:py-2">
-        <p className="meta">
+        <p className="meta text-xs sm:text-sm">
           <span className="font-medium text-brand-600">{kategoriBerita(item.kategori)}</span>
           <span aria-hidden="true"> · </span>
           <time dateTime={toDateInput(item.tanggal)}>{formatDate(item.tanggal)}</time>
         </p>
-        <h3 className="font-display mt-1.5 text-[1.3125rem] leading-snug font-semibold text-ink">
+        <h3 className="font-display mt-1 text-[1.0625rem] leading-snug font-semibold text-ink sm:mt-1.5 sm:text-[1.3125rem]">
           <Link href={`/berita/${item.slug}`} className="after:absolute after:inset-0 group-hover:underline group-hover:decoration-line-strong group-hover:underline-offset-4">
             {item.judul}
           </Link>
         </h3>
-        <p className="mt-2 max-w-[65ch] leading-relaxed text-muted">{item.ringkasan || excerpt(item.konten)}</p>
+        <p className="mt-1.5 line-clamp-2 max-w-[65ch] text-sm leading-relaxed text-muted sm:mt-2 sm:line-clamp-3 sm:text-base">{item.ringkasan || excerpt(item.konten)}</p>
       </div>
     </article>
   );
@@ -151,14 +151,14 @@ export function EmptyState({ title, text, action }: { title: string; text?: stri
 /** Filter kategori berbentuk kapsul yang dapat digulir di HP. */
 export function FilterTabs({ items, label }: { items: { href: string; label: string; active: boolean }[]; label: string }) {
   return (
-    <nav aria-label={label} className="-mx-5 overflow-x-auto px-5 pb-1 sm:mx-0 sm:px-0">
-      <ul className="flex min-w-max gap-2">
+    <nav aria-label={label} className="-mx-5 px-5 sm:mx-0 sm:px-0">
+      <ul className="scroll-chips">
         {items.map((it) => (
-          <li key={it.href}>
+          <li key={it.href} className="shrink-0">
             <Link
               href={it.href}
               aria-current={it.active ? "page" : undefined}
-              className={`inline-block rounded-full px-4 py-2 text-sm transition-colors ${
+              className={`inline-block rounded-full px-4 py-2 text-sm whitespace-nowrap transition-colors ${
                 it.active ? "bg-ink font-medium text-white" : "bg-white text-muted shadow-[0_0_0_1px_rgb(11_19_16/0.06)] hover:text-ink"
               }`}
             >
