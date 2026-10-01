@@ -191,7 +191,7 @@ function build(key, t) {
 
     rrect(s, { x: 0.55, y: 4.1, w: 8.9, h: 1.08, fill: { color: t.dark }, line: { color: t.dark }, rectRadius: 0.14, shadow: shadow() });
     text(s, "The problem is fragmentation, not absence.", { x: 0.85, y: 4.24, w: 5.1, h: 0.42, fontSize: 16, bold: true, color: WHITE });
-    text(s, "It lives in offices, chat groups, social media, and word of mouth — never in one place.", { x: 0.85, y: 4.66, w: 5.0, h: 0.42, fontSize: 9.5, color: ON_DARK });
+    text(s, "It lives in offices, chat groups, social media, and word of mouth — not in one place.", { x: 0.85, y: 4.66, w: 5.0, h: 0.42, fontSize: 9.5, color: ON_DARK });
     s.addShape(pres.shapes.LINE, { x: 6.05, y: 4.3, w: 0, h: 0.7, line: { color: t.primaryDark, width: 1 } });
     [["74%", "rural residents online"], ["6 / 10", "MSMEs still offline"], ["None", "official village website found*"]].forEach(([v, l], i) => {
       const x = 6.15 + i * 1.1;
@@ -235,7 +235,7 @@ function build(key, t) {
     text(s, "FOUR PILLARS", { x: 0.55, y: 3.95, w: 3, h: 0.2, fontSize: 8, bold: true, color: t.primary });
     const pillars = [
       { icon: "services", name: "SERVE", st: "Live" },
-      { icon: "search", name: "DISCOVER", st: "Partly live — map live, categories next" },
+      { icon: "search", name: "DISCOVER", st: "Partly live" },
       { icon: "market", name: "BUY", st: "Live" },
       { icon: "data", name: "UNDERSTAND", st: "Live" },
     ];
@@ -246,8 +246,12 @@ function build(key, t) {
       rrect(s, { x, y, w: pw, h, fill: { color: WHITE }, line: { color: t.primary, width: 1 } });
       iconDisc(s, p.icon, x + 0.14, y + 0.17, 0.44);
       text(s, p.name, { x: x + 0.68, y: y + 0.12, w: pw - 0.75, h: 0.28, fontSize: 12, bold: true, fit: "shrink" });
-      dot(s, x + 0.68, y + 0.5, full, false);
-      text(s, p.st, { x: x + 0.84, y: y + 0.4, w: pw - 0.92, h: 0.32, fontSize: full ? 8.5 : 6.5, bold: true, color: t.muted, valign: "middle" });
+      const lines = full ? [["Live", true]] : [["Map live", true], ["Categories next", false]];
+      lines.forEach(([l, on], k) => {
+        const ly = full ? y + 0.44 : y + 0.38 + k * 0.18;
+        dot(s, x + 0.68, ly + 0.04, on, false);
+        text(s, l, { x: x + 0.84, y: ly, w: pw - 0.92, h: 0.18, fontSize: 8, bold: true, color: t.muted, valign: "middle" });
+      });
     });
     dot(s, 6.55, 5.3, true, false);
     text(s, "Live now", { x: 6.72, y: 5.25, w: 0.9, h: 0.2, fontSize: 7.5, bold: true, color: t.muted, valign: "middle" });
@@ -323,7 +327,7 @@ function build(key, t) {
     const cols = [
       { icon: "home", who: "RESIDENTS", big: "24/7", cap: "information access", pts: ["Easier access to services", "Fewer unnecessary trips", "24/7 information access"] },
       { icon: "market", who: "BUSINESSES", big: "0%", cap: "platform commission", pts: ["0% platform commission", "Digital visibility", "Simple WhatsApp ordering"], dark: true },
-      { icon: "users", who: "VILLAGE", big: "1", cap: "place for all village info", pts: ["Centralized information", "CMS-managed content", "Open village data"] },
+      { icon: "users", who: "VILLAGE", big: "1", cap: "hub for village information", pts: ["Centralized information", "CMS-managed content", "Open village data"] },
     ];
     cols.forEach((c, i) => {
       const x = 0.55 + i * 3.02, y = 1.5, w = 2.84, h = 2.42;
@@ -331,8 +335,9 @@ function build(key, t) {
       rrect(s, { x, y, w, h, fill: { color: dk ? t.dark : WHITE }, line: { color: dk ? t.dark : t.primary, width: dk ? 0 : 1 }, shadow: shadow() });
       iconDisc(s, c.icon, x + 0.2, y + 0.18, 0.42, dk);
       text(s, c.who, { x: x + 0.72, y: y + 0.18, w: w - 0.85, h: 0.42, fontSize: 11, bold: true, color: dk ? WHITE : t.primary, valign: "middle" });
-      text(s, c.big, { x: x + 0.2, y: y + 0.68, w: 1.15, h: 0.55, fontSize: 28, bold: true, color: dk ? t.highlight : t.primary, valign: "middle" });
-      text(s, c.cap, { x: x + 1.35, y: y + 0.68, w: w - 1.5, h: 0.55, fontSize: 9, bold: true, color: dk ? ON_DARK : t.muted, valign: "middle" });
+      const bw = { "24/7": 1.15, "0%": 0.72, "1": 0.32 }[c.big] || 1.15;
+      text(s, c.big, { x: x + 0.2, y: y + 0.68, w: bw, h: 0.55, fontSize: 28, bold: true, color: dk ? t.highlight : t.primary, valign: "middle" });
+      text(s, c.cap, { x: x + 0.35 + bw, y: y + 0.68, w: w - 0.5 - bw, h: 0.55, fontSize: 9, bold: true, color: dk ? ON_DARK : t.muted, valign: "middle" });
       c.pts.forEach((p, j) => {
         const py = y + 1.42 + j * 0.3;
         s.addImage({ path: A(`icon-check-${dk ? "h" : "p"}.png`), x: x + 0.22, y: py + 0.04, w: 0.16, h: 0.16 });
@@ -347,7 +352,7 @@ function build(key, t) {
       ["server", "Rp 0", "monthly hosting on the current free-tier setup"],
       ["db", "PostgreSQL", "reliable, managed database"],
       ["cms", "CMS", "11 content collections, no coding needed"],
-      ["shield", "109", "automated checks passing in CI"],
+      ["shield", "109", "automated checks, all passing"],
     ];
     feas.forEach(([ic, v, l], i) => {
       const x = 1.95 + i * 1.88;
